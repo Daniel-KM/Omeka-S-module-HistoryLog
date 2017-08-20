@@ -423,7 +423,7 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
 
         $sql = "
             INSERT INTO `{$db->HistoryLogEntry}` (`record_type`, `record_id`, `part_of`, `user_id`, `operation`, `added`)
-            SELECT 'Item', `record_id`, `collection_id`, $user->id, '" . HistoryLogEntry::OPERATION_UPDATE . "', $added
+            SELECT 'Item', `record_id`, IFNULL(`collection_id`, 0), $user->id, '" . HistoryLogEntry::OPERATION_UPDATE . "', $added
             FROM `{$db->ElementText}` AS `element_texts`
                 JOIN `{$db->Item}` AS `items`
                     ON `element_texts`.`record_type` = 'Item'

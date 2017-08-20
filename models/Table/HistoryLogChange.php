@@ -576,7 +576,7 @@ class Table_HistoryLogChange extends Omeka_Db_Table
      */
     protected function _normalizeDate($date = null, $hms = 'first')
     {
-        if (is_null($date)) {
+        if (empty($date)) {
             $date = date('Y-m-d');
         }
         // Accept an ISO 8601 date, set the timezone to the server's default

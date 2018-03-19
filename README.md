@@ -71,8 +71,8 @@ Warning
 
 Use it at your own risk.
 
-It's always recommended to backup your files and database regularly so you can
-roll back if needed.
+It’s always recommended to backup your files and your databases and to check
+your archives regularly so you can roll back if needed.
 
 
 Troubleshooting
@@ -110,7 +110,7 @@ Copyright
 
 [History Log]: https://github.com/UCSCLibrary/HistoryLog
 [Omeka]: https://omeka.org
-[Curator Monitor]: https://github.com/Daniel-KM/CuratorMonitor
+[Curator Monitor]: https://github.com/Daniel-KM/Omeka-plugin-CuratorMonitor
 [OpenDocument Spreadsheet]: http://opendocumentformat.org/
 [User Survey]: https://docs.google.com/forms/d/1LrQ-E0gQ9Qh0CSSMa8MMfK6WxHCUoT6vqiv42QG72qo/viewform?usp=send_form
 [LibreOffice]: https://www.libreoffice.org/

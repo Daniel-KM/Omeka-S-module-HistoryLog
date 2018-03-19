@@ -53,8 +53,8 @@ class Table_HistoryLogChange extends Omeka_Db_Table
     /**
      * Get all changes for elements of a record.
      *
-     * @param Object|array $record
-     * @param array|Object|integer $elements All altered elements if empty.
+     * @param Omeka_Record_AbstractRecord|array $record
+     * @param array|Element[]|integer $elements All altered elements if empty.
      * @param boolean $onlyElements If true, return only true elements, not the
      * special changes with an element id of "0".
      * @return array|null Associative array of the last change of each element.
@@ -80,7 +80,7 @@ class Table_HistoryLogChange extends Omeka_Db_Table
     /**
      * Get the first change of each element of a record.
      *
-     * @param Object|array $record
+     * @param Omeka_Record_AbstractRecord|array $record
      * @param array|Object|integer $elements All altered elements if empty.
      * @param boolean $onlyElements If true, return only true elements, not the
      * special changes with an element id of "0".
@@ -94,7 +94,7 @@ class Table_HistoryLogChange extends Omeka_Db_Table
     /**
      * Get the last change of each element of a record.
      *
-     * @param Object|array $record
+     * @param Omeka_Record_AbstractRecord|array $record
      * @param array|Object|integer $elements All altered elements if empty.
      * @param boolean $onlyElements If true, return only true elements, not the
      * special changes with an element id of "0".
@@ -108,7 +108,7 @@ class Table_HistoryLogChange extends Omeka_Db_Table
     /**
      * Get the first or last change of each element of a record.
      *
-     * @param Object|array $record
+     * @param Omeka_Record_AbstractRecord|array $record
      * @param array|Object|integer $elements All altered elements if empty.
      * @param boolean $onlyElements If true, return only true elements, not the
      * special changes with an element id of "0".
@@ -154,7 +154,7 @@ class Table_HistoryLogChange extends Omeka_Db_Table
     /**
      * Returns the list of changed element ids related to an entry.
      *
-     * @param Entry|integer $entry
+     * @param HistoryLogEntry|integer $entry
      * @return array List of element ids. 0 is not returned, because it's not an
      * element id.
      */

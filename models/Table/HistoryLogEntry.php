@@ -36,7 +36,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
     /**
      * Return the list of all element ids that have been altered for a record.
      *
-     * @param Object|array $record
+     * @param Omeka_Record_AbstractRecord|array $record
      * @return array|null The list of element ids that have been altered for a
      * record.
      */
@@ -66,7 +66,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
     /**
      * Return first entry for a record.
      *
-     * @param Object|array $record
+     * @param Omeka_Record_AbstractRecord|array $record
      * @param string $operation
      * @return HistoryLogEntry|null The first entry if any.
      */
@@ -89,7 +89,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
     /**
      * Return last entry for a record.
      *
-     * @param Object|array $record
+     * @param Omeka_Record_AbstractRecord|array $record
      * @param string $operation
      * @return HistoryLogEntry|null The last entry if any.
      */
@@ -112,7 +112,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
     /**
      * Return the last entry for elements of a record.
      *
-     * @param Object|array $record
+     * @param Omeka_Record_AbstractRecord|array $record
      * @param array|Object|integer $elements All altered elements if empty.
      * @return array|null The last entry if any for each element of the record.
      * Null if empty record.
@@ -143,7 +143,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
     /**
      * Wrapper to get changes for elements of a record.
      *
-     * @param Object|array $record
+     * @param Omeka_Record_AbstractRecord|array $record
      * @param array|Object|integer $elements All altered elements if empty.
      * @param boolean $onlyElements If true, return only true elements, not the
      * special changes with an element id of "0".
@@ -173,7 +173,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
     /**
      * Wrapper to get the last change of each element of a record.
      *
-     * @param Object|array $record
+     * @param Omeka_Record_AbstractRecord|array $record
      * @param array|Object|integer $elements All altered elements if empty.
      * @param boolean $onlyElements If true, return only true elements, not the
      * special changes with an element id of "0".
@@ -281,7 +281,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      *
      * @see self::applySearchFilters()
      * @param Omeka_Db_Select $select
-     * @param Record|array $record
+     * @param Omeka_Record_AbstractRecord|array $record
      */
     public function filterByRecord($select, $record)
     {

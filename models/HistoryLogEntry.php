@@ -146,7 +146,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
     /**
      * Prepare a new event.
      *
-     * @param Object|array $record The Omeka record to log. It should exist at
+     * @param Omeka_Record_AbstractRecord|array $record The Omeka record to log. It should exist at
      * the time of logging.
      * @param string Set what is the first hook (BuilderItem save element texts
      * first). Can be "record" (default") or "element_text".
@@ -167,7 +167,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      * This is the recommended method to log an update.
      * The entry should be prepared via prepareNewEvent().
      *
-     * @param Object $record
+     * @param Omeka_Record_AbstractRecord $record
      * @return boolean.
       */
     protected function _cacheOldRecord()
@@ -239,8 +239,8 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      *
      * @internal Checks are done here and during validation.
      *
-     * @param Object|array $record The Omeka record to log. It should exist at
-     * the time of logging.
+     * @param Omeka_Record_AbstractRecord|array $record The Omeka record to log.
+     * It should exist at the time of logging.
      * @param string $operation The type of event to log (e.g. "create"...).
      * @param User|integer $user
      * @param string|array $change An extra piece of type specific data for the
@@ -304,7 +304,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
     /**
      * Prepare the log an operation on a record and set associated values.
      *
-     * @param Object|array $record The Omeka record to log. It should exist at
+     * @param Omeka_Record_AbstractRecord|array $record The Omeka record to log. It should exist at
      * the time of logging. If the operation is "update", it must be an object.
      * @return boolean False if an error occur, else true.
       */

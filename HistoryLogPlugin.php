@@ -687,8 +687,8 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
      *
      * @uses HistoryLogEntry::logEvent()
      *
-     * @param Object|array $record The Omeka record to log. It should be an
-     * object for a "create" or an "update".
+     * @param Omeka_Record_AbstractRecord|array $record The Omeka record to log.
+     * It should be an object for a "create" or an "update".
      * @param string $operation The type of event to log (e.g. "create"...).
      * @param string|array $changes An extra piece of type specific data for the
      * log.

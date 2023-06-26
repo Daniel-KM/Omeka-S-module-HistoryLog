@@ -1,69 +1,84 @@
-History Log (plugin for Omeka)
-==============================
+History Log (module for Omeka S)
+================================
 
-[History Log] is an [Omeka] plugin that logs creation, updates, deletion, import
-and export of Omeka items, collection and files and allows administrators to
-recall this information later.
+> __New versions of this module and support for Omeka S version 3.0 and above
+> are available on [GitLab], which seems to respect users and privacy better
+> than the previous repository.__
+
+[History Log] is an [Omeka S] module that logs creation, updates, deletions,
+imports and exports of Omeka S items, item sets and medias and allows
+administrators to recall this information later.
 
 This is not a replacement for your regular backups of the database, even if each
-each change is logged and each record can potentially be partially recovered at
-any time, except  files. An undo button allows to recover the deletion of a
-record.
+change is logged and each resource can potentially be partially recovered at any
+time, ***except media files***. An undo button allows to recover the deletion of
+a resource.
 
-The logs are used by the plugin [Curator Monitor], that computes statistics and
-allows to follow selected fields with limited vocabularies, for instance a
-special element "Metadata Status" with values "Incomplete", "Complete",
-"Fact Checked", "Ready to Publish" and "Published".
+This is a full rewrite of the [Omeka Classic] [plugin History Log].
 
+***Work in progress***
 
-Notes
------
+This is a work in progress: only some features are available for now.
+Currently, only the main entries are stored.
 
-* Logging
-
-  - If the plugin has not been installed with Omeka, older records will not have
-  log entries and their stats will be partial.
-  - Logging is done via standard hooks. If a plugin bypasses the standard
-  methods, some logs may be missing.
-  - Some standard methods don't use hooks, for example `deleteElementTextsByElementId()`.
-  They should not be used internally. Omeka uses them, but fires hooks anyway.
-
-* Recovering of a deleted record
-
-  - Records are recreated with the same id.
-  - It's recommended to undelete collections before their items.
-  - Files can't be recovered, but their metadata are logged, so they can be
-  manually recreated as long as files are backuped.
-  - Non standard metadata are not saved and can't be recreated: status public or
-  featured, item type, tags, flag "html" of element texts, etc. For the owner,
-  the user who deleted the record is used.
-  - Check Omeka logs after a successful rebuild to see possible issues.
-
-* Export of logs
-
-  Logs can be filtered and exported via the main page of the plugin. Supported
-  formats are:
-
-  - CSV, with values separated by a tabulation.
-  - [OpenDocument Spreadsheet] or "ods", the normalized format for
-  spreadsheets, that  can be open by any free spreadsheets like [LibreOffice],
-  or not free ones. This format requires that Zip to be installed on the server
-  (generally by default).
-  - [Flat OpenDocument Spreadsheet] or "fods", another standard format that can
-  be opened by any free spreadsheets or by any text editor (this is a simple xml
-  file). Note: With old releases of [LibreOffice] for Windows, a little free
-  [filter] may need to be installed.
-
-If you use this plugin, please take a moment to submit feedback about your
-experience, so we can keep making Omeka better: see [User Survey].
+***This readme lists features not yet implemented in Omeka S.***
 
 
 Installation
 ------------
 
-Uncompress files and rename plugin folder "HistoryLog".
+This module uses the optional module [Generic].
 
-Then install it like any other Omeka plugin.
+* From the zip
+
+Download the last release [HistoryLog.zip] from the list of releases, and
+uncompress it in the `modules` directory.
+
+* From the source and for development
+
+If the module was installed from the source, rename the name of the folder of
+the module to `HistoryLog`.
+
+Uncompress files and rename module folder `HistoryLog`.
+
+Then install it like any other Omeka module and follow the config instructions.
+
+See general end user documentation for [installing a module].
+
+
+Usage
+-----
+
+### Logging
+
+- If the module has not been installed with Omeka S, older resources won't have
+  log entries and their stats will be partial.
+- Logging is done via standard events. If a modules bypasses the standard
+  methods, some logs may be missing.
+
+### Recovering of a deleted record
+
+- Resources are recreated with the same id.
+- It's recommended to undelete item sets before their items.
+- Media files cannot be recovered, but their metadata are logged, so they can be
+  manually recreated as long as files are backuped.
+- Non standard metadata are not saved and can't be recreated..
+- Check logs after a successful rebuild to see possible issues.
+
+### Export of logs
+
+Logs can be filtered and exported via the main page of the module. Supported
+formats are:
+
+- CSV, with values separated by a tabulation.
+- [OpenDocument Spreadsheet] or "ods", the normalized format for
+  spreadsheets, that  can be open by any free spreadsheets like [LibreOffice],
+  or not free ones. This format requires that Zip to be installed on the server
+  (generally by default).
+- [Flat OpenDocument Spreadsheet] or "fods", another standard format that can
+  be opened by any free spreadsheets or by any text editor (this is a simple xml
+  file). Note: With old releases of [LibreOffice] for Windows, a little free
+  [filter] may need to be installed.
 
 
 Warning
@@ -78,44 +93,61 @@ your archives regularly so you can roll back if needed.
 Troubleshooting
 ---------------
 
-See online issues on the [plugin issues] page on GitHub.
+See online issues on the [module issues] page on GitLab.
 
 
 License
 -------
 
-This plugin is published under [GNU/GPL v3].
+This module is published under the [CeCILL v2.1] license, compatible with
+[GNU/GPL] and approved by [FSF] and [OSI].
 
-This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free Software
-Foundation; either version 3 of the License, or (at your option) any later
-version.
+This software is governed by the CeCILL license under French law and abiding by
+the rules of distribution of free software. You can use, modify and/ or
+redistribute the software under the terms of the CeCILL license as circulated by
+CEA, CNRS and INRIA at the following URL "http://www.cecill.info".
 
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
-details.
+As a counterpart to the access to the source code and rights to copy, modify and
+redistribute granted by the license, users are provided only with a limited
+warranty and the software’s author, the holder of the economic rights, and the
+successive licensors have only limited liability.
 
-You should have received a copy of the GNU General Public License along with
-this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+In this respect, the user’s attention is drawn to the risks associated with
+loading, using, modifying and/or developing or reproducing the software by the
+user in light of its specific status of free software, that may mean that it is
+complicated to manipulate, and that also therefore means that it is reserved for
+developers and experienced professionals having in-depth computer knowledge.
+Users are therefore encouraged to load and test the software’s suitability as
+regards their requirements in conditions enabling the security of their systems
+and/or data to be ensured and, more generally, to use and operate it in the same
+conditions as regards security.
+
+The fact that you are presently reading this means that you have had knowledge
+of the CeCILL license and that you accept its terms.
 
 
 Copyright
 ---------
 
 * Copyright 2014-2015 UCSC Library Digital Initiatives
-* Copyright Daniel Berthereau, 2015 (see [Daniel-KM] on GitHub)
+* Copyright Daniel Berthereau, 2015-2023 (see [Daniel-KM] on [GitLab])
 
 
-[History Log]: https://github.com/UCSCLibrary/HistoryLog
-[Omeka]: https://omeka.org
-[Curator Monitor]: https://github.com/Daniel-KM/Omeka-plugin-CuratorMonitor
+[History Log]: https://gitlab.com/Daniel-KM/Omeka-S-module-HistoryLog
+[Omeka S]: https://omeka.org/s
+[Omeka Classic]: https://omeka.org/classic
+[plugin History Log]: https://github.com/UCSCLibrary/HistoryLog
+[Generic]: https://gitlab.com/Daniel-KM/Omeka-S-module-Generic
+[HistoryLog.zip]: https://github.com/Daniel-KM/Omeka-S-module-HistoryLog/releases
+[Installing a module]: https://omeka.org/s/docs/user-manual/modules/
 [OpenDocument Spreadsheet]: http://opendocumentformat.org/
-[User Survey]: https://docs.google.com/forms/d/1LrQ-E0gQ9Qh0CSSMa8MMfK6WxHCUoT6vqiv42QG72qo/viewform?usp=send_form
 [LibreOffice]: https://www.libreoffice.org/
 [Flat OpenDocument Spreadsheet]: https://en.wikipedia.org/wiki/OpenDocument_technical_specification
 [filter]: http://www.sylphide-consulting.com/shapekit/spreadsheet-generation/15-opendocument-flat-format
-[plugin issues]: https://github.com/UCSCLibrary/HistoryLog/issues
-[GNU/GPL v3]: https://www.gnu.org/licenses/gpl-3.0.html
-[Daniel-KM]: https://github.com/Daniel-KM
+[module issues]: https://gitlab.com/Daniel-KM/Omeka-S-module-EasyAdmin/issues
+[CeCILL v2.1]: https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
+[GNU/GPL]: https://www.gnu.org/licenses/gpl-3.0.html
+[FSF]: https://www.fsf.org
+[OSI]: http://opensource.org
+[GitLab]: https://gitlab.com/Daniel-KM
+[Daniel-KM]: https://gitlab.com/Daniel-KM "Daniel Berthereau"

@@ -24,10 +24,10 @@ class HistoryEventRepresentation extends AbstractEntityRepresentation
     {
         return [
             'o:id' => $this->id(),
-            'o:entity_id' => $this->entityId(),
-            'o:entity_name' => $this->entityName(),
-            'o-history-log:part_of' => $this->partOf(),
-            'o:user' => $this->userId(),
+            'o:entity' => $this->entityReference(),
+            // TODO Replace partOf by the real term?
+            'o-history-log:part_of' => $this->partOfReference(),
+            'o:user' => $this->userReference(),
             'o-history-log:operation' => $this->operation(),
             'o:created' => [
                 '@value' => $this->getDateTime($this->created()),
@@ -132,7 +132,7 @@ class HistoryEventRepresentation extends AbstractEntityRepresentation
         }
 
         $partOfs = [
-            'items' => 'item_sets',
+            // 'items' => 'item_sets',
             'media' => 'items',
             /*
             'value_annotations' => 'resources',
@@ -186,6 +186,90 @@ class HistoryEventRepresentation extends AbstractEntityRepresentation
         } catch (NotFoundException $e) {
             return null;
         }
+    }
+
+
+    /**
+     * Get the reference to the entity, including when entity was removed.
+     *
+     * The json-ld type is included for simplicity.
+     */
+    public function entityReference(): array
+    {
+        $entity = $this->entity();
+        if ($entity) {
+            return [
+                '@type' => $entity->getJsonLdType(),
+            ] + $entity->getReference();
+        }
+
+        $jsonTypes = [
+            'items' => 'o:Item',
+            'media' => 'o:Media',
+            'item_sets' => 'o:ItemSet',
+        ];
+        $entityName = $this->entityName();
+        return [
+            '@type' => $jsonTypes[$entityName] ?? $entityName,
+            'o:id' => $this->entityId(),
+        ];
+    }
+
+    /**
+     * Get the reference to the part of, including when entity was removed.
+     *
+     * The json-ld type is included for simplicity.
+     */
+    public function partOfReference(): ?array
+    {
+        $partOf = $this->partOf();
+        if ($partOf) {
+            return [
+                '@type' => $partOf->getJsonLdType(),
+            ] + $partOf->getReference();
+        }
+
+        $partOf = $this->resource->getPartOf();
+        if (!$partOf) {
+            return null;
+        }
+
+        $entityName = $this->entityName();
+        if ($entityName !== 'media') {
+            return [
+                'o:id' => $partOf,
+            ];
+        }
+
+        return [
+            '@type' => 'o:Item',
+            'o:id' => $partOf,
+        ];
+    }
+
+    /**
+     * Get the reference to the user, including when entity was removed.
+     *
+     * The json-ld type is included for simplicity.
+     */
+    public function userReference(): ?array
+    {
+        $user = $this->user();
+        if ($user) {
+            return [
+                '@type' => 'o:User',
+            ] + $user->getReference();
+        }
+
+        $user = $this->resource->getUser();
+        if (!$user) {
+            return null;
+        }
+
+        return [
+            '@type' => 'o:User',
+            'o:id' => $user,
+        ];
     }
 
     /**

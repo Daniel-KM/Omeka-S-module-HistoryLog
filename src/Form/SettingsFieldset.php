@@ -26,11 +26,8 @@ class SettingsFieldset extends Fieldset
                     'element_group' => 'history_log',
                     'label' => 'Pages where to display logs', // @translate
                     'value_options' => [
-                        'items/browse' => 'Items / browse', // @translate
                         'items/show' => 'Item / show', // @translate
-                        'media/browse' => 'Medias / browse', // @translate
                         'media/show' => 'Media / show', // @translate
-                        'item_sets/browse' => 'Item sets / browse', // @translate
                         'item_sets/show' => 'Item / show', // @translate
                     ],
                     'use_hidden_element' => true,

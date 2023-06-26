@@ -9,6 +9,7 @@ if (!class_exists(\Generic\AbstractModule::class)) {
 }
 
 use Generic\AbstractModule;
+use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
 
 /**
@@ -28,10 +29,53 @@ class Module extends AbstractModule
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager): void
     {
+        // Display logs in specified pages.
+        $controllers = [
+            'Omeka\Controller\Admin\Item',
+            'Omeka\Controller\Admin\Media',
+            'Omeka\Controller\Admin\ItemSet',
+        ];
+        foreach ($controllers as $controller) {
+            $sharedEventManager->attach(
+                $controller,
+                'view.show.sidebar',
+                [$this, 'handleViewShowAfter']
+            );
+            $sharedEventManager->attach(
+                $controller,
+                'view.details',
+                [$this, 'handleViewShowAfter']
+            );
+        }
+
         $sharedEventManager->attach(
             \Omeka\Form\SettingForm::class,
             'form.add_elements',
             [$this, 'handleMainSettings']
+        );
+    }
+
+    public function handleViewShowAfter(Event $event): void
+    {
+        $view = $event->getTarget();
+        $vars = $view->vars();
+        $resource = $vars->offsetGet('resource');
+        $link = $view->historyEventsLink($resource);
+        if (!$link) {
+            return;
+        }
+
+        // TODO Add last change and buttons to reset and undelete.
+        $html = <<<HTML
+<div class="meta-group">
+    <h4>%s</h4>
+    <div class="value">%s</div>
+</div>
+HTML;
+        echo sprintf(
+            $html,
+            $view->translate('History Log'), // @translate
+            $link
         );
     }
 
@@ -303,141 +347,6 @@ class Module extends AbstractModule
                 HistoryLogEntry::OPERATION_EXPORT,
                 $service
             );
-        }
-    }
-
-    /**
-     * Hook for items/show page.
-     *
-     * @param array $args An array of parameters passed by the hook.
-     */
-    public function hookAdminItemsShow($args): void
-    {
-        $args['record'] = $args['item'];
-        unset($args['item']);
-        $this->_adminRecordShow($args, 'items/show');
-    }
-
-    /**
-     * Hook for collections/show page.
-     *
-     * @param array $args An array of parameters passed by the hook.
-     */
-    public function hookAdminCollectionsShow($args): void
-    {
-        $args['record'] = $args['collection'];
-        unset($args['collection']);
-        $this->_adminRecordShow($args, 'collections/show');
-    }
-
-    /**
-     * Hook for collections/show page.
-     *
-     * @param array $args An array of parameters passed by the hook.
-     */
-    public function hookAdminFilesShow($args): void
-    {
-        $args['record'] = $args['file'];
-        unset($args['file']);
-        $this->_adminRecordShow($args, 'files/show');
-    }
-
-    /**
-     * Helper to show the 5 most recent events in the record's history on the
-     * record's admin page.
-     *
-     * @param array $args An array of parameters passed by the hook.
-     * @param string $page The current type of the page
-     */
-    protected function _adminRecordShow($args, $page): void
-    {
-        $record = $args['record'];
-        $view = $args['view'];
-
-        $currentPages = json_decode(get_option('history_log_display'), true) ?: [];
-        if (!in_array($page, $currentPages)) {
-            return;
-        }
-
-        try {
-            echo $view->showlog($record, 5);
-        } catch (Exception $e) {
-            throw $e;
-        }
-    }
-
-    /**
-     * Show details for each item.
-     *
-     * @param array $args An array of parameters passed by the hook
-     */
-    public function hookAdminItemsBrowseDetailedEach($args): void
-    {
-        $record = $args['item'];
-        $view = $args['view'];
-
-        $currentPages = json_decode(get_option('history_log_display'), true) ?: [];
-        if (!in_array('items/browse', $currentPages)) {
-            return;
-        }
-
-        $logEntry = $this->_db->getTable('HistoryLogEntry')
-            ->getLastEntryForRecord($record);
-        if ($logEntry) {
-            $html = '<div class="history-log">';
-            switch ($logEntry->operation) {
-                case HistoryLogEntry::OPERATION_CREATE:
-                    $html .= __(
-                        'Created on %s by %s.',
-                        $logEntry->displayAdded(),
-                        $logEntry->displayUser()
-                    );
-                    break;
-                case HistoryLogEntry::OPERATION_UPDATE:
-                    $html .= __(
-                        'Updated on %s by %s.',
-                        $logEntry->displayAdded(),
-                        $logEntry->displayUser()
-                    );
-                    break;
-                case HistoryLogEntry::OPERATION_DELETE:
-                    $html .= __(
-                        'Deleted on %s by %s.',
-                        $logEntry->displayAdded(),
-                        $logEntry->displayUser()
-                    );
-                    break;
-                case HistoryLogEntry::OPERATION_IMPORT:
-                    $html .= __(
-                        'Imported on %s by %s.',
-                        $logEntry->displayAdded(),
-                        $logEntry->displayUser()
-                    );
-                    break;
-                case HistoryLogEntry::OPERATION_EXPORT:
-                    $html .= __(
-                        'Exported on %s by %s.',
-                        $logEntry->displayAdded(),
-                        $logEntry->displayUser()
-                    );
-                    break;
-            }
-            $html .= '</div>';
-            echo $html;
-        }
-    }
-
-    /**
-     * Load the plugin javascript when admin section loads
-     */
-    public function hookAdminHead(): void
-    {
-        $requestParams = Zend_Controller_Front::getInstance()->getRequest()->getParams();
-        $module = $requestParams['module'] ?? 'default';
-        $controller = $requestParams['controller'] ?? 'index';
-        $action = $requestParams['action'] ?? 'index';
-        if ($module == 'history-log' && $controller == 'index' && $action == 'search') {
-            queue_js_file('history-log');
         }
     }
 

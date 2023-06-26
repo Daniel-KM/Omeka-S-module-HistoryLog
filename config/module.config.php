@@ -28,6 +28,11 @@ return [
             dirname(__DIR__) . '/view',
         ],
     ],
+    'view_helpers' => [
+        'invokables' => [
+            'historyEventsLink' => View\Helper\HistoryEventsLink::class,
+        ],
+    ],
     'form_elements' => [
         'invokables' => [
             Form\ConfigForm::class => Form\ConfigForm::class,
@@ -91,6 +96,8 @@ return [
             'history_log_entity_id' => ColumnType\EntityId::class,
             'history_log_entity_name' => ColumnType\EntityName::class,
             'history_log_event' => ColumnType\Event::class,
+            'history_log_event_last_info' => ColumnType\HistoryEventLastInfo::class,
+            'history_log_events_link' => ColumnType\HistoryEventsLink::class,
             'history_log_field' => ColumnType\Field::class,
             'history_log_id' => ColumnType\Id::class,
             'history_log_operation' => ColumnType\Operation::class,
@@ -158,11 +165,8 @@ return [
         ],
         'settings' => [
             'history_log_display' => [
-                'items/browse',
                 'items/show',
-                'media/browse',
                 'media/show',
-                'item_sets/browse',
                 'item_sets/show',
             ],
         ],

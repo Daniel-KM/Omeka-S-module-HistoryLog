@@ -327,7 +327,7 @@ class HistoryEvent extends \HistoryLog\Entity\HistoryEvent implements \Doctrine\
     /**
      * {@inheritDoc}
      */
-    public function getChanges(): \Doctrine\Common\Collections\ArrayCollection
+    public function getChanges()
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getChanges', []);

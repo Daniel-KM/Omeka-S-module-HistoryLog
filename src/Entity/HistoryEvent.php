@@ -186,6 +186,9 @@ class HistoryEvent extends AbstractEntity
         return $this->partOf ?: null;
     }
 
+    /**
+     * An anonymous user can change an element.
+     */
     public function setUserId(?int $userId): self
     {
         $this->userId = (int) $userId;
@@ -220,9 +223,9 @@ class HistoryEvent extends AbstractEntity
     }
 
     /**
-     * @return HistoryChange[]|ArrayCollection
+     * @return HistoryChange[]|\Doctrine\Common\Collections\ArrayCollection|\Doctrine\ORM\PersistentCollection
      */
-    public function getChanges(): ArrayCollection
+    public function getChanges()
     {
         return $this->changes;
     }

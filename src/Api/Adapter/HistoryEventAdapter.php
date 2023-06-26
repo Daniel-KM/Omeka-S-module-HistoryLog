@@ -1,457 +1,176 @@
 <?php declare(strict_types=1);
-/**
- * The table for History Log Entries.
- */
-class Table_HistoryLogEntry extends Omeka_Db_Table
+
+namespace HistoryLog\Api\Adapter;
+
+use DateTime;
+use Doctrine\ORM\QueryBuilder;
+use HistoryLog\Entity\HistoryChange;
+use HistoryLog\Entity\HistoryEvent;
+use Omeka\Api\Adapter\AbstractEntityAdapter;
+use Omeka\Api\Exception;
+use Omeka\Api\Request;
+use Omeka\Entity\EntityInterface;
+use Omeka\Stdlib\ErrorStore;
+use Omeka\Stdlib\Message;
+
+class HistoryEventAdapter extends AbstractEntityAdapter
 {
-    protected $_target = 'HistoryLogEntry';
+    use BuildQueryTrait;
 
-    /**
-     * Return selected entries, with start and end time limit.
-     *
-     * @param array $params A set of parameters by which to filter the objects
-     * that get returned from the database.
-     * @param string $since Set the start date.
-     * @param string $until Set the end date, included.
-     * @param User|int $user Limit to a user.
-     * @param int $limit Number of objects to return per "page".
-     * @param int $page Page to retrieve.
-     * @return array|null The set of objects that is returned.
-     */
-    public function getEntries($params, $since = null, $until = null, $user = null, $limit = null, $page = null)
+    protected $sortFields = [
+        'id' => 'id',
+        'entity_name' => 'entityName',
+        'entity_id' => 'entityId',
+        'part_of' => 'partOf',
+        'user_id' => 'userId',
+        'operation' => 'operation',
+        'created' => 'created',
+    ];
+
+    protected $scalarFields = [
+        'id' => 'id',
+        'entity_name' => 'entityName',
+        'entity_id' => 'entityId',
+        'part_of' => 'partOf',
+        'user_id' => 'userId',
+        'operation' => 'operation',
+        'created' => 'created',
+    ];
+
+    protected $queryTypeFields = [
+        'entity_name' => 'string',
+        'entity_id' => 'id',
+        'part_of' => 'id',
+        'user_id' => 'id',
+        'operation' => 'string',
+        'created' => 'datetime',
+        'created_before' => 'datetime',
+        'created_after' => 'datetime',
+        'created_before_on' => 'datetime',
+        'created_after_on' => 'datetime',
+    ];
+
+    public function getResourceName()
     {
-        if (!empty($since)) {
-            $params['since'] = $since;
-        }
-        if (!empty($until)) {
-            $params['until'] = $until;
-        }
-        // An anonymous user can change an element (#0).
-        if (!is_null($user)) {
-            $params['user'] = $user;
-        }
-        return $this->findBy($params, $limit, $page);
+        return 'history_events';
     }
 
-    /**
-     * Return the list of all element ids that have been altered for a record.
-     *
-     * @param Omeka_Record_AbstractRecord|array $record
-     * @return array|null The list of element ids that have been altered for a
-     * record.
-     */
-    public function getElementIdsForRecord($record)
+    public function getRepresentationClass()
     {
-        $alias = $this->getTableAlias();
-        $tableChange = $this->_db->getTable('HistoryLogChange');
-        $aliasChange = $tableChange->getTableAlias();
-
-        $select = $this->getSelect();
-        $select->join(
-            [$aliasChange => $this->_db->HistoryLogChange],
-            "`$aliasChange`.`entry_id` = `$alias`.`id`",
-            []
-        );
-        $select
-            ->reset(Zend_Db_Select::COLUMNS)
-            ->columns($aliasChange . '.element_id');
-
-        $this->filterByRecord($select, $record);
-        $select->where("`$aliasChange`.`.element_id` != 0");
-        $select->order("$aliasChange.element_id ASC");
-        $select->distinct();
-
-        return $this->fetchCol($select);
+        return \HistoryLog\Api\Representation\HistoryEventRepresentation::class;
     }
 
-    /**
-     * Return first entry for a record.
-     *
-     * @param Omeka_Record_AbstractRecord|array $record
-     * @param string $operation
-     * @return HistoryLogEntry|null The first entry if any.
-     */
-    public function getFirstEntryForRecord($record, $operation = null)
+    public function getEntityClass()
     {
-        $params = [];
-        $params['record'] = $record;
-        if ($operation) {
-            $params['operation'] = $operation;
-        }
-        $params['sort_field'] = 'added';
-        $params['sort_dir'] = 'a';
-
-        $entries = $this->findBy($params, 1);
-        if ($entries) {
-            return reset($entries);
-        }
+        return \HistoryLog\Entity\HistoryEvent::class;
     }
 
-    /**
-     * Return last entry for a record.
-     *
-     * @param Omeka_Record_AbstractRecord|array $record
-     * @param string $operation
-     * @return HistoryLogEntry|null The last entry if any.
-     */
-    public function getLastEntryForRecord($record, $operation = null)
+    public function getQueryTypeFields(): array
     {
-        $params = [];
-        $params['record'] = $record;
-        if ($operation) {
-            $params['operation'] = $operation;
-        }
-        $params['sort_field'] = 'added';
-        $params['sort_dir'] = 'd';
-
-        $entries = $this->findBy($params, 1);
-        if ($entries) {
-            return reset($entries);
-        }
+        return $this->queryTypeFields;
     }
 
-    /**
-     * Return the last entry for elements of a record.
-     *
-     * @param Omeka_Record_AbstractRecord|array $record
-     * @param array|Object|int $elements All altered elements if empty.
-     * @return array|null The last entry if any for each element of the record.
-     * Null if empty record.
-     */
-    public function getLastEntryForElements($record, $elements = [])
+    public function buildQuery(QueryBuilder $qb, array $query): void
     {
-        if (!is_array($elements)) {
-            $elements = [$elements];
-        }
-
-        $alias = $this->getTableAlias();
-        $tableChange = $this->_db->getTable('HistoryLogChange');
-        $aliasChange = $tableChange->getTableAlias();
-
-        $select = $this->getSelect();
-
-        $this->filterByRecord($select, $record);
-
-        // Elements can't be get from the current list of elements, because some
-        // may be deleted, so they are get from all entries of the record.
-        if (empty($elements)) {
-            $elements = $this->getElementIdsForRecord($record);
-        }
-        $this->filterByChangedElement($select, $elements);
-        return $this->fetchObjects($select);
+        $this->buildQueryFields($qb, $query);
     }
 
-    /**
-     * Wrapper to get changes for elements of a record.
-     *
-     * @param Omeka_Record_AbstractRecord|array $record
-     * @param array|Object|int $elements All altered elements if empty.
-     * @param bool $onlyElements If true, return only true elements, not the
-     * special changes with an element id of "0".
-     * @return array|null Associative array of the last change of each element.
-     */
-    public function getChanges($record, $elements = [], $onlyElements = false)
-    {
-        return $this->_db->getTable('HistoryLogChange')
-            ->getChanges($record, $elements, $onlyElements);
-    }
+    public function hydrate(
+        Request $request,
+        EntityInterface $entity,
+        ErrorStore $errorStore
+    ): void {
+        /** @var \HistoryLog\Entity\HistoryEvent $entity */
+        // History Events and Changes are not updatable.
+        if ($request->getOperation() === Request::CREATE) {
+            $data = $request->getContent();
 
-    /**
-     * Wrapper to get the first change of each element of a record.
-     *
-     * @param Object|array $record
-     * @param array|Object|int $elements All altered elements if empty.
-     * @param bool $onlyElements If true, return only true elements, not the
-     * special changes with an element id of "0".
-     * @return array|null Associative array of the first change of each element.
-     */
-    public function getFirstChanges($record, $elements = [], $onlyElements = false)
-    {
-        return $this->_db->getTable('HistoryLogChange')
-            ->getFirstChanges($record, $elements, $onlyElements);
-    }
-
-    /**
-     * Wrapper to get the last change of each element of a record.
-     *
-     * @param Omeka_Record_AbstractRecord|array $record
-     * @param array|Object|int $elements All altered elements if empty.
-     * @param bool $onlyElements If true, return only true elements, not the
-     * special changes with an element id of "0".
-     * @return array|null Associative array of the last change of each element.
-     */
-    public function getLastChanges($record, $elements = [], $onlyElements = false)
-    {
-        return $this->_db->getTable('HistoryLogChange')
-            ->getLastChanges($record, $elements, $onlyElements);
-    }
-
-    /**
-     * Wrapper to count all records with the specified text for an element
-     * during a period.
-     *
-     * This is useful for elements with a limited vocabulary and without
-     * repeatable values. For example, it allows to respond to a query such "How
-     * many records have the element "Metadata Status" set to "Published" by
-     * user "John Smith" during "September 2015"?" (example used by the plugin
-     * "Curator Monitor"). The interpretation of this count is harder when there
-     * are multiple values for the same element.
-     *
-     * @todo Manage repeatable values.
-     * @todo Manage deletion of records.
-     * @todo Import/Export are not checked (element_id = "0").
-     *
-     * @param array $params
-     * @param bool $lastChange If true, only the value at the end of the
-     * period will be compute. This allows to avoid cases where the text has
-     * been updated multiple times, for example "Complete" then "Ready to
-     * Publish" and finally "Incomplete" (from the plugin "Curator Monitor").
-     * @param bool $withAllDates If true, the dates without value will be
-     * added. For example, if there is no item added in August, the August value
-     * will be added with a count of "0".
-     * @param bool $withDeletedElements When all changes are returned,
-     * merge deletion of elements too.
-     * @return array The number of records.
-     */
-    public function countRecords($params, $lastChange = true, $withAllDates = true, $withDeletedElements = true)
-    {
-        return $this->_db->getTable('HistoryLogChange')
-            ->countRecords($params, $lastChange, $withAllDates, $withDeletedElements);
-    }
-
-    /**
-     * Retrieve an array of key=>value pairs that can be used as options in a
-     * <select> form input.
-     *
-     * @param Omeka_Db_Select
-     * @param array
-     */
-    public function applySearchFilters($select, $params): void
-    {
-        $alias = $this->getTableAlias();
-        $boolean = new Omeka_Filter_Boolean;
-        $genericParams = [];
-        foreach ($params as $key => $value) {
-            if ($value === null || (is_string($value) && trim($value) == '')) {
-                continue;
+            $entityName = null;
+            $entityId = null;
+            if (!empty($data['o:entity'])) {
+                if (is_array($data['entity'])) {
+                    $entityName = $data['entity']['o:type'] ?? null;
+                    $entityId = $data['entity']['o:id'] ?? null;
+                } elseif ($data['entity'] instanceof \Omeka\Entity\AbstractEntity) {
+                    $entityName = $data['entity']->getResourceId();
+                    $entityId = $data['entity']->getId();
+                }
             }
-            switch ($key) {
-                case 'record':
-                    $this->filterByRecord($select, $value);
-                    break;
-                case 'collection':
-                    if ($params['record_type'] == 'Item') {
-                        $select->where("`$alias`.`part_of` = ?", $value);
-                    }
-                    break;
-                case 'item':
-                    if ($params['record_type'] == 'File') {
-                        $this->filterColumnByRange($select, $value, 'part_of');
-                    }
-                    break;
-                case 'user':
-                    $userId = (int) (is_object($value) ? $value->id : $value);
-                    $this->filterByUser($select, $userId, 'user_id');
-                    break;
-                case 'since':
-                    if (strtolower($value) != 'yyyy-mm-dd') {
-                        $this->filterBySince($select, $value, 'added');
-                    }
-                    break;
-                case 'until':
-                    if (strtolower($value) != 'yyyy-mm-dd') {
-                        $this->filterByUntil($select, $value, 'added');
-                    }
-                    break;
-                case 'element':
-                    $this->filterByChangedElement($select, $value);
-                    break;
-                default:
-                    $genericParams[$key] = $value;
+
+            $partOf = $data['o-history-log:part_of'] ?? null;
+
+            $userId = null;
+            if (isset($data['o:user']) && !$data['o:user'] === '') {
+                if (is_numeric($data['o:user'])) {
+                    $userId = (int) $data['o:user'];
+                } elseif (is_array($data['o:user'])) {
+                    $userId = isset($data['o:user']['o:id']) ? (int) $data['o:user']['o:id'] : null;
+                } elseif ($data['o:user'] instanceof \Omeka\Entity\User) {
+                    $userId = $data['o:user']->getId();
+                } elseif ($data['o:user'] instanceof \Omeka\Api\Representation\UserRepresentation) {
+                    $userId = $data['o:user']->id();
+                }
+            }
+            if ($userId === null) {
+                $user = $this->getServiceLocator()
+                    ->get('Omeka\AuthenticationService')->getIdentity();
+                $userId = $user ? $user->getId() : null;
+            }
+
+            $operation = $data['o-history-log:operation'] ?? null;
+
+            $entity
+                ->setEntityId($entityId)
+                ->setEntityName($entityName)
+                ->setPartOf($partOf)
+                ->setUserId( $userId)
+                ->setOperation($operation)
+                ->setCreated(new DateTime('now'))
+            ;
+
+            $changesData = $request->getValue('o-history-log:change', []);
+            $changes = $entity->getChanges();
+            $adapter = $this->getAdapter('history_changes');
+            foreach ($changesData as $changeData) {
+                $subErrorStore = new ErrorStore;
+                $change = new HistoryChange;
+                $change->setEvent($entity);
+                $subrequest = new Request(Request::CREATE, 'history_changes');
+                $subrequest->setContent($changeData);
+                try {
+                    $adapter->hydrateEntity($subrequest, $change, $subErrorStore);
+                } catch (Exception\ValidationException $e) {
+                    $errorStore->mergeErrors($e->getErrorStore(), 'o-history-log:change');
+                }
+                $changes->add($change);
             }
         }
-
-        if (!empty($genericParams)) {
-            parent::applySearchFilters($select, $genericParams);
-        }
     }
 
-    /**
-     * Filter entry by record.
-     *
-     * @see self::applySearchFilters()
-     * @param Omeka_Db_Select $select
-     * @param Omeka_Record_AbstractRecord|array $record
-     */
-    public function filterByRecord($select, $record): void
+    public function validateEntity(EntityInterface $entity, ErrorStore $errorStore)
     {
-        $recordType = '';
-        // Manage the case where the record is a new one.
-        $recordId = 0;
-        if (is_array($record)) {
-            if (!empty($record['record_type']) && !empty($record['record_id'])) {
-                $recordType = Inflector::classify($record['record_type']);
-                $recordId = (int) $record['record_id'];
-            }
-        }
-        // Convert the record.
-        elseif ($record) {
-            $recordType = get_class($record);
-            $recordId = $record->id ?: 0;
+        /** @var \HistoryLog\Entity\HistoryEvent $entity */
+        if (empty($entity->getEntityId()) || empty($entity->getEntityName())) {
+            $errorStore->addError('o:entity', new Message(
+                'The history event requires an entity.' // @translate
+            ));
         }
 
-        $alias = $this->getTableAlias();
-        $select->where("`$alias`.`record_type` = ?", $recordType);
-        $select->where("`$alias`.`record_id` = ?", $recordId);
-    }
-
-    /**
-     * Filter returned records by a column.
-     *
-     * Can specify a range of valid record IDs or an individual ID
-     *
-     * @version 2.2.2
-     * @param Omeka_Db_Select $select
-     * @param string $range Example: 1-4, 75, 89
-     * @param string $range Example: 1-4, 75, 89
-     * @see self::filterByRange()
-     */
-    public function filterColumnByRange($select, $range, $column = 'id'): void
-    {
-        // Check the column.
-        $columns = $this->getColumns();
-        if (!array_search($column, $columns)) {
-            return;
-        }
-
-        // Comma-separated expressions should be treated individually.
-        $exprs = explode(',', $range);
-
-        // Construct a SQL clause where every entry in this array is linked by 'OR'.
-        $wheres = [];
-
-        $alias = $this->getTableAlias();
-
-        foreach ($exprs as $expr) {
-            // If it has a '-' in it, it is a range of ids. Otherwise it is a
-            // single id.
-            if (strpos($expr, '-') !== false) {
-                [$start, $finish] = explode('-', $expr);
-
-                // Naughty naughty koolaid, no SQL injection for you
-                $start = (int) trim($start);
-                $finish = (int) trim($finish);
-
-                $wheres[] = "($alias.$column BETWEEN $start AND $finish)";
-            }
-            // Else, it's a single id.
-            else {
-                $id = (int) trim($expr);
-                $wheres[] = "($alias.$column = $id)";
-            }
-        }
-
-        $where = join(' OR ', $wheres);
-
-        $select->where('(' . $where . ')');
-    }
-
-    /**
-     * Apply a date since filter to the select object.
-     *
-     * @internal Same as parent::filterBySince(), but with greater or equal.
-     *
-     * @see self::applySearchFilters()
-     * @param Omeka_Db_Select $select
-     * @param string $dateSince ISO 8601 formatted date
-     * @param string $dateField "added" or "modified"
-     */
-    public function filterBySince(Omeka_Db_Select $select, $dateSince, $dateField): void
-    {
-        // Reject invalid date fields.
-        if (!in_array($dateField, ['added', 'modified'])) {
-            return;
-        }
-
-        // Accept an ISO 8601 date, set the timezone to the server's default
-        // timezone, and format the date to be MySQL timestamp compatible.
-        $date = new Zend_Date($dateSince, Zend_Date::ISO_8601);
-        $date->setTimezone(date_default_timezone_get());
-        $date = $date->get('yyyy-MM-dd') . ' 00:00:00';
-
-        // Select all dates that are greater or equal than the passed date.
-        $alias = $this->getTableAlias();
-        $select->where("`$alias`.`$dateField` >= ?", $date);
-    }
-
-    /**
-     * Apply a date until filter to the select object.
-     *
-     * @internal This is a forgotten method. The time is forced to 23:59:59.999999.
-     *
-     * @see self::applySearchFilters()
-     * @param Omeka_Db_Select $select
-     * @param string $dateSince ISO 8601 formatted date
-     * @param string $dateField "added" or "modified"
-     */
-    public function filterByUntil(Omeka_Db_Select $select, $dateUntil, $dateField): void
-    {
-        // Reject invalid date fields.
-        if (!in_array($dateField, ['added', 'modified'])) {
-            return;
-        }
-
-        // Accept an ISO 8601 date, set the timezone to the server's default
-        // timezone, and format the date to be MySQL timestamp compatible.
-        $date = new Zend_Date($dateUntil, Zend_Date::ISO_8601);
-        $date->setTimezone(date_default_timezone_get());
-        $date = $date->get('yyyy-MM-dd') . ' 23:59:59.999999';
-
-        // Select all dates that are lower or equal than the passed date.
-        $alias = $this->getTableAlias();
-        $select->where("`$alias`.`$dateField` <= ?", $date);
-    }
-
-    /**
-     * Apply a element filter to the select object.
-     *
-     * @see HistoryLogChange::filterByChangedElement()
-     * @see self::applySearchFilters()
-     * @param Omeka_Db_Select $select
-     * @param Element|array|int $elements One or multiple element or ids.
-     * May be a "0" for non element change.
-     * @todo Cannot be a 0?
-     */
-    public function filterByChangedElement(Omeka_Db_Select $select, $elements): void
-    {
-        // Reset elements to ids.
-        if (!is_array($elements)) {
-            $elements = [$elements];
-        }
-        foreach ($elements as &$element) {
-            $element = (int) (is_object($element) ? $element->id : $element);
-        }
-        if (empty($elements)) {
-            return;
-        }
-
-        $alias = $this->getTableAlias();
-        $tableChange = $this->_db->getTable('HistoryLogChange');
-        $aliasChange = $tableChange->getTableAlias();
-
-        $select->join(
-            [$aliasChange => $this->_db->HistoryLogChange],
-            "`{$aliasChange}`.`entry_id` = `{$alias}`.`id`",
-            []
-        );
-
-        // One change.
-        if (count($elements) == 1) {
-            $select->where("`$aliasChange`.`element_id` = ?", reset($elements));
-        }
-        // Multiple changes.
-        else {
-            $select->where("`$aliasChange`.`element_id` IN (?)", $elements);
+        $operation = $entity->getOperation();
+        if (empty($operation)) {
+            $errorStore->addError('o-history-log:operation', new Message(
+                'The history event requires an operation.' // @translate
+            ));
+        } elseif (!in_array($operation, [
+            HistoryEvent::OPERATION_CREATE,
+            HistoryEvent::OPERATION_UPDATE,
+            HistoryEvent::OPERATION_DELETE,
+            HistoryEvent::OPERATION_IMPORT,
+            HistoryEvent::OPERATION_EXPORT,
+        ])) {
+            $errorStore->addError('o-history-log:operation', new Message(
+                'The history event requires a managed operation.' // @translate
+            ));
         }
     }
 }

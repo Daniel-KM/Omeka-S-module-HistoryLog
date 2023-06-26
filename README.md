@@ -11,17 +11,28 @@ administrators to recall this information later.
 
 This is not a replacement for your regular backups of the database, even if each
 change is logged and each resource can potentially be partially recovered at any
-time, ***except media files***. An undo button allows to recover the deletion of
+time, **except media files**. An undo button allows to recover the deletion of
 a resource.
 
 This is a full rewrite of the [Omeka Classic] [plugin History Log].
 
-***Work in progress***
+**Work in progress**
 
 This is a work in progress: only some features are available for now.
-Currently, only the main entries are stored.
+Currently, only the main entries are stored, that is the base of the
+module.
 
-***This readme lists features not yet implemented in Omeka S.***
+TODO:
+
+- [ ] Initial filling
+- [ ] Checks
+- [ ] Reset
+- [ ] Undelete
+- [ ] Batch process
+- [ ] Export
+- [ ] Direct routes
+
+**This readme lists features not yet implemented in Omeka S.**
 
 
 Installation
@@ -56,7 +67,7 @@ Usage
 - Logging is done via standard events. If a modules bypasses the standard
   methods, some logs may be missing.
 
-### Recovering of a deleted record
+### Recovering of a deleted resource
 
 - Resources are recreated with the same id.
 - It's recommended to undelete item sets before their items.

@@ -6,6 +6,7 @@ return [
     'api_adapters' => [
         'invokables' => [
             'history_events' => Api\Adapter\HistoryEventAdapter::class,
+            // TODO Api HistoryChange is probably useless: check if it can be replaced by hydrator.
             'history_changes' => Api\Adapter\HistoryChangeAdapter::class,
         ],
     ],
@@ -39,6 +40,7 @@ return [
     */
     'controllers' => [
         'invokables' => [
+            // TODO Controller HistoryChange is probably useless: check if it can be removed.
             Controller\Admin\HistoryChangeController::class => Controller\Admin\HistoryChangeController::class,
             Controller\Admin\IndexController::class => Controller\Admin\IndexController::class,
         ],

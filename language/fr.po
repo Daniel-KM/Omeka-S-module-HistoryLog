@@ -1,0 +1,262 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-06-26 00:00+0000\n"
+"PO-Revision-Date: 2023-06-26 00:00+0000\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: Daniel Berthereau <Daniel.fr@Berthereau.net>\n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.4.2\n"
+
+#: Module.php:288
+msgid "History Log"
+msgstr ""
+
+#: src/Api/Representation/HistoryChangeRepresentation.php:127
+msgid "Imported"
+msgstr ""
+
+#: src/Api/Representation/HistoryChangeRepresentation.php:128
+#, php-format
+msgid "Imported from %s"
+msgstr ""
+
+#: src/Api/Representation/HistoryChangeRepresentation.php:131
+msgid "Exported"
+msgstr ""
+
+#: src/Api/Representation/HistoryChangeRepresentation.php:132
+#, php-format
+msgid "Exported to %s"
+msgstr ""
+
+#: src/Api/Representation/HistoryChangeRepresentation.php:145
+msgid "Updated"
+msgstr "Mis à jour"
+
+#: src/Api/Representation/HistoryChangeRepresentation.php:147
+msgid "Deleted"
+msgstr ""
+
+#: src/Api/Representation/HistoryEventRepresentation.php:294
+#: src/Api/Representation/HistoryEventRepresentation.php:331
+#, php-format
+msgid "Deleted %1$s #%2$d"
+msgstr ""
+
+#: src/Api/Representation/HistoryEventRepresentation.php:295
+msgid "[No entity]"
+msgstr ""
+
+#: src/Api/Representation/HistoryEventRepresentation.php:332
+#, php-format
+msgid "Deleted part of %1$s #%2$d"
+msgstr ""
+
+#: src/Api/Representation/HistoryEventRepresentation.php:349
+#, php-format
+msgid "Deleted user #%d"
+msgstr ""
+
+#: src/Api/Representation/HistoryEventRepresentation.php:350
+msgid "Anonymous user"
+msgstr ""
+
+#: src/Api/Representation/HistoryEventRepresentation.php:362
+msgid "Create"
+msgstr ""
+
+#: src/ColumnType/HistoryEventLastInfo.php:61
+#, php-format
+msgid "Created on %1$s by %2$s"
+msgstr ""
+
+#: src/ColumnType/HistoryEventLastInfo.php:67
+#, php-format
+msgid "Updated on %1$s by %2$s"
+msgstr ""
+
+#: src/ColumnType/HistoryEventLastInfo.php:73
+#, php-format
+msgid "Deleted on %1$s by %2$s"
+msgstr ""
+
+#: src/ColumnType/HistoryEventLastInfo.php:79
+#, php-format
+msgid "Imported on %1$s by %2$s"
+msgstr ""
+
+#: src/ColumnType/HistoryEventLastInfo.php:85
+#, php-format
+msgid "Exported on %1$s by %2$s"
+msgstr ""
+
+#: src/ColumnType/HistoryEventLastInfo.php:91
+#, php-format
+msgid "Operation \"%1$s\" on %2$s by %3$s"
+msgstr ""
+
+#: view/common/resource-page-block-layout/history-log-changes.phtml:17
+msgid "Action"
+msgstr "Action"
+
+#: view/common/resource-page-block-layout/history-log-changes.phtml:18
+msgid "Field"
+msgstr "Champ"
+
+#: view/common/resource-page-block-layout/history-log-changes.phtml:19
+msgid "Data"
+msgstr ""
+
+#: view/history-log/admin/index/browse.phtml:23
+msgid "History logs"
+msgstr ""
+
+#: view/history-log/admin/index/browse.phtml:206
+msgid "Omeka could not find any history logs."
+msgstr ""
+
+#: Module.php:263
+#, php-format
+msgid "Unable to store history log when deleting resource #%1$s: %2$s"
+msgstr ""
+
+#: src/View/Helper/HistoryEventsLink.php:37
+#, php-format
+msgid "%d event"
+msgstr ""
+
+#: src/View/Helper/HistoryEventsLink.php:38
+#, php-format
+msgid "%d events"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:27
+msgid "Pages where to display logs"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:29 src/Form/SettingsFieldset.php:31
+msgid "Item / show"
+msgstr ""
+
+#: src/Form/SettingsFieldset.php:30
+msgid "Media / show"
+msgstr ""
+
+#: src/Api/Adapter/HistoryChangeAdapter.php:169
+msgid "The history change requires an history event."
+msgstr ""
+
+#: src/Api/Adapter/HistoryChangeAdapter.php:176
+#: src/Api/Adapter/HistoryEventAdapter.bkp.php:164
+msgid "The history change requires a field."
+msgstr ""
+
+#: src/Api/Adapter/HistoryChangeAdapter.php:183
+#: src/Api/Adapter/HistoryEventAdapter.bkp.php:170
+msgid "The history change requires an action."
+msgstr ""
+
+#: src/Api/Adapter/HistoryChangeAdapter.php:192
+#: src/Api/Adapter/HistoryEventAdapter.bkp.php:179
+msgid "The history change requires a managed action."
+msgstr ""
+
+#: src/Api/Adapter/HistoryEventAdapter.bkp.php:138
+#: src/Api/Adapter/HistoryEventAdapter.php:234
+msgid "The history event requires an entity."
+msgstr ""
+
+#: src/Api/Adapter/HistoryEventAdapter.bkp.php:145
+#: src/Api/Adapter/HistoryEventAdapter.php:241
+msgid "The history event requires an operation."
+msgstr ""
+
+#: src/Api/Adapter/HistoryEventAdapter.bkp.php:155
+msgid "The history event requires a managed operation."
+msgstr ""
+
+#: src/Entity/HistoryChange.php:39
+msgid "none"
+msgstr "aucun"
+
+#: src/Entity/HistoryChange.php:40 src/Entity/HistoryEvent.php:41
+msgid "create"
+msgstr "créer"
+
+#: src/Entity/HistoryChange.php:41 src/Entity/HistoryEvent.php:42
+msgid "update"
+msgstr "mettre à jour"
+
+#: src/Entity/HistoryChange.php:42 src/Entity/HistoryEvent.php:43
+msgid "delete"
+msgstr "supprimer"
+
+#: src/Entity/HistoryEvent.php:44
+msgid "import"
+msgstr ""
+
+#: src/Entity/HistoryEvent.php:45
+msgid "export"
+msgstr "export"
+
+#: src/ColumnType/ChangeData.php:13
+msgid "Change data"
+msgstr ""
+
+#: src/ColumnType/EntityName.php:13
+msgid "Logged entity name"
+msgstr ""
+
+#: src/ColumnType/Changes.php:13
+msgid "Changes"
+msgstr ""
+
+#: src/ColumnType/HistoryEventsLink.php:13
+msgid "History log: link to events"
+msgstr ""
+
+#: src/ColumnType/UserId.php:13 config/module.config.php:136
+msgid "User id"
+msgstr ""
+
+#: src/ColumnType/EntityId.php:13
+msgid "Logged entity id"
+msgstr ""
+
+#: src/ColumnType/PartOf.php:13 config/module.config.php:135
+msgid "Part of"
+msgstr ""
+
+#: src/ColumnType/Id.php:10
+msgid "Id"
+msgstr "Id"
+
+#: src/ColumnType/HistoryEventLastInfo.php:14
+msgid "History log: info on last event"
+msgstr ""
+
+#: src/ColumnType/Entity.php:13
+msgid "Logged entity"
+msgstr ""
+
+#: src/ColumnType/Operation.php:13 config/module.config.php:137
+msgid "Operation"
+msgstr ""
+
+#: config/module.config.php:133
+msgid "Entity name"
+msgstr ""
+
+#: config/module.config.php:134
+msgid "Entity id"
+msgstr ""

@@ -4,6 +4,7 @@ namespace HistoryLog\Api\Adapter;
 
 use Doctrine\ORM\QueryBuilder;
 use HistoryLog\Entity\HistoryChange;
+use HistoryLog\Entity\HistoryEvent;
 use Omeka\Api\Adapter\AbstractEntityAdapter;
 use Omeka\Api\Request;
 use Omeka\Entity\EntityInterface;
@@ -100,14 +101,17 @@ class HistoryChangeAdapter extends AbstractEntityAdapter
         if ($request->getOperation() === Request::CREATE) {
             $data = $request->getContent();
 
-            $event = null;
+            // The event is set by HistoryEvent: keep it if none in data.
+            $event = $entity->getEvent();
             if (!empty($data['o-history-log:event'])) {
                 if (is_array($data['o-history-log:event'])) {
                     if (!empty($data['o-history-log:event']['o:id'])) {
                         $event = $this->getAdapter('history_events')->findEntity($data['o-history-log:event']['o:id']);
                     }
-                } elseif ($data['o-history-log:event'] instanceof \Omeka\Entity\AbstractEntity) {
+                } elseif ($data['o-history-log:event'] instanceof HistoryEvent) {
                     $event = $data['o-history-log:event'];
+                } else {
+                    $event = null;
                 }
             }
 
@@ -127,10 +131,15 @@ class HistoryChangeAdapter extends AbstractEntityAdapter
             $changedData = isset($data['o:data'])
                 ? $data['o:data'] + $changedDataDefault
                 : array_intersect_key($data, $changedDataDefault) + $changedDataDefault;
+            if (is_scalar($changedData['value'])) {
+                $changedData['value'] = (string) $changedData['value'];
+            } elseif ($changedData['value'] !== null) {
+                $changedData['value'] = json_encode($changedData['value'], 320);
+            }
             $changedData['type'] = isset($changedData['type']) ? (string) $changedData['type'] : null;
             $changedData['is_public'] = isset($changedData['is_public']) && $changedData['is_public'] !== '' ? (bool) $changedData['is_public'] : null;
             $changedData['lang'] = isset($changedData['lang']) ? (string) $changedData['lang'] : null;
-            $changedData['value'] = isset($changedData['value']) ? (string) $changedData['value'] : null;
+            $changedData['value'] = $changedData['value'];
             $changedData['uri'] = isset($changedData['uri']) ? (string) $changedData['uri'] : null;
             $changedData['value_resource_id'] = empty($changedData['value_resource_id']) ? null : (int) $changedData['value_resource_id'];
             $changedData['value_annotation_id'] = empty($changedData['value_annotation_id']) ? null : (int) $changedData['value_annotation_id'];
@@ -153,14 +162,22 @@ class HistoryChangeAdapter extends AbstractEntityAdapter
     public function validateEntity(EntityInterface $entity, ErrorStore $errorStore)
     {
         /** @var \HistoryLog\Entity\HistoryChange $change */
-        $field = $change->getField();
+
+        $event = $entity->getEvent();
+        if (empty($event)) {
+            $errorStore->addError('o-history-log:event', new Message(
+                'The history change requires an history event.' // @translate
+            ));
+        }
+
+        $field = $entity->getField();
         if (empty($field)) {
             $errorStore->addError('o:field', new Message(
                 'The history change requires a field.' // @translate
             ));
         }
 
-        $action = $change->getAction();
+        $action = $entity->getAction();
         if (empty($action)) {
             $errorStore->addError('o-history-log:action', new Message(
                 'The history change requires an action.' // @translate

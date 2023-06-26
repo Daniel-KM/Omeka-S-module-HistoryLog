@@ -1,9 +1,9 @@
 <?php
 $pageTitle = __('Curation History Log (%d total)', $total_results);
-echo head(array(
+echo head([
     'title' => $pageTitle,
     'bodyclass' => 'history-log browse',
-));
+]);
 ?>
 <style>
 div.record-title {
@@ -52,7 +52,7 @@ div.record-title {
                     echo $element
                         ? __('Element %s (%s)', $element->name, $element->set_name)
                         : __('Element #%s', $params['element']);
-                ?></li>
+                    ?></li>
                 <?php endif; ?>
             </ul>
     </div>
@@ -69,7 +69,7 @@ div.record-title {
                     $browseHeadings[__('User')] = 'user';
                     $browseHeadings[__('Action')] = 'operation';
                     $browseHeadings[__('Changes')] = null;
-                    echo browse_sort_links($browseHeadings, array('link_tag' => 'th scope="col"', 'list_tag' => ''));
+                    echo browse_sort_links($browseHeadings, ['link_tag' => 'th scope="col"', 'list_tag' => '']);
                     ?>
                 </tr>
             </thead>
@@ -82,10 +82,10 @@ div.record-title {
                     <td><?php echo $logEntry->added; ?></td>
                     <td colspan="2">
                         <a href="<?php
-                        echo url(array(
-                                'type' => Inflector::tableize($logEntry->record_type),
-                                'id' => $logEntry->record_id,
-                            ), 'history_log_record_log'); ?>"><?php
+                            echo url([
+                                    'type' => Inflector::tableize($logEntry->record_type),
+                                    'id' => $logEntry->record_id,
+                                ], 'history_log_record_log'); ?>"><?php
                             echo $logEntry->record_type;
                             echo ' ';
                             echo $logEntry->record_id;
@@ -96,10 +96,10 @@ div.record-title {
                     <td><?php echo $logEntry->displayUser(); ?></td>
                     <td><?php echo $logEntry->displayOperation(); ?>
                     <?php if ($logEntry->isEntryToUndelete()):
-                        $undeleteUrl = url(array(
+                        $undeleteUrl = url([
                                 'type' => Inflector::tableize($logEntry->record_type),
                                 'id' => $logEntry->record_id,
-                            ), 'history_log_undelete'); ?>
+                            ], 'history_log_undelete'); ?>
                         <div><a href="<?php echo html_escape($undeleteUrl); ?>" class="history-log-process button red"><?php echo html_escape(__('Undo')); ?></a></div>
                     <?php endif;
                     ?></td>

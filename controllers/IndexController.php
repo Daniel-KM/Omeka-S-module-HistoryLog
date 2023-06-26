@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * HistoryLog
  *
@@ -19,7 +19,7 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
     private $_zipGenerator = '';
     private $_unzipGenerator = '';
 
-    public function init()
+    public function init(): void
     {
         $this->_helper->db->setDefaultModelName('HistoryLogEntry');
     }
@@ -27,7 +27,7 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
     /**
      * The browse action.
      */
-    public function browseAction()
+    public function browseAction(): void
     {
         if (!$this->_getParam('sort_field')) {
             $this->_setParam('sort_field', 'added');
@@ -68,7 +68,7 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
 
             $response = $this->getResponse();
 
-            $headers = array();
+            $headers = [];
             $headers[] = __('Date');
             $headers[] = __('Type');
             $headers[] = __('Id');
@@ -131,19 +131,19 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
     /**
      * This shows the search form for records by going to the correct URI.
      */
-    public function searchAction()
+    public function searchAction(): void
     {
-        include_once dirname(dirname(__FILE__))
+        include_once dirname(__FILE__, 2)
             . DIRECTORY_SEPARATOR . 'forms'
             . DIRECTORY_SEPARATOR . 'Search.php';
         $form = new HistoryLog_Form_Search();
 
         // Prepare the form to return result in the browse view with pagination.
-        $form->setAction(url(array(
+        $form->setAction(url([
             'module' => 'history-log',
             'controller' => 'index',
             'action' => 'browse',
-        )));
+        ]));
         // The browse method requires "get" to process the query.
         $form->setMethod('get');
 
@@ -158,7 +158,7 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
     protected function _getGenerator()
     {
         $iniReader = new Omeka_Plugin_Ini(PLUGIN_DIR);
-        $path = basename(dirname(dirname(__FILE__)));
+        $path = basename(dirname(__FILE__, 2));
         $generator = sprintf(
             'Omeka/%s - %s/%s [%s] (%s)',
             OMEKA_VERSION,
@@ -177,12 +177,12 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
      */
     protected function _prepareSpreadsheet()
     {
-        $tableNames = array(__('Export'));
-        $headers = array($this->view->headers);
+        $tableNames = [__('Export')];
+        $headers = [$this->view->headers];
         $dateTime = date('Y-m-d\TH:i:s') . strtok(substr(microtime(), 1), ' ');
         $cells = (iterator_count(loop('HistoryLogEntry')) + ($this->view->params['exportheaders'] ? 1 : 0)) * count($this->view->headers);
 
-        $variables = array(
+        $variables = [
             'module' => 'history-log',
             'params' => $this->view->params,
             'tableNames' => $tableNames,
@@ -194,7 +194,7 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
             'cells' => $cells,
             'tableActive' => 0,
             'declaration' => false,
-        );
+        ];
 
         unset($this->view->params);
         unset($this->view->headers);
@@ -229,7 +229,7 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
     protected function _createOpenDocument()
     {
         // Prepare the structure of the ods file via a temp dir.
-        $sourceDir = dirname(dirname(__FILE__))
+        $sourceDir = dirname(__FILE__, 2)
             . DIRECTORY_SEPARATOR . 'views'
             . DIRECTORY_SEPARATOR . 'scripts'
             . DIRECTORY_SEPARATOR . 'ods'
@@ -245,7 +245,7 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
         mkdir($tempDir . DIRECTORY_SEPARATOR . 'Thumbnails', 0755, true);
 
         // Copy the default files.
-        $defaultFiles = array(
+        $defaultFiles = [
             // OpenDocument requires that "mimetype" be the first file, without
             // compression in order to get the mime type without unzipping.
             'mimetype',
@@ -253,7 +253,7 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
             'META-INF' . DIRECTORY_SEPARATOR . 'manifest.xml',
             // TODO A thumbnail of the true content.
             'Thumbnails' . DIRECTORY_SEPARATOR . 'thumbnail.png',
-        );
+        ];
         foreach ($defaultFiles as $file) {
             $result = copy(
                 $sourceDir . DIRECTORY_SEPARATOR . $file,
@@ -266,19 +266,19 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
         }
 
         // Prepare the files that may change.
-        $xmlFiles = array(
+        $xmlFiles = [
             'meta.xml',
             'settings.xml',
             'styles.xml',
             'content.xml',
-        );
+        ];
         foreach ($xmlFiles as $file) {
             $name = pathinfo($file, PATHINFO_FILENAME);
             $filename = tempnam(sys_get_temp_dir(), $name);
             $xml = $this->view->partial(
                 'ods/' . $name . '.php',
                 $this->view->variables['module'],
-                $name == 'content' ? array('variables' => $this->view->variables) : $this->view->variables
+                $name == 'content' ? ['variables' => $this->view->variables] : $this->view->variables
             );
             $result = file_put_contents($filename, $xml);
             if (!$result) {
@@ -460,7 +460,7 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
     protected function _recursive_glob($pattern, $flags = 0)
     {
         if (empty($pattern)) {
-            return array();
+            return [];
         }
         $files = glob($pattern, $flags);
         foreach (glob(dirname($pattern) . DIRECTORY_SEPARATOR . '*', GLOB_ONLYDIR | GLOB_NOSORT) as $dir) {
@@ -477,7 +477,7 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
      */
     protected function _rrmdir($dirPath)
     {
-        $files = array_diff(scandir($dirPath), array('.', '..'));
+        $files = array_diff(scandir($dirPath), ['.', '..']);
         foreach ($files as $file) {
             $path = $dirPath . DIRECTORY_SEPARATOR . $file;
             if (is_dir($path)) {

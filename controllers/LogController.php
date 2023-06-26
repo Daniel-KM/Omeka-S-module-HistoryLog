@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * HistoryLog
  *
@@ -16,7 +16,7 @@ class HistoryLog_LogController extends Omeka_Controller_AbstractActionController
     /**
      * Set up the view for full record reports.
      */
-    public function logAction()
+    public function logAction(): void
     {
         $flashMessenger = $this->_helper->FlashMessenger;
         $recordType = $this->_getParam('type');
@@ -30,10 +30,10 @@ class HistoryLog_LogController extends Omeka_Controller_AbstractActionController
 
         $record = get_record_by_id($recordType, $recordId);
 
-        $this->view->record = $record ?: array(
+        $this->view->record = $record ?: [
             'record_type' => Inflector::classify($recordType),
             'record_id' => (int) $recordId,
-        );
+        ];
     }
 
     /**
@@ -66,10 +66,10 @@ class HistoryLog_LogController extends Omeka_Controller_AbstractActionController
         // Try to undelete it.
         // Check if the last operation is a deletion.
         $logEntry = $this->_helper->_db->getTable('HistoryLogEntry')
-            ->getLastEntryForRecord(array(
+            ->getLastEntryForRecord([
                     'record_type' => $recordType,
                     'record_id' => $recordId,
-                ), HistoryLogEntry::OPERATION_DELETE);
+                ], HistoryLogEntry::OPERATION_DELETE);
         if (empty($logEntry)) {
             $flashMessenger->addMessage(__('The deletion of the record "%s #%d" has not been logged and cannot be undeleted!', $recordType, $recordId), 'error');
             $url = Inflector::tableize($recordType) . '/log/' . $recordId;
@@ -99,6 +99,6 @@ class HistoryLog_LogController extends Omeka_Controller_AbstractActionController
      */
     protected function _isLoggable($recordType)
     {
-        return in_array($recordType, array('Item', 'Collection', 'File'));
+        return in_array($recordType, ['Item', 'Collection', 'File']);
     }
 }

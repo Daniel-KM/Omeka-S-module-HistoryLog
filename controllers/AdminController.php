@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * The HistoryLog admin controller class.
  *
@@ -10,27 +10,27 @@ class HistoryLog_AdminController extends Omeka_Controller_AbstractActionControll
 {
     protected $_limit = 100;
 
-    public function init()
+    public function init(): void
     {
         $this->_helper->db->setDefaultModelName('HistoryLogEntry');
     }
 
-    public function checkAction()
+    public function checkAction(): void
     {
         $db = $this->_helper->db;
         $limit = $this->_limit;
         $flashMessenger = $this->_helper->FlashMessenger;
 
-        $recordTypes = array('Collection', 'Item', 'File');
+        $recordTypes = ['Collection', 'Item', 'File'];
 
-        $result = array();
-        $totalRecords = array();
+        $result = [];
+        $totalRecords = [];
         foreach ($recordTypes as $recordType) {
             $totalRecords[$recordType] = total_records($recordType);
-            foreach (array(
+            foreach ([
                     HistoryLogEntry::OPERATION_CREATE,
                     HistoryLogEntry::OPERATION_DELETE,
-                ) as $operation) {
+                ] as $operation) {
                 $missingRecordsIds = $this->_getLogsForRecordType($recordType, $operation);
                 $result[$recordType][$operation] = $missingRecordsIds;
             }
@@ -48,27 +48,27 @@ class HistoryLog_AdminController extends Omeka_Controller_AbstractActionControll
         $flashMessenger = $this->_helper->FlashMessenger;
 
         $recordType = ucfirst($this->getParam('type'));
-        if (!in_array($recordType, array('Collection', 'Item', 'File'))) {
+        if (!in_array($recordType, ['Collection', 'Item', 'File'])) {
             $flashMessenger->addMessage(__('The record type should be "Collection", "Item" or "File".'));
             return $this->redirect('history-log/admin/check');
         }
 
         $operation = strtolower($this->getParam('operation'));
-        if (!in_array($operation, array(
+        if (!in_array($operation, [
                 HistoryLogEntry::OPERATION_CREATE,
                 HistoryLogEntry::OPERATION_UPDATE,
                 HistoryLogEntry::OPERATION_DELETE,
-            ))) {
+            ])) {
             $flashMessenger->addMessage(__('The operation should be "create" or "delete".'));
             return $this->redirect('history-log/admin/check');
         }
 
         // Create a log entry for current records without logs.
-        $options = array(
+        $options = [
             'recordType' => $recordType,
             'operation' => $operation,
             'limit' => $this->_limit,
-        );
+        ];
 
         $jobDispatcher = Zend_Registry::get('bootstrap')->getResource('jobs');
         $jobDispatcher->setQueueName(HistoryLog_Job_CheckLogs::QUEUE_NAME);

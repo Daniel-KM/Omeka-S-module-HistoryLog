@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * History log search and report generation form.
  *
@@ -16,7 +16,7 @@ class HistoryLog_Form_Search extends Omeka_Form
     /**
      * Construct the report generation form.
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -32,153 +32,153 @@ class HistoryLog_Form_Search extends Omeka_Form
         }
 
         // Record type.
-        $this->addElement('select', 'record_type', array(
+        $this->addElement('select', 'record_type', [
             'label' => __('Record Type'),
             'description' => __("The type of record whose log information will be retrieved."),
             'value' => '',
             'order' => 1,
-            'validators' => array(
+            'validators' => [
                 'alnum',
-            ),
+            ],
             'required' => false,
             'multiOptions' => $recordTypeOptions,
-        ));
+        ]);
 
         // Collection.
-        $this->addElement('select', 'collection', array(
+        $this->addElement('select', 'collection', [
             'label' => __('Collection'),
             'description' => __("If record type is %sItem%s, the collection whose items' log information will be retrieved.", '<strong>', '</strong>'),
             'value' => '',
             'order' => 2,
-            'validators' => array(
+            'validators' => [
                 'digits',
-            ),
+            ],
             'required' => false,
             'multiOptions' => $collectionOptions,
-        ));
+        ]);
 
         // Item.
-        $this->addElement('text', 'item', array(
+        $this->addElement('text', 'item', [
             'label' => __('Item'),
             'description' => __("If record type is %sFile%s, the item or range of items whose files' log information will be retrieved.", '<strong>', '</strong>'),
             'value' => '',
             'order' => 3,
-            'validators' => array(
+            'validators' => [
                 'digits',
-            ),
+            ],
             'required' => false,
-        ));
+        ]);
 
         // User(s).
-        $this->addElement('select', 'user', array(
+        $this->addElement('select', 'user', [
             'label' => __('User(s)'),
             'description' => __('All administrator users whose edits will be retrieved.'),
             'value' => '',
             'order' => 4,
-            'validators' => array(
+            'validators' => [
                 'digits',
-            ),
+            ],
             'required' => false,
             'multiOptions' => $userOptions,
-        ));
+        ]);
 
         // Operations.
-        $this->addElement('select', 'operation', array(
+        $this->addElement('select', 'operation', [
             'label' => __('Operation'),
             'description' => __('Logged curatorial operations to retrieve in this report.'),
             'value' => '',
             'order' => 5,
-            'validators' => array(
+            'validators' => [
                 'alnum',
-            ),
+            ],
             'required' => false,
             'multiOptions' => $operationOptions,
-        ));
+        ]);
 
         // Elements.
-        $this->addElement('select', 'element', array(
+        $this->addElement('select', 'element', [
             'label' => __('Element'),
             'description' => __('Limit response with the selected element.')
                 . ' ' . __('This field is only available for events %1$sCreate%2$s and %1$sUpdate%2$s.', '<strong>', '</strong>'),
             'value' => '',
             'order' => 6,
-            'validators' => array(
+            'validators' => [
                 'digits',
-            ),
+            ],
             'required' => false,
             'multiOptions' => $elementOptions,
-        ));
+        ]);
 
         // Date since.
-        $this->addElement('text', 'since', array(
+        $this->addElement('text', 'since', [
             'label' => __('Start Date'),
             'description' => __('The earliest date from which to retrieve logs.'),
             'value' => 'YYYY-MM-DD',
             'order' => 7,
             'style' => 'max-width: 120px;',
             'required' => false,
-            'validators' => array(
-                array(
+            'validators' => [
+                [
                     'Date',
                     false,
-                    array(
+                    [
                         'format' => 'yyyy-mm-dd',
-                    )
-                )
-            )
-        ));
+                    ],
+                ],
+            ],
+        ]);
 
         // Date until.
-        $this->addElement('text', 'until', array(
+        $this->addElement('text', 'until', [
             'label' => __('End Date'),
             'description' => __('The latest date, included, from which to retrieve logs.'),
             'value' => 'YYYY-MM-DD',
             'order' => 8,
             'style' => 'max-width: 120px;',
             'required' => false,
-            'validators' => array(
-                array(
+            'validators' => [
+                [
                     'Date',
                     false,
-                    array(
+                    [
                         'format' => 'yyyy-mm-dd',
-                    )
-                )
-            )
-        ));
+                    ],
+                ],
+            ],
+        ]);
 
         // Output.
-        $this->addElement('radio', 'export', array(
+        $this->addElement('radio', 'export', [
             'label' => __('Output'),
             'value' => '',
             'order' => 9,
-            'validators' => array(
+            'validators' => [
                 'alnum',
-            ),
+            ],
             'required' => false,
             'multiOptions' => $exportOptions,
-        ));
+        ]);
 
-        $this->addElement('checkbox', 'export-headers', array(
+        $this->addElement('checkbox', 'export-headers', [
             'label' => __('Include headers'),
             'value' => true,
             'order' => 10,
             'required' => false,
-        ));
+        ]);
 
         if (version_compare(OMEKA_VERSION, '2.2.1') >= 0) {
             $this->addElement('hash', 'history_log_token');
         }
 
         // Button for submit.
-        $this->addElement('submit', 'submit-search', array(
+        $this->addElement('submit', 'submit-search', [
             'label' => __('Report'),
-        ));
+        ]);
 
         // TODO Add decorator as in "items/search-form.php" for scroll.
 
         // Display Groups.
-        $this->addDisplayGroup(array(
+        $this->addDisplayGroup([
             'record_type',
             'collection',
             'item',
@@ -189,12 +189,12 @@ class HistoryLog_Form_Search extends Omeka_Form
             'until',
             'export',
             'export-headers',
-        ), 'fields');
+        ], 'fields');
 
         $this->addDisplayGroup(
-            array(
-                'submit-search'
-            ),
+            [
+                'submit-search',
+            ],
             'submit_buttons'
         );
     }
@@ -207,12 +207,12 @@ class HistoryLog_Form_Search extends Omeka_Form
      */
     protected function _getRecordTypeOptions()
     {
-        return array(
+        return [
             '' => __('All types of record'),
             'Item' => __('Items'),
             'Collection' => __('Collections'),
             'File' => __('Files'),
-        );
+        ];
     }
 
     /**
@@ -234,18 +234,18 @@ class HistoryLog_Form_Search extends Omeka_Form
      */
     protected function _getUserOptions()
     {
-        $options = array(
+        $options = [
             '' => __('All Users'),
             '0' => __('Anonymous User'),
-        );
+        ];
 
         try {
             $acl = get_acl();
             $roles = $acl->getRoles();
             foreach ($roles as $role) {
-                $users = get_records('User', array(
+                $users = get_records('User', [
                         'role' => $role,
-                    ), '0');
+                    ], '0');
                 foreach ($users as $user) {
                     $options[$user->id] = $user->name . ' (' . $role . ')';
                 }
@@ -264,14 +264,14 @@ class HistoryLog_Form_Search extends Omeka_Form
      */
     protected function _getOperationOptions()
     {
-        return array(
+        return [
             '' => __('All Actions'),
             HistoryLogEntry::OPERATION_CREATE => __('Record Created'),
             HistoryLogEntry::OPERATION_UPDATE => __('Record Updated'),
             HistoryLogEntry::OPERATION_DELETE => __('Record Deleted'),
             HistoryLogEntry::OPERATION_IMPORT => __('Record Imported'),
             HistoryLogEntry::OPERATION_EXPORT => __('Record Exported'),
-        );
+        ];
     }
 
     /**
@@ -286,9 +286,9 @@ class HistoryLog_Form_Search extends Omeka_Form
         return get_table_options(
             'Element',
             null,
-            array(
-            'record_types' => array('Item', 'All'),
-            'sort' => 'orderBySet')
+            [
+            'record_types' => ['Item', 'All'],
+            'sort' => 'orderBySet']
         );
     }
 
@@ -299,12 +299,12 @@ class HistoryLog_Form_Search extends Omeka_Form
      */
     protected function _getexportOptions()
     {
-        $options = array(
+        $options = [
             '' => __('Normal display'),
             'csv' => __('csv (with tabulations)'),
             'ods' => __('ods (OpenDocument Spreasheet)'),
             'fods' => __('fods (Flat OpenDocument Spreadsheet)'),
-        );
+        ];
 
         $zipProcessor = $this->_getZipProcessor();
         if (!$zipProcessor) {

@@ -41,7 +41,7 @@ foreach ($tableNames as $iTable => $tableName):
             echo str_repeat($indent, 4) . '<table:table-row table:style-name="ro1">' . $eol;
 
             // There are no special character to escape.
-            $row = array();
+            $row = [];
             $row[] = $logEntry->displayAdded();
             $row[] = $logEntry->record_type;
             $row[] = $logEntry->record_id;

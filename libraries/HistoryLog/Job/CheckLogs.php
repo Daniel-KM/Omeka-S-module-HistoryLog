@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * Check and create missing logs for current records.
  *
@@ -14,7 +14,7 @@ class HistoryLog_Job_CheckLogs extends Omeka_Job_AbstractJob
     protected $_operation;
     protected $_limit = 100;
 
-    public function perform()
+    public function perform(): void
     {
         $this->_db = get_db();
 
@@ -40,7 +40,7 @@ class HistoryLog_Job_CheckLogs extends Omeka_Job_AbstractJob
     /**
      * Check logs and launch creation when needed.
      */
-    protected function _checkLogs()
+    protected function _checkLogs(): void
     {
         $db = $this->_db;
         $recordType = $this->_recordType;
@@ -56,7 +56,7 @@ class HistoryLog_Job_CheckLogs extends Omeka_Job_AbstractJob
         $this->_log(__('Launch process for %d records "%s".', count($missingRecordsIds), $recordType));
         foreach ($missingRecordsIds as $key => $recordId) {
             $logEntry = new HistoryLogEntry();
-            $result = $logEntry->rebuildEntry(array('record_type' => $recordType, 'record_id' => $recordId), $operation);
+            $result = $logEntry->rebuildEntry(['record_type' => $recordType, 'record_id' => $recordId], $operation);
             if ($result) {
                 $logEntry->save();
                 $this->_log(__(
@@ -138,17 +138,17 @@ class HistoryLog_Job_CheckLogs extends Omeka_Job_AbstractJob
         return $result;
     }
 
-    public function setRecordType($recordType)
+    public function setRecordType($recordType): void
     {
         $this->_recordType = (string) $recordType;
     }
 
-    public function setOperation($operation)
+    public function setOperation($operation): void
     {
         $this->_operation = (string) $operation;
     }
 
-    public function setLimit($limit)
+    public function setLimit($limit): void
     {
         $this->_limit = (int) $limit;
     }
@@ -159,7 +159,7 @@ class HistoryLog_Job_CheckLogs extends Omeka_Job_AbstractJob
      * @param string $msg The message to log
      * @param int $priority The priority of the message
      */
-    protected function _log($msg, $priority = Zend_Log::INFO)
+    protected function _log($msg, $priority = Zend_Log::INFO): void
     {
         $prefix = "[HistoryLog][CheckLogs]";
         _log("$prefix $msg", $priority);

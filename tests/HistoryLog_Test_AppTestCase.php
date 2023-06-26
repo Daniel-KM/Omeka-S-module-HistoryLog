@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * @copyright Daniel Berthereau, 2015
  * @license http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.txt
@@ -12,7 +12,7 @@ class HistoryLog_Test_AppTestCase extends Omeka_Test_AppTestCase
 {
     const PLUGIN_NAME = 'HistoryLog';
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -25,7 +25,7 @@ class HistoryLog_Test_AppTestCase extends Omeka_Test_AppTestCase
         Omeka_Test_Resource_Db::$runInstaller = true;
     }
 
-    public function assertPreConditions()
+    public function assertPreConditions(): void
     {
         $entries = $this->db->getTable('HistoryLogEntry')->findAll();
         $this->assertEquals(0, count($entries), 'There should be no entries.');
@@ -38,11 +38,11 @@ class HistoryLog_Test_AppTestCase extends Omeka_Test_AppTestCase
         // Omeka adds one item by default.
         $this->assertEquals(1, total_records('Item'));
 
-        $metadata = array();
-        $elementTexts = array();
-        $elementTexts['Dublin Core']['Title'][] = array('text' => 'title 1', 'html' => false);
-        $elementTexts['Dublin Core']['Creator'][] = array('text' => 'creator #1', 'html' => false);
-        $elementTexts['Dublin Core']['Date'][] = array('text' => 2001, 'html' => false);
+        $metadata = [];
+        $elementTexts = [];
+        $elementTexts['Dublin Core']['Title'][] = ['text' => 'title 1', 'html' => false];
+        $elementTexts['Dublin Core']['Creator'][] = ['text' => 'creator #1', 'html' => false];
+        $elementTexts['Dublin Core']['Date'][] = ['text' => 2001, 'html' => false];
         return insert_item($metadata, $elementTexts);
     }
 }

@@ -11,7 +11,7 @@
                 echo ' ' . __('This may be useful when the plugin has not been installed after some records have been created, or when a plugin uses non standard functions.');
                 echo ' ' . __('The rebuild is not a requirement to use this plugin, but it can help to track or recover data in the future.');
                 echo ' ' . __('Furthermore, the process is still in beta phase, so the entry may be incomplete or not exact.');
-                 */
+                */
                 ?>
             </p>
         </div>
@@ -26,19 +26,19 @@
             <div class="input-block">
                 <ul style="list-style-type: none;">
                 <?php
-                    $currentPages = json_decode(get_option('history_log_display'), true) ?: array();
-                    $pages = array(
+                    $currentPages = json_decode(get_option('history_log_display'), true) ?: [];
+                    $pages = [
                         'collections/show',
                         'items/show',
                         'files/show',
                         'items/browse',
-                    );
+                    ];
                     foreach ($pages as $page) {
                         echo '<li>';
                         echo $this->formCheckbox(
                             'history_log_display[]',
                             $page,
-                            array('checked' => in_array($page, $currentPages) ? 'checked' : '')
+                            ['checked' => in_array($page, $currentPages) ? 'checked' : '']
                         );
                         echo $page;
                         echo '</li>';

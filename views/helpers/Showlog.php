@@ -34,7 +34,7 @@ class HistoryLog_View_Helper_Showlog extends Zend_View_Helper_Abstract
     public function showlog($record, $limit = 10)
     {
         $markup = '';
-        $params = array();
+        $params = [];
         if (is_object($record)) {
             $params['record_type'] = get_class($record);
             $params['record_id'] = $record->id;
@@ -55,12 +55,12 @@ class HistoryLog_View_Helper_Showlog extends Zend_View_Helper_Abstract
 
         $logEntries = $this->_table->findBy($params, $limit);
         if (!empty($logEntries)) {
-            $markup = $this->view->partial('common/showlog.php', array(
+            $markup = $this->view->partial('common/showlog.php', [
                 'record_type' => $params['record_type'],
                 'record_id' => $params['record_id'],
                 'limit' => $limit,
                 'logEntries' => $logEntries,
-            ));
+            ]);
         }
 
         return $markup;

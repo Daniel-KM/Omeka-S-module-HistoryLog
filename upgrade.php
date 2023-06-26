@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 // Manage all upgrade processes (make main file lighter).
 
 if (version_compare($oldVersion, '1.1.3', '<')) {
@@ -15,11 +15,11 @@ if (version_compare($oldVersion, '2.4', '<')) {
 
     // First, remove all null values that could be present in columns
     // which are being changed to NOT NULL
-    $null_columns = array('itemID',
+    $null_columns = ['itemID',
                           'collectionID',
                           'userID',
                           'type',
-                          'value');
+                          'value'];
     foreach ($null_columns as $column) {
         $sql = "UPDATE `{$db->HistoryLogEntry}` SET `$column`=\"\" where `$column` IS NULL";
         $db->query($sql);
@@ -48,10 +48,10 @@ if (version_compare($oldVersion, '2.4', '<')) {
     $alias = $table->getTableAlias();
     $select = $table->getSelect();
     $select->reset(Zend_Db_Select::COLUMNS);
-    $select->from(array(), array(
+    $select->from([], [
         $alias . '.id',
         $alias . '.change',
-    ));
+    ]);
     $select->where($alias . '.change LIKE "a:%;}"');
     $result = $table->fetchAll($select);
 
@@ -73,7 +73,7 @@ if (version_compare($oldVersion, '2.4', '<')) {
                 }
                 $change = unserialize($change);
                 $change = '[ ' . implode(' ', $change) . ' ]';
-                $db->query($sql, array($change, $id));
+                $db->query($sql, [$change, $id]);
             }
             $msg = __('Updated %d / %d serialized history log entries.', $key + 1, count($result));
             _log($msg);
@@ -203,12 +203,12 @@ if (version_compare($oldVersion, '2.6', '<')) {
     $alias = $table->getTableAlias();
     $select = $table->getSelect();
     $select->reset(Zend_Db_Select::COLUMNS);
-    $select->from(array(), array(
+    $select->from([], [
         $alias . '.id',
         $alias . '.operation',
         $alias . '.change',
         $alias . '.title',
-    ));
+    ]);
     $select->where($alias . ".change != ''");
     $result = $table->fetchAll($select);
 
@@ -235,9 +235,9 @@ if (version_compare($oldVersion, '2.6', '<')) {
                         if (empty($changes)) {
                             continue;
                         }
-                        $values = array();
+                        $values = [];
                         foreach ($changes as $elementId) {
-                            $newValues = array(
+                            $newValues = [
                                 $entryId,
                                 $elementId,
                                 $db->quote($operation),
@@ -246,7 +246,7 @@ if (version_compare($oldVersion, '2.6', '<')) {
                                     ? $db->quote($title)
                                     // The log is lost for other elements.
                                     : $db->quote('# empty / lost old value #'),
-                            );
+                            ];
                             $values[] = implode(',', $newValues);
                         }
                         $values = '(' . implode('), (', $values) . ')';
@@ -258,14 +258,14 @@ if (version_compare($oldVersion, '2.6', '<')) {
                     case HistoryLogEntry::OPERATION_IMPORT:
                     case HistoryLogEntry::OPERATION_EXPORT:
                     default:
-                        $newValues = array(
+                        $newValues = [
                             $entryId,
                             // No element id for imported, exported or deleted.
                             0,
                             $db->quote('none'),
                             // The source or the service is set in text.
                             $db->quote($change),
-                        );
+                        ];
                         $values = '(' . implode(',', $newValues) . ')';
                         break;
                 }

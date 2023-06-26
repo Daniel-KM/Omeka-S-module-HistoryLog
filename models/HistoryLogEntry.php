@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * A History Log entry
  *
@@ -12,11 +12,11 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
     const OPERATION_IMPORT = 'import';
     const OPERATION_EXPORT = 'export';
 
-    private $_validRecordTypes = array(
+    private $_validRecordTypes = [
         'Item',
         'Collection',
         'File',
-    );
+    ];
 
     /**
      * @var int The record ID.
@@ -62,10 +62,10 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      *
      * @var array
      */
-    protected $_related = array(
+    protected $_related = [
         'Record' => 'getRecord',
         'Changes' => 'getChanges',
-    );
+    ];
 
     /**
      * Set of non-persistent Change objects attached to the event.
@@ -74,7 +74,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      * @see HistoryLogEntry::_saveChanges()
      * @see HistoryLogEntry::_getChanges()
      */
-    private $_changes = array();
+    private $_changes = [];
 
     /**
      * The changes related to the event before saving.
@@ -123,7 +123,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      *
      * @var array
      */
-    private $_changedTexts = array();
+    private $_changedTexts = [];
 
     /**
      * New elements via post or database.
@@ -135,7 +135,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
     /**
      * Initialize the mixins for a record.
      */
-    protected function _initializeMixins()
+    protected function _initializeMixins(): void
     {
         // TODO The acl resource interface is useless?
         $this->_mixins[] = new Mixin_Owner($this, 'user_id');
@@ -192,7 +192,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
             WHERE `record_type` = " . $db->quote($this->record_type)
                 . ' AND `record_id` = ' . (int) $this->record_id;
         $elementTexts = $db->fetchAll($sql);
-        $oldTexts = array();
+        $oldTexts = [];
         foreach ($elementTexts as $elementText) {
             $oldTexts[$elementText['element_id']][] = $elementText['text'];
         }
@@ -368,26 +368,26 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
 
         // Normalize the current element texts.
         $elementTexts = $record->getAllElementTexts();
-        $texts = array();
+        $texts = [];
         foreach ($elementTexts as $elementText) {
             $texts[$elementText->element_id][] = $elementText->text;
         }
 
         // Get all entries, from the last.
         $entries = $this->_db->getTable('HistoryLogEntry')
-            ->findBy(array(
+            ->findBy([
                 'record' => $record,
                 // Only the update operation is useful.
                 'operation' => self::OPERATION_UPDATE,
                 Omeka_Db_Table::SORT_PARAM => 'added',
                 Omeka_Db_Table::SORT_DIR_PARAM => 'd',
-            ));
+            ]);
 
         // Revert each change of each entry.
         foreach ($entries as $entry) {
             // A count of each update by element is needed, because the update
             // operation is done in the natural order.
-            $textsUpdates = array();
+            $textsUpdates = [];
 
             $changes = $entry->getChanges();
             foreach ($changes as $change) {
@@ -505,16 +505,16 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
             return false;
         }
 
-        $metadata = array();
-        $elementTexts = array();
+        $metadata = [];
+        $elementTexts = [];
 
         // Get the oldest entry of the record to fill the "added" date.
         $added = null;
         $logEntryCreate = $this->_db->getTable('HistoryLogEntry')
-            ->getFirstEntryForRecord(array(
+            ->getFirstEntryForRecord([
                     'record_type' => $logEntry->record_type,
                     'record_id' => $logEntry->record_id,
-                ), self::OPERATION_CREATE);
+                ], self::OPERATION_CREATE);
         if ($logEntryCreate) {
             $added = $logEntryCreate->added;
         }
@@ -540,10 +540,10 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
                 ), Zend_Log::NOTICE);
                 continue;
             }
-            $elementTexts[$elementSet->name][$element->name][] = array(
+            $elementTexts[$elementSet->name][$element->name][] = [
                 'text' => $change->text,
                 'html' => false,
-            );
+            ];
         }
 
         switch ($this->record_type) {
@@ -659,7 +659,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      *
      * @param int $type The record type.
      */
-    public function setRecordType($type)
+    public function setRecordType($type): void
     {
         $this->record_type = $type;
     }
@@ -669,7 +669,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      *
      * @param int $id The record id.
      */
-    public function setRecordId($id)
+    public function setRecordId($id): void
     {
         $this->record_id = (int) $id;
     }
@@ -679,7 +679,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      *
      * @param int $part_of The part of.
      */
-    public function setPartOf($partOf)
+    public function setPartOf($partOf): void
     {
         $this->part_of = (int) $partOf;
     }
@@ -691,7 +691,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      *
      * @param Record $record
      */
-    protected function _setPartOf($record)
+    protected function _setPartOf($record): void
     {
         switch ($this->record_type) {
             case 'Item':
@@ -711,7 +711,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      *
      * @param int $id The user id.
      */
-    public function setUserId($id)
+    public function setUserId($id): void
     {
         $this->user_id = (int) $id;
     }
@@ -721,7 +721,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      *
      * @param string $operation
      */
-    public function setOperation($operation)
+    public function setOperation($operation): void
     {
         if ($this->_isOperationValid($operation)) {
             $this->operation = $operation;
@@ -793,17 +793,17 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
         switch ($this->record_type) {
             case 'Item':
                 $record = get_record_by_id('Collection', $this->part_of);
-                return $record ?: array(
+                return $record ?: [
                     'record_type' => 'Collection',
                     'record_id' => $this->part_of,
-                );
+                ];
 
             case 'File':
                 $record = get_record_by_id('Item', $this->part_of);
-                return $record ?: array(
+                return $record ?: [
                     'record_type' => 'Item',
                     'record_id' => $this->part_of,
-                );
+                ];
         }
     }
 
@@ -841,10 +841,10 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      */
     public function getElementIdsByRecord()
     {
-        $record = array(
+        $record = [
             'record_type' => $this->record_type,
             'record_id' => $this->record_id,
-        );
+        ];
         return $this->getTable('HistoryLogEntry')
             ->getElementIdsForRecord($record);
     }
@@ -877,7 +877,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      */
     public function isEntryToUndelete()
     {
-        if (!in_array($this->record_type, array('Item', 'Collection'))) {
+        if (!in_array($this->record_type, ['Item', 'Collection'])) {
             return false;
         }
 
@@ -892,10 +892,10 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
 
         // Check if the last operation is a deletion.
         $logEntry = $this->_db->getTable('HistoryLogEntry')
-            ->getLastEntryForRecord(array(
+            ->getLastEntryForRecord([
                     'record_type' => $this->record_type,
                     'record_id' => $this->record_id,
-                ), self::OPERATION_DELETE);
+                ], self::OPERATION_DELETE);
 
         if (empty($logEntry)) {
             return false;
@@ -911,7 +911,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      */
     public function isRecordUndeletable()
     {
-        if (!in_array($this->record_type, array('Item', 'Collection'))) {
+        if (!in_array($this->record_type, ['Item', 'Collection'])) {
             return false;
         }
 
@@ -922,10 +922,10 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
 
         // Check if the last operation is a deletion.
         $logEntry = $this->_db->getTable('HistoryLogEntry')
-            ->getLastEntryForRecord(array(
+            ->getLastEntryForRecord([
                     'record_type' => $this->record_type,
                     'record_id' => $this->record_id,
-                ), self::OPERATION_DELETE);
+                ], self::OPERATION_DELETE);
 
         return $logEntry;
     }
@@ -938,7 +938,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      *
      * @param array $args
      */
-    protected function afterSave($args)
+    protected function afterSave($args): void
     {
         $this->_saveChanges();
     }
@@ -948,7 +948,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      *
      * @param string|array $changes
      */
-    protected function _setChangesToLog($changes)
+    protected function _setChangesToLog($changes): void
     {
         $this->_changesToLog = $changes;
     }
@@ -959,7 +959,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      * Entries are not designed to be updated, so the current changes are kept
      * and can't be removed by normal ways.
      */
-    protected function _saveChanges()
+    protected function _saveChanges(): void
     {
         $changes = $this->_changesToLog;
         if (empty($changes)) {
@@ -968,12 +968,12 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
 
         // Simplify the process for strings.
         if (!is_array($changes)) {
-            $changes = array(
+            $changes = [
                 // This is not an element id, so "0".
-                0 => array(
+                0 => [
                     // There is no process, only a text.
-                    array(HistoryLogChange::TYPE_NONE => (string) $changes),
-            ));
+                    [HistoryLogChange::TYPE_NONE => (string) $changes],
+            ]];
         }
 
         foreach ($changes as $elementId => $texts) {
@@ -1007,7 +1007,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
     protected function _findAlteredElementsForCreatedRecord($record)
     {
         // Get the current list of elements.
-        $newElements = array();
+        $newElements = [];
 
         // If there are elements, the record is created via post (manually).
         $viaPost = isset($record->Elements);
@@ -1018,9 +1018,9 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
                     // strlen() is used to allow values like "0".
                     // But Omeka uses a simple empty() check.
                     if (strlen($elementText['text']) > 0) {
-                        $newElements[$elementId][] = array(
+                        $newElements[$elementId][] = [
                             HistoryLogChange::TYPE_CREATE => $elementText['text'],
-                        );
+                        ];
                     }
                 }
             }
@@ -1030,9 +1030,9 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
         else {
             $elementTexts = get_records(
                 'ElementText',
-                array(
+                [
                     'record_type' => get_class($record),
-                    'record_id' => $record->id),
+                    'record_id' => $record->id],
                 0
             );
 
@@ -1042,9 +1042,9 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
             }
 
             foreach ($elementTexts as $elementText) {
-                $newElements[$elementText->element_id][] = array(
+                $newElements[$elementText->element_id][] = [
                     HistoryLogChange::TYPE_CREATE => $elementText['text'],
-                );
+                ];
             }
         }
 
@@ -1064,21 +1064,21 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      */
     protected function _prepareAlteredElementsForUpdate($record)
     {
-        $result = array();
+        $result = [];
 
         $changedTexts = $this->_changedTexts;
 
         foreach ($changedTexts as $elementId => $changeTypes) {
             // Types should be processed in the order "create", "update" and
             // "delete".
-            $keys = array();
+            $keys = [];
             // Process created terms.
             if (isset($changeTypes[HistoryLogChange::TYPE_CREATE])) {
                 foreach ($changeTypes[HistoryLogChange::TYPE_CREATE] as $term) {
                     // If there is a false update, this is a false create.
-                    $result[$elementId][] = array(
+                    $result[$elementId][] = [
                         HistoryLogChange::TYPE_CREATE => $term,
-                    );
+                    ];
                 }
             }
 
@@ -1097,17 +1097,17 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
                         : false;
                     // Remove of a non last text.
                     if ($key !== false) {
-                        $result[$elementId][] = array(
+                        $result[$elementId][] = [
                             HistoryLogChange::TYPE_DELETE => $oldNewTerm['old'],
-                        );
+                        ];
                         // Unset the current array may be unprevisible.
                         $keys[$key] = true;
                     }
                     // Normal update.
                     else {
-                        $result[$elementId][] = array(
+                        $result[$elementId][] = [
                             HistoryLogChange::TYPE_UPDATE => $oldNewTerm['new'],
-                        );
+                        ];
                     }
                 }
             }
@@ -1116,9 +1116,9 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
             if (isset($changeTypes[HistoryLogChange::TYPE_DELETE])) {
                 foreach ($changeTypes[HistoryLogChange::TYPE_DELETE] as $key => $term) {
                     if (!isset($keys[$key])) {
-                        $result[$elementId][] = array(
+                        $result[$elementId][] = [
                             HistoryLogChange::TYPE_DELETE => $term,
-                        );
+                        ];
                     }
                 }
             }
@@ -1149,7 +1149,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
 
         // Updated elements are the ones that have been added, updated or
         // deleted.
-        $updatedElements = array();
+        $updatedElements = [];
         foreach ($oldElements as $elementId => $oldTexts) {
             // Updated element.
             if (isset($newElements[$elementId])) {
@@ -1158,25 +1158,25 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
                     // The value has been modified, so the new text is logged.
                     if (isset($newTexts[$key])) {
                         if ($newTexts[$key] !== $oldText) {
-                            $updatedElements[$elementId][] = array(
+                            $updatedElements[$elementId][] = [
                                 HistoryLogChange::TYPE_UPDATE => $newTexts[$key],
-                            );
+                            ];
                         }
-                        // Else no change.
+                    // Else no change.
                     }
                     // The value has been deleted. The old text is logged.
                     else {
-                        $updatedElements[$elementId][] = array(
+                        $updatedElements[$elementId][] = [
                             HistoryLogChange::TYPE_DELETE => $oldText,
-                        );
+                        ];
                     }
                 }
                 // Check if there are more keys in the new texts.
                 if (count($newTexts) > count($oldTexts)) {
                     for ($i = count($oldTexts); $i < count($newTexts); $i++) {
-                        $updatedElements[$elementId][] = array(
+                        $updatedElements[$elementId][] = [
                             HistoryLogChange::TYPE_CREATE => $newTexts[$i],
-                        );
+                        ];
                     }
                 }
             }
@@ -1185,9 +1185,9 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
             // process.
             else {
                 foreach ($oldTexts as $key => $oldText) {
-                    $updatedElements[$elementId][] = array(
+                    $updatedElements[$elementId][] = [
                         HistoryLogChange::TYPE_DELETE => $oldText,
-                    );
+                    ];
                 }
             }
         }
@@ -1197,9 +1197,9 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
         foreach ($newElements as $elementId => $newTexts) {
             if (in_array($elementId, $newElementsIds)) {
                 foreach ($newTexts as $newText) {
-                    $updatedElements[$elementId][] = array(
+                    $updatedElements[$elementId][] = [
                         HistoryLogChange::TYPE_CREATE => $newText,
-                    );
+                    ];
                 }
             }
         }
@@ -1217,7 +1217,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
     {
         if (is_null($this->_newElements)) {
             // Get the current list of elements.
-            $newElements = array();
+            $newElements = [];
 
             // If there are elements, the record is created via post (manually).
             $viaPost = isset($record->Elements);
@@ -1237,9 +1237,9 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
             else {
                 $elementTexts = get_records(
                     'ElementText',
-                    array(
+                    [
                         'record_type' => get_class($record),
-                        'record_id' => $record->id),
+                        'record_id' => $record->id],
                     0
                 );
 
@@ -1273,13 +1273,13 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
     protected function _findElementsForDeletedRecord($record)
     {
         // Get the old list of elements.
-        $currentElements = array();
+        $currentElements = [];
 
         $elementTexts = get_records(
             'ElementText',
-            array(
+            [
                 'record_type' => get_class($record),
-                'record_id' => $record->id),
+                'record_id' => $record->id],
             0
         );
 
@@ -1289,9 +1289,9 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
         }
 
         foreach ($elementTexts as $elementText) {
-            $currentElements[$elementText->element_id][] = array(
+            $currentElements[$elementText->element_id][] = [
                 HistoryLogChange::TYPE_DELETE => $elementText['text'],
-            );
+            ];
         }
 
         return $currentElements;
@@ -1389,10 +1389,10 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
                 return $asUrl
                     ? sprintf(
                         '<a href="%s">%s</a>',
-                        url(array(
+                        url([
                                 'type' => 'collections',
                                 'id' => $this->part_of,
-                            ), 'history_log_record_log'),
+                            ], 'history_log_record_log'),
                         $title
                     )
                     : $title;
@@ -1404,10 +1404,10 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
                 return $asUrl
                     ? sprintf(
                         '<a href="%s">%s</a>',
-                        url(array(
+                        url([
                                 'type' => 'items',
                                 'id' => $this->part_of,
-                            ), 'history_log_record_log'),
+                            ], 'history_log_record_log'),
                         $title
                     )
                     : $title;
@@ -1433,7 +1433,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
                 return __('Import');
             case self::OPERATION_EXPORT:
                 return __('Export');
-            // Manage extra type of operation.
+                // Manage extra type of operation.
             default:
                 return ucfirst($this->operation);
         }
@@ -1494,13 +1494,13 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
             return __('No element.');
         }
         $changes = $this->getChanges();
-        $result = array(
-            __('Created') => array(),
-            __('Updated') => array(),
-            __('Deleted') => array(),
-            __('Unchanged') => array(),
-            __('Altered') => array(),
-        );
+        $result = [
+            __('Created') => [],
+            __('Updated') => [],
+            __('Deleted') => [],
+            __('Unchanged') => [],
+            __('Altered') => [],
+        ];
         foreach ($changes as $change) {
             switch ($change->type) {
                 case HistoryLogChange::TYPE_CREATE:
@@ -1543,7 +1543,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
         if (empty($elements)) {
             return __('No element.');
         }
-        $result = array();
+        $result = [];
         foreach ($elements as $elementId => $element) {
             $result[] = $element
                 ? $element->name
@@ -1586,7 +1586,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
     /**
      * Simple validation.
      */
-    protected function _validate()
+    protected function _validate(): void
     {
         if (empty($this->record_id)) {
             $this->addError('record_id', __('Record cannot be empty.'));
@@ -1610,13 +1610,13 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
         if (is_null($operation)) {
             $operation = $this->operation;
         }
-        return in_array($operation, array(
+        return in_array($operation, [
             self::OPERATION_CREATE,
             self::OPERATION_UPDATE,
             self::OPERATION_DELETE,
             self::OPERATION_IMPORT,
             self::OPERATION_EXPORT,
-        ));
+        ]);
     }
 
     /**

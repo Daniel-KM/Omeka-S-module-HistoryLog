@@ -1,10 +1,10 @@
 <?php
 $testing = false;
 $title = __('History Log | Check logs');
-$head = array(
+$head = [
     'title' => html_escape($title),
     'bodyclass' => 'history-log admin',
-);
+];
 echo head($head);
 $total = 0;
 ?>
@@ -15,21 +15,21 @@ $total = 0;
         <?php if ($testing): ?>
         <h3><?php  echo __('FOR TESTING PURPOSE ONLY'); ?></h3>
         <p><?php
-        echo __('These buttons allow to check and rebuild logs.');
-        echo ' ' . __('This may be useful when the plugin has been installed after some records have been created, or when a plugin uses non standard functions.');
-        echo ' ' . __('The rebuild is not a requirement to use this plugin, but it can help to get better stats and to recover data in the future.');
+            echo __('These buttons allow to check and rebuild logs.');
+            echo ' ' . __('This may be useful when the plugin has been installed after some records have been created, or when a plugin uses non standard functions.');
+            echo ' ' . __('The rebuild is not a requirement to use this plugin, but it can help to get better stats and to recover data in the future.');
         ?></p>
         <p><?php
-        echo ' ' . __('The process is still in beta phase, so the entries may be incomplete or not exact.');
+            echo ' ' . __('The process is still in beta phase, so the entries may be incomplete or not exact.');
         ?></p>
         <p><strong><?php
-        echo __('Use these buttons only on a server for tests and after a backup of the base (at least the tables of the plugin).');
+            echo __('Use these buttons only on a server for tests and after a backup of the base (at least the tables of the plugin).');
         ?></strong></p>
         <p><?php
-        echo __('Limits');
+            echo __('Limits');
         ?><br /><?php
-        echo ' ' . __('If an element has been updated, the previous data are lost if the creation of the record has not been recorded.');
-        echo ' ' . __('So the plugin should be improved to log the replaced text and not the new one.');
+            echo ' ' . __('If an element has been updated, the previous data are lost if the creation of the record has not been recorded.');
+            echo ' ' . __('So the plugin should be improved to log the replaced text and not the new one.');
         ?></p>
         <?php else: ?>
         <p><?php echo __('This page lists the missing log entries for each type of record.'); ?></p>

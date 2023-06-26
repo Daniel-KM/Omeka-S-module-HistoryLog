@@ -16,7 +16,7 @@ endif;
 // Rows for each result.
 if (iterator_count(loop('HistoryLogEntry'))):
     foreach (loop('HistoryLogEntry') as $logEntry):
-        $row = array();
+        $row = [];
         $row[] = $logEntry->displayAdded();
         $row[] = $logEntry->record_type;
         $row[] = $logEntry->record_id;

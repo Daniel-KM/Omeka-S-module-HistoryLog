@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * A History Log Change
  *
@@ -45,11 +45,11 @@ class HistoryLogChange extends Omeka_Record_AbstractRecord
      *
      * @var array
      */
-    protected $_related = array(
+    protected $_related = [
         'Record' => 'getRecord',
         'Entry' => 'getEntry',
         'Element' => 'getElement',
-    );
+    ];
 
     /**
      * Cache the entry for this record.
@@ -202,7 +202,7 @@ class HistoryLogChange extends Omeka_Record_AbstractRecord
     /**
      * Validate this record.
      */
-    protected function _validate()
+    protected function _validate(): void
     {
         if (!$this->_isTypeValid()) {
             $this->addError('type', __('Type "%s" is not correct.', $this->type));
@@ -220,12 +220,12 @@ class HistoryLogChange extends Omeka_Record_AbstractRecord
         if (is_null($type)) {
             $type = $this->type;
         }
-        return in_array($type, array(
+        return in_array($type, [
             self::TYPE_NONE,
             self::TYPE_CREATE,
             self::TYPE_UPDATE,
             self::TYPE_DELETE,
-        ));
+        ]);
     }
 
     /**

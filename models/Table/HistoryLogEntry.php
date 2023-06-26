@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * The table for History Log Entries.
  */
@@ -48,9 +48,9 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
 
         $select = $this->getSelect();
         $select->join(
-            array($aliasChange => $this->_db->HistoryLogChange),
+            [$aliasChange => $this->_db->HistoryLogChange],
             "`$aliasChange`.`entry_id` = `$alias`.`id`",
-            array()
+            []
         );
         $select
             ->reset(Zend_Db_Select::COLUMNS)
@@ -73,7 +73,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      */
     public function getFirstEntryForRecord($record, $operation = null)
     {
-        $params = array();
+        $params = [];
         $params['record'] = $record;
         if ($operation) {
             $params['operation'] = $operation;
@@ -96,7 +96,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      */
     public function getLastEntryForRecord($record, $operation = null)
     {
-        $params = array();
+        $params = [];
         $params['record'] = $record;
         if ($operation) {
             $params['operation'] = $operation;
@@ -118,10 +118,10 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      * @return array|null The last entry if any for each element of the record.
      * Null if empty record.
      */
-    public function getLastEntryForElements($record, $elements = array())
+    public function getLastEntryForElements($record, $elements = [])
     {
         if (!is_array($elements)) {
-            $elements = array($elements);
+            $elements = [$elements];
         }
 
         $alias = $this->getTableAlias();
@@ -150,7 +150,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      * special changes with an element id of "0".
      * @return array|null Associative array of the last change of each element.
      */
-    public function getChanges($record, $elements = array(), $onlyElements = false)
+    public function getChanges($record, $elements = [], $onlyElements = false)
     {
         return $this->_db->getTable('HistoryLogChange')
             ->getChanges($record, $elements, $onlyElements);
@@ -165,7 +165,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      * special changes with an element id of "0".
      * @return array|null Associative array of the first change of each element.
      */
-    public function getFirstChanges($record, $elements = array(), $onlyElements = false)
+    public function getFirstChanges($record, $elements = [], $onlyElements = false)
     {
         return $this->_db->getTable('HistoryLogChange')
             ->getFirstChanges($record, $elements, $onlyElements);
@@ -180,7 +180,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      * special changes with an element id of "0".
      * @return array|null Associative array of the last change of each element.
      */
-    public function getLastChanges($record, $elements = array(), $onlyElements = false)
+    public function getLastChanges($record, $elements = [], $onlyElements = false)
     {
         return $this->_db->getTable('HistoryLogChange')
             ->getLastChanges($record, $elements, $onlyElements);
@@ -226,11 +226,11 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      * @param Omeka_Db_Select
      * @param array
      */
-    public function applySearchFilters($select, $params)
+    public function applySearchFilters($select, $params): void
     {
         $alias = $this->getTableAlias();
         $boolean = new Omeka_Filter_Boolean;
-        $genericParams = array();
+        $genericParams = [];
         foreach ($params as $key => $value) {
             if ($value === null || (is_string($value) && trim($value) == '')) {
                 continue;
@@ -283,7 +283,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      * @param Omeka_Db_Select $select
      * @param Omeka_Record_AbstractRecord|array $record
      */
-    public function filterByRecord($select, $record)
+    public function filterByRecord($select, $record): void
     {
         $recordType = '';
         // Manage the case where the record is a new one.
@@ -316,7 +316,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      * @param string $range Example: 1-4, 75, 89
      * @see self::filterByRange()
      */
-    public function filterColumnByRange($select, $range, $column = 'id')
+    public function filterColumnByRange($select, $range, $column = 'id'): void
     {
         // Check the column.
         $columns = $this->getColumns();
@@ -328,7 +328,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
         $exprs = explode(',', $range);
 
         // Construct a SQL clause where every entry in this array is linked by 'OR'.
-        $wheres = array();
+        $wheres = [];
 
         $alias = $this->getTableAlias();
 
@@ -336,7 +336,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
             // If it has a '-' in it, it is a range of ids. Otherwise it is a
             // single id.
             if (strpos($expr, '-') !== false) {
-                list($start, $finish) = explode('-', $expr);
+                [$start, $finish] = explode('-', $expr);
 
                 // Naughty naughty koolaid, no SQL injection for you
                 $start = (int) trim($start);
@@ -366,10 +366,10 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      * @param string $dateSince ISO 8601 formatted date
      * @param string $dateField "added" or "modified"
      */
-    public function filterBySince(Omeka_Db_Select $select, $dateSince, $dateField)
+    public function filterBySince(Omeka_Db_Select $select, $dateSince, $dateField): void
     {
         // Reject invalid date fields.
-        if (!in_array($dateField, array('added', 'modified'))) {
+        if (!in_array($dateField, ['added', 'modified'])) {
             return;
         }
 
@@ -394,10 +394,10 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      * @param string $dateSince ISO 8601 formatted date
      * @param string $dateField "added" or "modified"
      */
-    public function filterByUntil(Omeka_Db_Select $select, $dateUntil, $dateField)
+    public function filterByUntil(Omeka_Db_Select $select, $dateUntil, $dateField): void
     {
         // Reject invalid date fields.
-        if (!in_array($dateField, array('added', 'modified'))) {
+        if (!in_array($dateField, ['added', 'modified'])) {
             return;
         }
 
@@ -422,11 +422,11 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      * May be a "0" for non element change.
      * @todo Cannot be a 0?
      */
-    public function filterByChangedElement(Omeka_Db_Select $select, $elements)
+    public function filterByChangedElement(Omeka_Db_Select $select, $elements): void
     {
         // Reset elements to ids.
         if (!is_array($elements)) {
-            $elements = array($elements);
+            $elements = [$elements];
         }
         foreach ($elements as &$element) {
             $element = (int) (is_object($element) ? $element->id : $element);
@@ -440,9 +440,9 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
         $aliasChange = $tableChange->getTableAlias();
 
         $select->join(
-            array($aliasChange => $this->_db->HistoryLogChange),
+            [$aliasChange => $this->_db->HistoryLogChange],
             "`{$aliasChange}`.`entry_id` = `{$alias}`.`id`",
-            array()
+            []
         );
 
         // One change.

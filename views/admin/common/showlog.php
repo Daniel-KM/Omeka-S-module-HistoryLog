@@ -22,10 +22,10 @@ $subtitle = __('Last Changes for %s #%d', $record_type, $record_id);
                     <td><?php echo $logEntry->displayUser(); ?></td>
                     <td><?php echo $logEntry->displayOperation(); ?>
                     <?php if ($logEntry->isEntryToUndelete()):
-                        $undeleteUrl = url(array(
+                        $undeleteUrl = url([
                                 'type' => Inflector::tableize($logEntry->record_type),
                                 'id' => $logEntry->record_id,
-                            ), 'history_log_undelete'); ?>
+                            ], 'history_log_undelete'); ?>
                         <div><a href="<?php echo html_escape($undeleteUrl); ?>" class="history-log-process button red"><?php echo html_escape(__('Undo')); ?></a></div>
                     <?php endif;
                     ?></td>
@@ -37,10 +37,10 @@ $subtitle = __('Last Changes for %s #%d', $record_type, $record_id);
                 ?>
                 <tr>
                     <td>
-                        <a href="<?php echo url(array(
-                                    'type' => Inflector::tableize($logEntry->record_type),
-                                    'id' => $logEntry->record_id,
-                                ), 'history_log_record_log'); ?>">
+                        <a href="<?php echo url([
+                                'type' => Inflector::tableize($logEntry->record_type),
+                                'id' => $logEntry->record_id,
+                            ], 'history_log_record_log'); ?>">
                             <strong><?php echo __('See more'); ?></strong>
                         </a>
                     </td>

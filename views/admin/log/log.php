@@ -1,10 +1,10 @@
 <?php
 $logs = $this->showlog($record, 0);
 
-echo head(array(
+echo head([
     'title' => __('Curation History Log'),
     'bodyclass' => 'history-log entries',
-));
+]);
 ?>
 <div id="primary">
     <?php echo flash(); ?>

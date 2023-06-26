@@ -70,8 +70,6 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
 
     /**
      * When the plugin installs, create the database tables to store the logs.
-     *
-     * @return void
      */
     public function hookInstall()
     {
@@ -135,8 +133,6 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
     /**
      * When the plugin uninstalls, delete the database tables which store the
      * logs.
-     *
-     * @return void
      */
     public function hookUninstall()
     {
@@ -184,7 +180,7 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
             if (in_array($optionKey, array(
                     'history_log_display',
                 ))) {
-               $post[$optionKey] = json_encode($post[$optionKey]) ?: json_encode(array());
+                $post[$optionKey] = json_encode($post[$optionKey]) ?: json_encode(array());
             }
             if (isset($post[$optionKey])) {
                 set_option($optionKey, $post[$optionKey]);
@@ -196,7 +192,6 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
      * Define the plugin's access control list.
      *
      * @param array $args Parameters supplied by the hook
-     * @return void
      */
     public function hookDefineAcl($args)
     {
@@ -224,9 +219,11 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
                     'action' => 'log',
                 ),
                 array(
-                    'type' =>'items|collections|files',
+                    'type' => 'items|collections|files',
                     'id' => '\d+',
-        )));
+        )
+            )
+        );
 
         $args['router']->addRoute(
             'history_log_undelete',
@@ -238,7 +235,7 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
                     'action' => 'undelete',
                 ),
                 array(
-                    'type' =>'items|collections|files',
+                    'type' => 'items|collections|files',
                     'id' => '\d+',
         )));
     }
@@ -249,7 +246,6 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
      * the save.
      *
      * @param array $args An array of parameters passed by the hook
-     * @return void
      */
     public function hookBeforeSaveRecord($args)
     {
@@ -275,7 +271,6 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
      * update. If it is a new record, log the event.
      *
      * @param array $args An array of parameters passed by the hook
-     * @return void
      */
     public function hookAfterSaveRecord($args)
     {
@@ -303,7 +298,6 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
      * When an record is deleted, log the event.
      *
      * @param array $args An array of parameters passed by the hook.
-     * @return void
      */
     public function hookBeforeDeleteRecord($args)
     {
@@ -323,7 +317,6 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
      * a check is done to save them in case of an update.
      *
      * @param array $args An array of parameters passed by the hook
-     * @return void
      */
     public function hookBeforeSaveElementText($args)
     {
@@ -348,7 +341,7 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
             // order of texts change, in particular when a text that is not the
             // last is removed.
             $db = $this->_db;
-            $sql = "SELECT text FROM {$db->ElementText} WHERE id = " . (integer) $elementText->id;
+            $sql = "SELECT text FROM {$db->ElementText} WHERE id = " . (int) $elementText->id;
             $oldText = $db->fetchOne($sql);
             $logEntry->prepareOneElementText($elementText->element_id, HistoryLogChange::TYPE_UPDATE, array(
                 'old' => $oldText,
@@ -365,7 +358,6 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
      * When a record is deleted, log the event.
      *
      * @param array $args An array of parameters passed by the hook.
-     * @return void
      */
     public function hookBeforeDeleteElementText($args)
     {
@@ -391,7 +383,6 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
      * When an record is deleted, log the event.
      *
      * @param array $args An array of parameters passed by the hook.
-     * @return void
      */
     public function hookBeforeDeleteElement($args)
     {
@@ -492,7 +483,8 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
                     'record_id' => $id,
                 ),
                 HistoryLogEntry::OPERATION_EXPORT,
-                $service);
+                $service
+            );
         }
     }
 
@@ -500,7 +492,6 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
      * Hook for items/show page.
      *
      * @param array $args An array of parameters passed by the hook.
-     * @return void
      */
     public function hookAdminItemsShow($args)
     {
@@ -513,7 +504,6 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
      * Hook for collections/show page.
      *
      * @param array $args An array of parameters passed by the hook.
-     * @return void
      */
     public function hookAdminCollectionsShow($args)
     {
@@ -526,7 +516,6 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
      * Hook for collections/show page.
      *
      * @param array $args An array of parameters passed by the hook.
-     * @return void
      */
     public function hookAdminFilesShow($args)
     {
@@ -541,9 +530,8 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
      *
      * @param array $args An array of parameters passed by the hook.
      * @param string $page The current type of the page
-     * @return void
      */
-    protected  function _adminRecordShow($args, $page)
+    protected function _adminRecordShow($args, $page)
     {
         $record = $args['record'];
         $view = $args['view'];
@@ -555,7 +543,7 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
 
         try {
             echo $view->showlog($record, 5);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             throw $e;
         }
     }
@@ -564,7 +552,6 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
      * Show details for each item.
      *
      * @param array $args An array of parameters passed by the hook
-     * @return void
      */
     public function hookAdminItemsBrowseDetailedEach($args)
     {
@@ -582,24 +569,39 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
             $html = '<div class="history-log">';
             switch ($logEntry->operation) {
                 case HistoryLogEntry::OPERATION_CREATE:
-                    $html .= __('Created on %s by %s.',
-                        $logEntry->displayAdded(), $logEntry->displayUser());
+                    $html .= __(
+                        'Created on %s by %s.',
+                        $logEntry->displayAdded(),
+                        $logEntry->displayUser()
+                    );
                     break;
                 case HistoryLogEntry::OPERATION_UPDATE:
-                    $html .= __('Updated on %s by %s.',
-                        $logEntry->displayAdded(), $logEntry->displayUser());
+                    $html .= __(
+                        'Updated on %s by %s.',
+                        $logEntry->displayAdded(),
+                        $logEntry->displayUser()
+                    );
                     break;
                 case HistoryLogEntry::OPERATION_DELETE:
-                    $html .= __('Deleted on %s by %s.',
-                        $logEntry->displayAdded(), $logEntry->displayUser());
+                    $html .= __(
+                        'Deleted on %s by %s.',
+                        $logEntry->displayAdded(),
+                        $logEntry->displayUser()
+                    );
                     break;
                 case HistoryLogEntry::OPERATION_IMPORT:
-                    $html .= __('Imported on %s by %s.',
-                        $logEntry->displayAdded(), $logEntry->displayUser());
+                    $html .= __(
+                        'Imported on %s by %s.',
+                        $logEntry->displayAdded(),
+                        $logEntry->displayUser()
+                    );
                     break;
                 case HistoryLogEntry::OPERATION_EXPORT:
-                    $html .= __('Exported on %s by %s.',
-                        $logEntry->displayAdded(), $logEntry->displayUser());
+                    $html .= __(
+                        'Exported on %s by %s.',
+                        $logEntry->displayAdded(),
+                        $logEntry->displayUser()
+                    );
                     break;
             }
             $html .= '</div>';
@@ -609,8 +611,6 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
 
     /**
      * Load the plugin javascript when admin section loads
-     *
-     * @return void
      */
     public function hookAdminHead()
     {
@@ -644,7 +644,7 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
      * Quickly check if a record is loggable (item, collection, file).
      *
      * @param Record $record
-     * @return boolean
+     * @return bool
      */
     protected function _isLoggable($record)
     {
@@ -665,11 +665,9 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
             if ($url) {
                 if (strpos('nuxeo-link', $url)) {
                     $imported = 'Nuxeo';
-                }
-                elseif (strpos('youtube', $url)) {
+                } elseif (strpos('youtube', $url)) {
                     $imported = 'YouTube';
-                }
-                elseif (strpos('flickr', $url)) {
+                } elseif (strpos('flickr', $url)) {
                     $imported = 'Flickr';
                 }
             }
@@ -692,7 +690,6 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
      * @param string $operation The type of event to log (e.g. "create"...).
      * @param string|array $changes An extra piece of type specific data for the
      * log.
-     * @return void
      */
     private function _logEvent($record, $operation, $changes = null)
     {
@@ -738,7 +735,7 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
             if ($result === false) {
                 throw new Exception(__('Could not log info.'));
             }
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             throw $e;
         }
     }

@@ -78,7 +78,7 @@ div.record-title {
                 <?php
                 foreach (loop('HistoryLogEntry') as $logEntry):
                 ?>
-                <tr class="history-log-entry <?php echo ++$key%2 == 1 ? 'odd' : 'even'; ?>">
+                <tr class="history-log-entry <?php echo ++$key % 2 == 1 ? 'odd' : 'even'; ?>">
                     <td><?php echo $logEntry->added; ?></td>
                     <td colspan="2">
                         <a href="<?php

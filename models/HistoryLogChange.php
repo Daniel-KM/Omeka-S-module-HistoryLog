@@ -3,7 +3,6 @@
  * A History Log Change
  *
  * @package Historylog
- *
  */
 class HistoryLogChange extends Omeka_Record_AbstractRecord
 {
@@ -121,16 +120,16 @@ class HistoryLogChange extends Omeka_Record_AbstractRecord
         }
 
         switch ($this->type) {
-            case HistoryLogChange::TYPE_CREATE:
+            case self::TYPE_CREATE:
                 $type = __('Created');
                 break;
-            case HistoryLogChange::TYPE_UPDATE:
+            case self::TYPE_UPDATE:
                 $type = __('Updated');
                 break;
-            case HistoryLogChange::TYPE_DELETE:
+            case self::TYPE_DELETE:
                 $type = __('Deleted');
                 break;
-            case HistoryLogChange::TYPE_NONE:
+            case self::TYPE_NONE:
                 $type = __('Unchanged');
                 break;
             default:
@@ -143,11 +142,11 @@ class HistoryLogChange extends Omeka_Record_AbstractRecord
         return empty($element)
             ? __('Unrecognized element #%d', $this->element_id)
             : sprintf($type . ': ' . $element->name);
-     }
+    }
 
     // Wrappers for the Entry.
 
-     /**
+    /**
      * Wrapper to retrieve username of an omeka user by user ID.
      *
      * @return string The username of the Omeka user
@@ -214,7 +213,7 @@ class HistoryLogChange extends Omeka_Record_AbstractRecord
      * Check if the type is valid.
      *
      * @param string $type
-     * @return boolean
+     * @return bool
      */
     protected function _isTypeValid($type = null)
     {
@@ -222,10 +221,10 @@ class HistoryLogChange extends Omeka_Record_AbstractRecord
             $type = $this->type;
         }
         return in_array($type, array(
-            HistoryLogChange::TYPE_NONE,
-            HistoryLogChange::TYPE_CREATE,
-            HistoryLogChange::TYPE_UPDATE,
-            HistoryLogChange::TYPE_DELETE,
+            self::TYPE_NONE,
+            self::TYPE_CREATE,
+            self::TYPE_UPDATE,
+            self::TYPE_DELETE,
         ));
     }
 
@@ -256,7 +255,7 @@ class HistoryLogChange extends Omeka_Record_AbstractRecord
      */
     public function getProperty($property)
     {
-        switch($property) {
+        switch ($property) {
             case 'record':
                 return $this->getRecord();
             case 'entry':

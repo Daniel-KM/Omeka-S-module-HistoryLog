@@ -35,8 +35,11 @@
                     );
                     foreach ($pages as $page) {
                         echo '<li>';
-                        echo $this->formCheckbox('history_log_display[]', $page,
-                            array('checked' => in_array($page, $currentPages) ? 'checked' : ''));
+                        echo $this->formCheckbox(
+                            'history_log_display[]',
+                            $page,
+                            array('checked' => in_array($page, $currentPages) ? 'checked' : '')
+                        );
                         echo $page;
                         echo '</li>';
                     }

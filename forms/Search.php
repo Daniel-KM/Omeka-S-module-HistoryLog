@@ -15,8 +15,6 @@ class HistoryLog_Form_Search extends Omeka_Form
 {
     /**
      * Construct the report generation form.
-     *
-     * @return void
      */
     public function init()
     {
@@ -193,7 +191,8 @@ class HistoryLog_Form_Search extends Omeka_Form
             'export-headers',
         ), 'fields');
 
-        $this->addDisplayGroup(array(
+        $this->addDisplayGroup(
+            array(
                 'submit-search'
             ),
             'submit_buttons'
@@ -284,7 +283,10 @@ class HistoryLog_Form_Search extends Omeka_Form
      */
     protected function _getElementOptions()
     {
-        return get_table_options('Element', null, array(
+        return get_table_options(
+            'Element',
+            null,
+            array(
             'record_types' => array('Item', 'All'),
             'sort' => 'orderBySet')
         );
@@ -315,7 +317,7 @@ class HistoryLog_Form_Search extends Omeka_Form
     /**
      * Check if the server support zip and return the method used.
      *
-     * @return boolean
+     * @return bool
      */
     protected function _getZipProcessor()
     {

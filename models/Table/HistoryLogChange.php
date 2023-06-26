@@ -23,7 +23,8 @@ class Table_HistoryLogChange extends Omeka_Db_Table
         $select->joinInner(
             array($aliasEntry => $db->HistoryLogEntry),
             "`$aliasEntry`.`id` = `$alias`.`entry_id`",
-            array());
+            array()
+        );
 
         $select->group($alias . '.id');
         return $select;
@@ -32,7 +33,7 @@ class Table_HistoryLogChange extends Omeka_Db_Table
     /**
      * Retrieve changes associated with an history log entry.
      *
-     * @param Entry|integer|array $entry May be multiple.
+     * @param Entry|int|array $entry May be multiple.
      * @param array $elements Optional If given, this will only retrieve
      * elements with these specific ids.
      * @param string $sort The manner by which to order the changes.
@@ -54,8 +55,8 @@ class Table_HistoryLogChange extends Omeka_Db_Table
      * Get all changes for elements of a record.
      *
      * @param Omeka_Record_AbstractRecord|array $record
-     * @param array|Element[]|integer $elements All altered elements if empty.
-     * @param boolean $onlyElements If true, return only true elements, not the
+     * @param array|Element[]|int $elements All altered elements if empty.
+     * @param bool $onlyElements If true, return only true elements, not the
      * special changes with an element id of "0".
      * @return array|null Associative array of the last change of each element.
      */
@@ -81,8 +82,8 @@ class Table_HistoryLogChange extends Omeka_Db_Table
      * Get the first change of each element of a record.
      *
      * @param Omeka_Record_AbstractRecord|array $record
-     * @param array|Object|integer $elements All altered elements if empty.
-     * @param boolean $onlyElements If true, return only true elements, not the
+     * @param array|Object|int $elements All altered elements if empty.
+     * @param bool $onlyElements If true, return only true elements, not the
      * special changes with an element id of "0".
      * @return array|null Associative array of the first change of each element.
      */
@@ -95,8 +96,8 @@ class Table_HistoryLogChange extends Omeka_Db_Table
      * Get the last change of each element of a record.
      *
      * @param Omeka_Record_AbstractRecord|array $record
-     * @param array|Object|integer $elements All altered elements if empty.
-     * @param boolean $onlyElements If true, return only true elements, not the
+     * @param array|Object|int $elements All altered elements if empty.
+     * @param bool $onlyElements If true, return only true elements, not the
      * special changes with an element id of "0".
      * @return array|null Associative array of the last change of each element.
      */
@@ -109,8 +110,8 @@ class Table_HistoryLogChange extends Omeka_Db_Table
      * Get the first or last change of each element of a record.
      *
      * @param Omeka_Record_AbstractRecord|array $record
-     * @param array|Object|integer $elements All altered elements if empty.
-     * @param boolean $onlyElements If true, return only true elements, not the
+     * @param array|Object|int $elements All altered elements if empty.
+     * @param bool $onlyElements If true, return only true elements, not the
      * special changes with an element id of "0".
      * @param string $firstOrLast "first" or "last".
      * @return array|null Associative array of the first or last change of each
@@ -145,7 +146,8 @@ class Table_HistoryLogChange extends Omeka_Db_Table
         $select->joinInner(
             array('hlcx' => $subSelect),
             "`hlcx`.`element_id` = `$alias`.`element_id` AND `hlcx`.`x_added` = `$aliasEntry`.`added`",
-            array());
+            array()
+        );
         $this->orderChangesBy($select, 'element');
 
         return $this->fetchObjects($select);
@@ -154,7 +156,7 @@ class Table_HistoryLogChange extends Omeka_Db_Table
     /**
      * Returns the list of changed element ids related to an entry.
      *
-     * @param HistoryLogEntry|integer $entry
+     * @param HistoryLogEntry|int $entry
      * @return array List of element ids. 0 is not returned, because it's not an
      * element id.
      */
@@ -189,14 +191,14 @@ class Table_HistoryLogChange extends Omeka_Db_Table
      * @todo Import/Export are not checked (element_id = "0").
      *
      * @param array $params
-     * @param boolean $lastChange If true, only the value at the end of the
+     * @param bool $lastChange If true, only the value at the end of the
      * period will be compute. This allows to avoid cases where the text has
      * been updated multiple times, for example "Complete" then "Ready to
      * Publish" and finally "Incomplete" (from the plugin "Curator Monitor").
-     * @param boolean $withAllDates If true, the dates without value will be
+     * @param bool $withAllDates If true, the dates without value will be
      * added. For example, if there is no item added in August, the August value
      * will be added with a count of "0".
-     * @param boolean $withDeletedElements When all changes are returned,
+     * @param bool $withDeletedElements When all changes are returned,
      * merge deletion of elements too.
      * @return array The number of records.
      */
@@ -223,7 +225,7 @@ class Table_HistoryLogChange extends Omeka_Db_Table
      *
      * @param array $params
      * @param array $columnsDate
-     * @param boolean $withAllDates
+     * @param bool $withAllDates
      * @return array The result.
      */
     protected function _countRecordsLastChange($params, $columnsDate, $withAllDates)
@@ -326,7 +328,7 @@ class Table_HistoryLogChange extends Omeka_Db_Table
 
         $sql .= ' ORDER BY `element_id` ASC';
         if ($columnsDate) {
-            $sql .= ', `' . implode('` ASC, `' , array_keys($columnsDate)) . '` ASC';
+            $sql .= ', `' . implode('` ASC, `', array_keys($columnsDate)) . '` ASC';
         }
 
         $result = $db->fetchAll($sql);
@@ -338,8 +340,8 @@ class Table_HistoryLogChange extends Omeka_Db_Table
      *
      * @param array $params
      * @param array $columnsDate
-     * @param boolean $withAllDates
-     * @param boolean $withDeletedElements
+     * @param bool $withAllDates
+     * @param bool $withDeletedElements
      * @return array The result.
      */
     protected function _countRecordsAllChanges($params, $columnsDate, $withAllDates, $withDeletedElements)
@@ -404,7 +406,7 @@ class Table_HistoryLogChange extends Omeka_Db_Table
 
         $sql .= ' ORDER BY `element_id` ASC';
         if ($columnsDate) {
-            $sql .= ', `' . implode('` ASC, `' , array_keys($columnsDate)) . '` ASC';
+            $sql .= ', `' . implode('` ASC, `', array_keys($columnsDate)) . '` ASC';
         }
 
         $result = $this->_db->fetchAll($sql);
@@ -414,7 +416,6 @@ class Table_HistoryLogChange extends Omeka_Db_Table
     /**
      * @param Omeka_Db_Select
      * @param array
-     * @return void
      */
     public function applySearchFilters($select, $params)
     {
@@ -443,11 +444,11 @@ class Table_HistoryLogChange extends Omeka_Db_Table
                     break;
                 case 'item':
                     if ($params['record_type'] == 'File') {
-                       $tableEntry->filterColumnByRange($select, $value, 'part_of');
+                        $tableEntry->filterColumnByRange($select, $value, 'part_of');
                     }
                     break;
                 case 'user':
-                    $userId = (integer) (is_object($value) ? $value->id : $value);
+                    $userId = (int) (is_object($value) ? $value->id : $value);
                     $tableEntry->filterByUser($select, $userId, 'user_id');
                     break;
                 case 'since':
@@ -478,7 +479,7 @@ class Table_HistoryLogChange extends Omeka_Db_Table
      *
      * @see self::applySearchFilters()
      * @param Omeka_Db_Select $select
-     * @param Entry|array|integer $entry One or multiple entry or ids.
+     * @param Entry|array|int $entry One or multiple entry or ids.
      */
     public function filterByEntry(Omeka_Db_Select $select, $entry)
     {
@@ -492,7 +493,7 @@ class Table_HistoryLogChange extends Omeka_Db_Table
         // Reset elements to ids.
         $entries = array();
         foreach ($entry as $e) {
-            $entries[] = (integer) (is_object($e) ? $e->id : $e);
+            $entries[] = (int) (is_object($e) ? $e->id : $e);
         }
 
         $alias = $this->getTableAlias();
@@ -512,7 +513,7 @@ class Table_HistoryLogChange extends Omeka_Db_Table
      * @see HistoryLogEntry::filterByChangedElement()
      * @see self::applySearchFilters()
      * @param Omeka_Db_Select $select
-     * @param Element|array|integer $elements One or multiple element or ids.
+     * @param Element|array|int $elements One or multiple element or ids.
      * May be a "0" for non element change.
      */
     public function filterByChangedElement(Omeka_Db_Select $select, $elements)
@@ -522,7 +523,7 @@ class Table_HistoryLogChange extends Omeka_Db_Table
             $elements = array($elements);
         }
         foreach ($elements as &$element) {
-            $element = (integer) (is_object($element) ? $element->id : $element);
+            $element = (int) (is_object($element) ? $element->id : $element);
         }
         if (empty($elements)) {
             return;
@@ -546,13 +547,12 @@ class Table_HistoryLogChange extends Omeka_Db_Table
      * @param string $sort The manner in which to order the changes by. For
      * example: 'id' = change id ; 'element' = by element id.
      * @param string $dir Ascendant ("ASC") or descendant ("DESC").
-     * @return void
      */
     public function orderChangesBy($select, $sort = 'id', $dir = 'ASC')
     {
         $alias = $this->getTableAlias();
         $dir = ($dir == 'DESC') ? 'DESC' : 'ASC';
-        switch($sort) {
+        switch ($sort) {
             case 'entry':
             case 'entry_id':
                 $select->order("$alias.entry_id $dir");
@@ -594,12 +594,12 @@ class Table_HistoryLogChange extends Omeka_Db_Table
      * with now() and some other ones.
      *
      * @param array $params
-     * @return array|boolean Cleaned list of date "since", "until", "by" and
+     * @return array|bool Cleaned list of date "since", "until", "by" and
      * "columns". False if a param is not good.
      */
     protected function _normalizePeriod($params)
     {
-        If (empty($params['since'])) {
+        if (empty($params['since'])) {
             if (!empty($params['added'])) {
                 $since = $params['added'];
             }
@@ -619,7 +619,7 @@ class Table_HistoryLogChange extends Omeka_Db_Table
             $since = $this->_normalizeDate($params['since']);
         }
 
-        If (empty($params['until'])) {
+        if (empty($params['until'])) {
             if (!empty($params['added'])) {
                 $until = $params['added'];
             }
@@ -736,7 +736,7 @@ class Table_HistoryLogChange extends Omeka_Db_Table
      * @param string $select The select to string.
      * @param array $params
      * @param array $columnsDate
-     * @return string|boolean Sql query, else false.
+     * @return string|bool Sql query, else false.
      */
     protected function _getAllPeriods($selectSql, $params, $columnsDate)
     {
@@ -804,8 +804,13 @@ class Table_HistoryLogChange extends Omeka_Db_Table
             $sqlMainJoinEnd = ') AS `Periods` ON ';
             $i = count($period);
             foreach ($period as $function => $label) {
-                $sqlPeriodStart .= sprintf('%s(DATE_ADD(%s, INTERVAL `numlist`.`i` %s)) AS `%s`',
-                    $function, $this->_db->quote($params['since']), $intervalName, $label);
+                $sqlPeriodStart .= sprintf(
+                    '%s(DATE_ADD(%s, INTERVAL `numlist`.`i` %s)) AS `%s`',
+                    $function,
+                    $this->_db->quote($params['since']),
+                    $intervalName,
+                    $label
+                );
                 $sqlMainJoinEnd .= sprintf('`Periods`.`%s` = `stats`.`%s`', $label, $label);
                 if (--$i > 0) {
                     $sqlPeriodStart .= ', ';
@@ -819,7 +824,7 @@ class Table_HistoryLogChange extends Omeka_Db_Table
         }
 
         // Select the shortest numerals list according to the number of periods.
-        switch (strlen((integer) $interval + 2)) {
+        switch (strlen((int) $interval + 2)) {
             case 1:
                 $sqlNumList = "SELECT `n1`.`i` AS `i`
                     FROM `$num` `n1`";
@@ -858,6 +863,7 @@ class Table_HistoryLogChange extends Omeka_Db_Table
                     CROSS JOIN `$num` AS `n1000`
                     CROSS JOIN `$num` AS `n10000`
                     CROSS JOIN `$num` AS `n100000`";
+                // no break
             default:
                 return false;
         }

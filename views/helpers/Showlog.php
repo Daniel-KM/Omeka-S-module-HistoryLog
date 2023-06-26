@@ -42,7 +42,7 @@ class HistoryLog_View_Helper_Showlog extends Zend_View_Helper_Abstract
         // Check array too.
         elseif (is_array($record) && isset($record['record_type']) && $record['record_id']) {
             $params['record_type'] = Inflector::classify($record['record_type']);
-            $params['record_id'] = (integer) $record['record_id'];
+            $params['record_id'] = (int) $record['record_id'];
         }
         // No record.
         else {

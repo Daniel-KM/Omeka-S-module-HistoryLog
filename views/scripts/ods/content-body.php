@@ -54,7 +54,9 @@ foreach ($tableNames as $iTable => $tableName):
             // TODO Manage repeated cells.
 
             // Replace all internal ends of line by a tag.
-            $row = array_map(function ($value) { return str_replace(PHP_EOL, '</text:p><text:p>', $value); }, $row);
+            $row = array_map(function ($value) {
+                return str_replace(PHP_EOL, '</text:p><text:p>', $value);
+            }, $row);
             echo $beforeCell . implode($betweenCells, array_map('xml_escape', $row)) . $afterCell;
 
             echo str_repeat($indent, 4) . '</table:table-row>' . $eol;

@@ -18,13 +18,23 @@ class HistoryLog_Job_CheckLogs extends Omeka_Job_AbstractJob
     {
         $this->_db = get_db();
 
-        $this->_log(__('Launch creation of log entries "%s" for "%s" (max: %d, memory: %d).',
-            ucfirst($this->_operation), $this->_recordType, $this->_limit, memory_get_usage()));
+        $this->_log(__(
+            'Launch creation of log entries "%s" for "%s" (max: %d, memory: %d).',
+            ucfirst($this->_operation),
+            $this->_recordType,
+            $this->_limit,
+            memory_get_usage()
+        ));
 
         $this->_checkLogs();
 
-        $this->_log(__('End of creation of log entries "%s" for "%s" (max: %d, memory: %d).',
-            ucfirst($this->_operation), $this->_recordType, $this->_limit, memory_get_usage()));
+        $this->_log(__(
+            'End of creation of log entries "%s" for "%s" (max: %d, memory: %d).',
+            ucfirst($this->_operation),
+            $this->_recordType,
+            $this->_limit,
+            memory_get_usage()
+        ));
     }
 
     /**
@@ -49,13 +59,24 @@ class HistoryLog_Job_CheckLogs extends Omeka_Job_AbstractJob
             $result = $logEntry->rebuildEntry(array('record_type' => $recordType, 'record_id' => $recordId), $operation);
             if ($result) {
                 $logEntry->save();
-                $this->_log(__('Entry "%s" for record "%s #%d" has been created (%d/%d).',
-                    $operation, $recordType, $recordId, $key + 1, count($missingRecordsIds)));
+                $this->_log(__(
+                    'Entry "%s" for record "%s #%d" has been created (%d/%d).',
+                    $operation,
+                    $recordType,
+                    $recordId,
+                    $key + 1,
+                    count($missingRecordsIds)
+                ));
             }
             // Error.
             else {
-                $this->_log(__('Entry failed for record "%s #%d" (%d/%d).',
-                    $recordType, $recordId, $key + 1, count($missingRecordsIds)));
+                $this->_log(__(
+                    'Entry failed for record "%s #%d" (%d/%d).',
+                    $recordType,
+                    $recordId,
+                    $key + 1,
+                    count($missingRecordsIds)
+                ));
             }
             release_object($logEntry);
         }
@@ -129,7 +150,7 @@ class HistoryLog_Job_CheckLogs extends Omeka_Job_AbstractJob
 
     public function setLimit($limit)
     {
-        $this->_limit = (integer) $limit;
+        $this->_limit = (int) $limit;
     }
 
     /**

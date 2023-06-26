@@ -37,7 +37,7 @@ class HistoryLog_AdminController extends Omeka_Controller_AbstractActionControll
         }
 
         $this->view->result = $result;
-        $this->view->totalRecords= $totalRecords;
+        $this->view->totalRecords = $totalRecords;
     }
 
     /**

@@ -15,8 +15,6 @@ class HistoryLog_LogController extends Omeka_Controller_AbstractActionController
 {
     /**
      * Set up the view for full record reports.
-     *
-     * @return void
      */
     public function logAction()
     {
@@ -28,20 +26,18 @@ class HistoryLog_LogController extends Omeka_Controller_AbstractActionController
         }
 
         $recordType = Inflector::classify($recordType);
-        $recordId = (integer) $recordId;
+        $recordId = (int) $recordId;
 
         $record = get_record_by_id($recordType, $recordId);
 
         $this->view->record = $record ?: array(
             'record_type' => Inflector::classify($recordType),
-            'record_id' => (integer) $recordId,
+            'record_id' => (int) $recordId,
         );
     }
 
     /**
      * Undelete a record when possible.
-     *
-     * @return void
      */
     public function undeleteAction()
     {
@@ -53,7 +49,7 @@ class HistoryLog_LogController extends Omeka_Controller_AbstractActionController
         }
 
         $recordType = Inflector::classify($recordType);
-        $recordId = (integer) $recordId;
+        $recordId = (int) $recordId;
 
         $record = get_record_by_id($recordType, $recordId);
         if (!empty($record)) {
@@ -99,11 +95,10 @@ class HistoryLog_LogController extends Omeka_Controller_AbstractActionController
      * Quickly check if a record is loggable (item, collection, file).
      *
      * @param string $recordType
-     * @return boolean
+     * @return bool
      */
     protected function _isLoggable($recordType)
     {
         return in_array($recordType, array('Item', 'Collection', 'File'));
     }
-
 }

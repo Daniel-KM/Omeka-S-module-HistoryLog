@@ -85,8 +85,10 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
             switch ($export) {
                 case 'csv':
                     $response
-                        ->setHeader('Content-Disposition',
-                            'attachment; filename=Omeka_History_Log_' . date('Ymd-His') . '.csv')
+                        ->setHeader(
+                            'Content-Disposition',
+                            'attachment; filename=Omeka_History_Log_' . date('Ymd-His') . '.csv'
+                        )
                         ->setHeader('Content-type', 'text/csv');
                     $this->render('browse-csv');
                     break;
@@ -103,8 +105,10 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
 
                     $this->_helper->viewRenderer->setNoRender();
                     $response
-                        ->setHeader('Content-Disposition',
-                           'attachment; filename=Omeka_History_Log_' . date('Ymd-His') . '.ods')
+                        ->setHeader(
+                            'Content-Disposition',
+                            'attachment; filename=Omeka_History_Log_' . date('Ymd-His') . '.ods'
+                        )
                         ->setHeader('Content-type', 'application/vnd.oasis.opendocument.spreadsheet');
                     $response->clearBody();
                     $response->setBody(file_get_contents($filename));
@@ -113,8 +117,10 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
                 case 'fods':
                     $this->_prepareSpreadsheet();
                     $response
-                        ->setHeader('Content-Disposition',
-                            'attachment; filename=Omeka_History_Log_' . date('Ymd-His') . '.fods')
+                        ->setHeader(
+                            'Content-Disposition',
+                            'attachment; filename=Omeka_History_Log_' . date('Ymd-His') . '.fods'
+                        )
                         ->setHeader('Content-type', 'text/xml');
                     $this->render('browse-fods');
                     break;
@@ -124,8 +130,6 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
 
     /**
      * This shows the search form for records by going to the correct URI.
-     *
-     * @return void
      */
     public function searchAction()
     {
@@ -138,7 +142,7 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
         $form->setAction(url(array(
             'module' => 'history-log',
             'controller' => 'index',
-            'action' =>'browse',
+            'action' => 'browse',
         )));
         // The browse method requires "get" to process the query.
         $form->setMethod('get');
@@ -155,12 +159,14 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
     {
         $iniReader = new Omeka_Plugin_Ini(PLUGIN_DIR);
         $path = basename(dirname(dirname(__FILE__)));
-        $generator = sprintf('Omeka/%s - %s/%s [%s] (%s)',
+        $generator = sprintf(
+            'Omeka/%s - %s/%s [%s] (%s)',
             OMEKA_VERSION,
             $iniReader->getPluginIniValue($path, 'name'),
             $iniReader->getPluginIniValue($path, 'version'),
             $iniReader->getPluginIniValue($path, 'author'),
-            $iniReader->getPluginIniValue($path, 'link'));
+            $iniReader->getPluginIniValue($path, 'link')
+        );
         return $generator;
     }
 
@@ -218,7 +224,7 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
      *
      * @todo Add checks.
      *
-     * @return boolean
+     * @return bool
      */
     protected function _createOpenDocument()
     {
@@ -251,7 +257,8 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
         foreach ($defaultFiles as $file) {
             $result = copy(
                 $sourceDir . DIRECTORY_SEPARATOR . $file,
-                $tempDir . DIRECTORY_SEPARATOR . $file);
+                $tempDir . DIRECTORY_SEPARATOR . $file
+            );
             if (empty($result)) {
                 return false;
             }
@@ -268,9 +275,11 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
         foreach ($xmlFiles as $file) {
             $name = pathinfo($file, PATHINFO_FILENAME);
             $filename = tempnam(sys_get_temp_dir(), $name);
-            $xml = $this->view->partial('ods/' . $name . '.php',
+            $xml = $this->view->partial(
+                'ods/' . $name . '.php',
                 $this->view->variables['module'],
-                $name == 'content' ? array('variables' => $this->view->variables) : $this->view->variables);
+                $name == 'content' ? array('variables' => $this->view->variables) : $this->view->variables
+            );
             $result = file_put_contents($filename, $xml);
             if (!$result) {
                 return;
@@ -304,7 +313,7 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
     /**
      * Check if the server support zip.
      *
-     * @return boolean
+     * @return bool
      */
     protected function _getZipProcessor()
     {
@@ -372,8 +381,7 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
                     $relativePath = substr($file, $sourceLength + 1);
                     if (is_dir($file)) {
                         $result = $zip->addEmptyDir($relativePath);
-                    }
-                    else {
+                    } else {
                         $result = $zip->addFile($file, $relativePath);
                     }
                     $zip->setCompressionName($relativePath, ZipArchive::CM_DEFLATE);
@@ -465,7 +473,7 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
      * Removes directories recursively.
      *
      * @param string $dirPath Directory name.
-     * @return boolean
+     * @return bool
      */
     protected function _rrmdir($dirPath)
     {
@@ -474,8 +482,7 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
             $path = $dirPath . DIRECTORY_SEPARATOR . $file;
             if (is_dir($path)) {
                 $this->_rrmDir($path);
-            }
-            else {
+            } else {
                 unlink($path);
             }
         }
@@ -488,10 +495,10 @@ class HistoryLog_IndexController extends Omeka_Controller_AbstractActionControll
      * @internal Values are passed by reference.
      *
      * @param string $integer
-     * @param integer $status
+     * @param int $status
      * @param string $output
      * @param string $errors
-     * @return boolean
+     * @return bool
      */
     protected function _executeCommand($cmd, &$status, &$output, &$errors)
     {

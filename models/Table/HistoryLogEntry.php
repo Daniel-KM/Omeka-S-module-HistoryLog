@@ -13,9 +13,9 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      * that get returned from the database.
      * @param string $since Set the start date.
      * @param string $until Set the end date, included.
-     * @param User|integer $user Limit to a user.
-     * @param integer $limit Number of objects to return per "page".
-     * @param integer $page Page to retrieve.
+     * @param User|int $user Limit to a user.
+     * @param int $limit Number of objects to return per "page".
+     * @param int $page Page to retrieve.
      * @return array|null The set of objects that is returned.
      */
     public function getEntries($params, $since = null, $until = null, $user = null, $limit = null, $page = null)
@@ -50,7 +50,8 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
         $select->join(
             array($aliasChange => $this->_db->HistoryLogChange),
             "`$aliasChange`.`entry_id` = `$alias`.`id`",
-            array());
+            array()
+        );
         $select
             ->reset(Zend_Db_Select::COLUMNS)
             ->columns($aliasChange . '.element_id');
@@ -113,7 +114,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      * Return the last entry for elements of a record.
      *
      * @param Omeka_Record_AbstractRecord|array $record
-     * @param array|Object|integer $elements All altered elements if empty.
+     * @param array|Object|int $elements All altered elements if empty.
      * @return array|null The last entry if any for each element of the record.
      * Null if empty record.
      */
@@ -144,8 +145,8 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      * Wrapper to get changes for elements of a record.
      *
      * @param Omeka_Record_AbstractRecord|array $record
-     * @param array|Object|integer $elements All altered elements if empty.
-     * @param boolean $onlyElements If true, return only true elements, not the
+     * @param array|Object|int $elements All altered elements if empty.
+     * @param bool $onlyElements If true, return only true elements, not the
      * special changes with an element id of "0".
      * @return array|null Associative array of the last change of each element.
      */
@@ -159,8 +160,8 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      * Wrapper to get the first change of each element of a record.
      *
      * @param Object|array $record
-     * @param array|Object|integer $elements All altered elements if empty.
-     * @param boolean $onlyElements If true, return only true elements, not the
+     * @param array|Object|int $elements All altered elements if empty.
+     * @param bool $onlyElements If true, return only true elements, not the
      * special changes with an element id of "0".
      * @return array|null Associative array of the first change of each element.
      */
@@ -174,8 +175,8 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      * Wrapper to get the last change of each element of a record.
      *
      * @param Omeka_Record_AbstractRecord|array $record
-     * @param array|Object|integer $elements All altered elements if empty.
-     * @param boolean $onlyElements If true, return only true elements, not the
+     * @param array|Object|int $elements All altered elements if empty.
+     * @param bool $onlyElements If true, return only true elements, not the
      * special changes with an element id of "0".
      * @return array|null Associative array of the last change of each element.
      */
@@ -201,14 +202,14 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      * @todo Import/Export are not checked (element_id = "0").
      *
      * @param array $params
-     * @param boolean $lastChange If true, only the value at the end of the
+     * @param bool $lastChange If true, only the value at the end of the
      * period will be compute. This allows to avoid cases where the text has
      * been updated multiple times, for example "Complete" then "Ready to
      * Publish" and finally "Incomplete" (from the plugin "Curator Monitor").
-     * @param boolean $withAllDates If true, the dates without value will be
+     * @param bool $withAllDates If true, the dates without value will be
      * added. For example, if there is no item added in August, the August value
      * will be added with a count of "0".
-     * @param boolean $withDeletedElements When all changes are returned,
+     * @param bool $withDeletedElements When all changes are returned,
      * merge deletion of elements too.
      * @return array The number of records.
      */
@@ -224,7 +225,6 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      *
      * @param Omeka_Db_Select
      * @param array
-     * @return void
      */
     public function applySearchFilters($select, $params)
     {
@@ -246,11 +246,11 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
                     break;
                 case 'item':
                     if ($params['record_type'] == 'File') {
-                       $this->filterColumnByRange($select, $value, 'part_of');
+                        $this->filterColumnByRange($select, $value, 'part_of');
                     }
                     break;
                 case 'user':
-                    $userId = (integer) (is_object($value) ? $value->id : $value);
+                    $userId = (int) (is_object($value) ? $value->id : $value);
                     $this->filterByUser($select, $userId, 'user_id');
                     break;
                 case 'since':
@@ -291,7 +291,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
         if (is_array($record)) {
             if (!empty($record['record_type']) && !empty($record['record_id'])) {
                 $recordType = Inflector::classify($record['record_type']);
-                $recordId = (integer) $record['record_id'];
+                $recordId = (int) $record['record_id'];
             }
         }
         // Convert the record.
@@ -314,7 +314,6 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      * @param Omeka_Db_Select $select
      * @param string $range Example: 1-4, 75, 89
      * @param string $range Example: 1-4, 75, 89
-     * @return void
      * @see self::filterByRange()
      */
     public function filterColumnByRange($select, $range, $column = 'id')
@@ -340,15 +339,14 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
                 list($start, $finish) = explode('-', $expr);
 
                 // Naughty naughty koolaid, no SQL injection for you
-                $start  = (integer) trim($start);
-                $finish = (integer) trim($finish);
+                $start = (int) trim($start);
+                $finish = (int) trim($finish);
 
                 $wheres[] = "($alias.$column BETWEEN $start AND $finish)";
-
             }
             // Else, it's a single id.
             else {
-                $id = (integer) trim($expr);
+                $id = (int) trim($expr);
                 $wheres[] = "($alias.$column = $id)";
             }
         }
@@ -420,7 +418,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
      * @see HistoryLogChange::filterByChangedElement()
      * @see self::applySearchFilters()
      * @param Omeka_Db_Select $select
-     * @param Element|array|integer $elements One or multiple element or ids.
+     * @param Element|array|int $elements One or multiple element or ids.
      * May be a "0" for non element change.
      * @todo Cannot be a 0?
      */
@@ -431,7 +429,7 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
             $elements = array($elements);
         }
         foreach ($elements as &$element) {
-            $element = (integer) (is_object($element) ? $element->id : $element);
+            $element = (int) (is_object($element) ? $element->id : $element);
         }
         if (empty($elements)) {
             return;
@@ -444,7 +442,8 @@ class Table_HistoryLogEntry extends Omeka_Db_Table
         $select->join(
             array($aliasChange => $this->_db->HistoryLogChange),
             "`{$aliasChange}`.`entry_id` = `{$alias}`.`id`",
-            array());
+            array()
+        );
 
         // One change.
         if (count($elements) == 1) {

@@ -3,7 +3,6 @@
  * A History Log entry
  *
  * @package Historylog
- *
  */
 class HistoryLogEntry extends Omeka_Record_AbstractRecord
 {
@@ -110,7 +109,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      * Old "part of", to check when there is an update. Only useful  to log the
      * change of a collection of an item.     *
      *
-     * @var integer
+     * @var int
      */
     private $_oldPartOf;
 
@@ -150,8 +149,8 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      * the time of logging.
      * @param string Set what is the first hook (BuilderItem save element texts
      * first). Can be "record" (default") or "element_text".
-     * @return boolean
-      */
+     * @return bool
+     */
     public function prepareNewEvent($record, $updateType = 'record')
     {
         $result = $this->_logRecord($record);
@@ -169,7 +168,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      *
      * @param Omeka_Record_AbstractRecord $record
      * @return boolean.
-      */
+     */
     protected function _cacheOldRecord()
     {
         if (empty($this->record_type) || empty($this->record_id)) {
@@ -178,20 +177,20 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
 
         $db = get_db();
 
-                // Save the current "part of" for item (useless for other record types).
+        // Save the current "part of" for item (useless for other record types).
         if ($this->record_type == 'Item') {
             $sql = "
                 SELECT `collection_id`
                 FROM `{$db->Item}`
-                WHERE `id` = " . (integer) $this->record_id;
-            $this->_oldPartOf = (integer) $db->fetchOne($sql);
+                WHERE `id` = " . (int) $this->record_id;
+            $this->_oldPartOf = (int) $db->fetchOne($sql);
         }
 
         $sql = "
             SELECT `id`, `element_id`, `text`
             FROM `{$db->ElementText}`
             WHERE `record_type` = " . $db->quote($this->record_type)
-                . ' AND `record_id` = ' . (integer) $this->record_id;
+                . ' AND `record_id` = ' . (int) $this->record_id;
         $elementTexts = $db->fetchAll($sql);
         $oldTexts = array();
         foreach ($elementTexts as $elementText) {
@@ -205,12 +204,12 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
     /**
      * Prepare data about one element text being created, updated or deleted.
      *
-     * @param integer $elementId
+     * @param int $elementId
      * @param string $type
      * @param array $value
-     * @param integer $elementTextId
+     * @param int $elementTextId
      * @return boolean.
-      */
+     */
     public function prepareOneElementText($elementId, $type, $value, $elementTextId = 0)
     {
         if (empty($this->record_type) || empty($this->record_id)) {
@@ -242,7 +241,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      * @param Omeka_Record_AbstractRecord|array $record The Omeka record to log.
      * It should exist at the time of logging.
      * @param string $operation The type of event to log (e.g. "create"...).
-     * @param User|integer $user
+     * @param User|int $user
      * @param string|array $change An extra piece of type specific data for the
      * log. When the operation is "create", the change of elements is
      * automatically set. For "update", the change should be filled with an
@@ -250,8 +249,8 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      * try to determine them if old values are still available. For "delete",
      * there is no change. For "import" and "export", this is an external
      * content that can't be determined inside the history log entry.
-     * @return boolean False if an error occur, else true.
-      */
+     * @return bool False if an error occur, else true.
+     */
     public function logEvent($record, $operation, $user, $change = null)
     {
         if (empty($this->record_type) || empty($this->record_id)) {
@@ -273,11 +272,11 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
 
         // Set change according to the operation.
         switch ($this->operation) {
-            case HistoryLogEntry::OPERATION_CREATE:
+            case self::OPERATION_CREATE:
                 $changes = $this->_findAlteredElementsForCreatedRecord($record);
                 $this->_setChangesToLog($changes);
                 break;
-            case HistoryLogEntry::OPERATION_UPDATE:
+            case self::OPERATION_UPDATE:
                 // The "viaPost" check allows to manage the deletion of an
                 // element text before the last element text of an element.
                 $viaPost = isset($record->Elements);
@@ -288,12 +287,12 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
                     : $this->_findAlteredElementsForUpdatedRecord($record);
                 $this->_setChangesToLog($changes);
                 break;
-            case HistoryLogEntry::OPERATION_DELETE:
+            case self::OPERATION_DELETE:
                 $changes = $this->_findElementsForDeletedRecord($record);
                 $this->_setChangesToLog($changes);
                 break;
-            case HistoryLogEntry::OPERATION_IMPORT:
-            case HistoryLogEntry::OPERATION_EXPORT:
+            case self::OPERATION_IMPORT:
+            case self::OPERATION_EXPORT:
                 $this->_setChangesToLog((string) $change);
                 break;
         }
@@ -306,8 +305,8 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      *
      * @param Omeka_Record_AbstractRecord|array $record The Omeka record to log. It should exist at
      * the time of logging. If the operation is "update", it must be an object.
-     * @return boolean False if an error occur, else true.
-      */
+     * @return bool False if an error occur, else true.
+     */
     protected function _logRecord($record)
     {
         // Get the record object if it is an array.
@@ -331,16 +330,16 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      *
      * @param array $record
      * @param string $operation
-     * @return boolean Success or not. False may mean it's useless.
+     * @return bool Success or not. False may mean it's useless.
      */
     public function rebuildEntry($record, $operation)
     {
         switch ($this->operation) {
-            case HistoryLogEntry::OPERATION_CREATE:
+            case self::OPERATION_CREATE:
                 return $this->_rebuildFirstEntry($record);
-            case HistoryLogEntry::OPERATION_UPDATE:
+            case self::OPERATION_UPDATE:
                 return $this->_rebuildUpdateEntry($record);
-            case HistoryLogEntry::OPERATION_DELETE:
+            case self::OPERATION_DELETE:
                 return $this->_rebuildLastEntry($record);
         }
         return false;
@@ -350,7 +349,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      * Rebuild the first entry ("create") for a record, if missing.
      *
      * @param array $record
-     * @return boolean Success or not.
+     * @return bool Success or not.
      */
     protected function _rebuildFirstEntry($record)
     {
@@ -362,7 +361,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
 
         // Check if this entry need to be recreated.
         $entry = $this->_db->getTable('HistoryLogEntry')
-            ->getFirstEntryForRecord($record, HistoryLogEntry::OPERATION_CREATE);
+            ->getFirstEntryForRecord($record, self::OPERATION_CREATE);
         if ($entry) {
             return false;
         }
@@ -379,7 +378,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
             ->findBy(array(
                 'record' => $record,
                 // Only the update operation is useful.
-                'operation' => HistoryLogEntry::OPERATION_UPDATE,
+                'operation' => self::OPERATION_UPDATE,
                 Omeka_Db_Table::SORT_PARAM => 'added',
                 Omeka_Db_Table::SORT_DIR_PARAM => 'd',
             ));
@@ -436,7 +435,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
         // Some plugins like Scripto allow anonymous users.
         $user = current_user() ?: new User;
         $this->setUserId($user->id);
-        $this->operaiton = HistoryLogEntry::OPERATION_CREATE;
+        $this->operaiton = self::OPERATION_CREATE;
         $this->added = $record->added;
 
         // TODO Remove the return "false" used for testing purpose.
@@ -452,13 +451,13 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      * @todo Create the full entry for current records without the log "create".
      *
      * @param array $record
-     * @return boolean Success or not.
+     * @return bool Success or not.
      */
     protected function _rebuildUpdateEntry($record)
     {
-       // TODO Remove the return "false" used for testing purpose.
+        // TODO Remove the return "false" used for testing purpose.
         return false;
-     }
+    }
 
     /**
      * Rebuild the last entry ("delete") for a deleted record, if missing.
@@ -466,7 +465,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      * @todo Create last entry for deleted records without the log "delete".
      *
      * @param array $record
-     * @return boolean Success or not.
+     * @return bool Success or not.
      */
     protected function _rebuildLastEntry($record)
     {
@@ -479,7 +478,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
 
         // Check if this entry need to be recreated.
         $entry = $this->_db->getTable('HistoryLogEntry')
-            ->getFirstEntryForRecord($record, HistoryLogEntry::OPERATION_DELETE);
+            ->getFirstEntryForRecord($record, self::OPERATION_DELETE);
         if ($entry) {
             return false;
         }
@@ -495,7 +494,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
     /**
      * Undelete the record.
      *
-     * @return Record|boolean The record if the undeletion succeed, else false.
+     * @return Record|bool The record if the undeletion succeed, else false.
      */
     public function undeleteRecord()
     {
@@ -515,7 +514,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
             ->getFirstEntryForRecord(array(
                     'record_type' => $logEntry->record_type,
                     'record_id' => $logEntry->record_id,
-                ), HistoryLogEntry::OPERATION_CREATE);
+                ), self::OPERATION_CREATE);
         if ($logEntryCreate) {
             $added = $logEntryCreate->added;
         }
@@ -526,14 +525,19 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
         foreach ($changes as $change) {
             $element = $change->getElement();
             if (empty($element)) {
-                _log(__("Element #%d doesn't exist any more and can't be refilled.",
-                    $change->element_id), Zend_Log::NOTICE);
+                _log(__(
+                    "Element #%d doesn't exist any more and can't be refilled.",
+                    $change->element_id
+                ), Zend_Log::NOTICE);
                 continue;
             }
             $elementSet = $element->getElementSet();
             if (empty($element)) {
-                _log(__('Element Set #%d for element #%d does not exist.',
-                    $element->element_set_id, $change->element_id), Zend_Log::NOTICE);
+                _log(__(
+                    'Element Set #%d for element #%d does not exist.',
+                    $element->element_set_id,
+                    $change->element_id
+                ), Zend_Log::NOTICE);
                 continue;
             }
             $elementTexts[$elementSet->name][$element->name][] = array(
@@ -546,7 +550,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
             case 'Item':
                 $record = new Item();
                 $record->id = $logEntry->record_id;
-                $record->user = $logEntry->user_id ?: (integer) $currentUser->id;
+                $record->user = $logEntry->user_id ?: (int) $currentUser->id;
                 $record->added = $added;
                 if ($logEntry->part_of) {
                     // Check if the collection still exists.
@@ -561,7 +565,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
             case 'Collection':
                 $record = new Collection();
                 $record->id = $logEntry->record_id;
-                $record->user = $logEntry->user_id ?: (integer) $currentUser->id;
+                $record->user = $logEntry->user_id ?: (int) $currentUser->id;
                 $record->added = $added;
                 $record = update_collection($record, $metadata, $elementTexts);
                 break;
@@ -571,8 +575,11 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
         }
 
         if ($record) {
-            _log(__('The %s #%d has been recreated (metadata only).',
-                $this->record_type, $this->record_id), Zend_Log::NOTICE);
+            _log(__(
+                'The %s #%d has been recreated (metadata only).',
+                $this->record_type,
+                $this->record_id
+            ), Zend_Log::NOTICE);
             return $record;
         }
 
@@ -585,7 +592,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      * This function can be used only during  creation.
      * This is the recommended way to save an event and to avoid empty changes.
      *
-     * @return boolean|null Return null if the entry is already saved or when
+     * @return bool|null Return null if the entry is already saved or when
      * there is no change.
      */
     public function saveIfChanged()
@@ -599,7 +606,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
     /**
      * Helper to check if something has changed in the record.
      *
-     * @return boolean
+     * @return bool
      */
     protected function _isChanged()
     {
@@ -615,7 +622,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
 
         // There is no data to log. Nevertheless, log the operation, except for
         // update.
-        if ($this->operation != HistoryLogEntry::OPERATION_UPDATE) {
+        if ($this->operation != self::OPERATION_UPDATE) {
             return true;
         }
 
@@ -634,7 +641,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
             // Get the old record to check it.
             try {
                 $oldRecord = get_record_by_id('Item', $this->record_id);
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 return true;
             }
 
@@ -664,7 +671,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      */
     public function setRecordId($id)
     {
-        $this->record_id = (integer) $id;
+        $this->record_id = (int) $id;
     }
 
     /**
@@ -674,7 +681,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      */
     public function setPartOf($partOf)
     {
-        $this->part_of = (integer) $partOf;
+        $this->part_of = (int) $partOf;
     }
 
     /**
@@ -683,7 +690,6 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      * The "record_type" should be set before.
      *
      * @param Record $record
-     * @return void
      */
     protected function _setPartOf($record)
     {
@@ -707,7 +713,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      */
     public function setUserId($id)
     {
-        $this->user_id = (integer) $id;
+        $this->user_id = (int) $id;
     }
 
     /**
@@ -735,17 +741,14 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
         if (is_null($record)) {
             $recordType = $this->record_type;
             $recordId = $this->record_id;
-        }
-        elseif (is_object($record)) {
+        } elseif (is_object($record)) {
             return $record;
-        }
-        elseif (is_array($record)) {
+        } elseif (is_array($record)) {
             // Normal array.
             if (isset($record['record_type']) && isset($record['record_id'])) {
                 $recordType = $record['record_type'];
                 $recordId = $record['record_id'];
-            }
-            elseif (isset($record['type']) && isset($record['id'])) {
+            } elseif (isset($record['type']) && isset($record['id'])) {
                 $recordType = $record['type'];
                 $recordId = $record['id'];
             }
@@ -851,8 +854,8 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      * collection, file).
      *
      * @param string $recordType
-     * @param integer $recordId
-     * @return boolean
+     * @param int $recordId
+     * @return bool
      */
     public function isLoggable($recordType = null, $recordId = null)
     {
@@ -862,7 +865,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
         if (is_null($recordId)) {
             $recordId = $this->record_id;
         }
-        $recordId = (integer) $recordId;
+        $recordId = (int) $recordId;
         return !empty($recordId)
             && in_array($recordType, $this->_validRecordTypes);
     }
@@ -870,7 +873,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
     /**
      * Check if the record is undeletable with this log entry.
      *
-     * @return boolean True if this is the entry to undelete the record.
+     * @return bool True if this is the entry to undelete the record.
      */
     public function isEntryToUndelete()
     {
@@ -878,7 +881,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
             return false;
         }
 
-        if ($this->operation != HistoryLogEntry::OPERATION_DELETE) {
+        if ($this->operation != self::OPERATION_DELETE) {
             return false;
         }
 
@@ -892,7 +895,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
             ->getLastEntryForRecord(array(
                     'record_type' => $this->record_type,
                     'record_id' => $this->record_id,
-                ), HistoryLogEntry::OPERATION_DELETE);
+                ), self::OPERATION_DELETE);
 
         if (empty($logEntry)) {
             return false;
@@ -922,7 +925,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
             ->getLastEntryForRecord(array(
                     'record_type' => $this->record_type,
                     'record_id' => $this->record_id,
-                ), HistoryLogEntry::OPERATION_DELETE);
+                ), self::OPERATION_DELETE);
 
         return $logEntry;
     }
@@ -1030,7 +1033,8 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
                 array(
                     'record_type' => get_class($record),
                     'record_id' => $record->id),
-                0);
+                0
+            );
 
             if (is_null($elementTexts)) {
                 // TODO Throw an error? Normally, never here.
@@ -1236,7 +1240,8 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
                     array(
                         'record_type' => get_class($record),
                         'record_id' => $record->id),
-                    0);
+                    0
+                );
 
                 if (is_null($elementTexts)) {
                     // TODO Throw an error? Normally, never here.
@@ -1275,7 +1280,8 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
             array(
                 'record_type' => get_class($record),
                 'record_id' => $record->id),
-            0);
+            0
+        );
 
         if (is_null($elementTexts)) {
             // TODO Throw an error? Normally, never here.
@@ -1365,7 +1371,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
     /**
      * Retrieve the "part of" type and id, if any, as raw text or url to logs.
      *
-     * @param boolean $asUrl
+     * @param bool $asUrl
      * @return string The part of, if any.
      */
     public function displayPartOf($asUrl = false)
@@ -1381,12 +1387,14 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
                     ? __('Collection %d [deleted]', $this->part_of)
                     : __('Collection %d', $this->part_of);
                 return $asUrl
-                    ? sprintf('<a href="%s">%s</a>',
+                    ? sprintf(
+                        '<a href="%s">%s</a>',
                         url(array(
                                 'type' => 'collections',
                                 'id' => $this->part_of,
                             ), 'history_log_record_log'),
-                        $title)
+                        $title
+                    )
                     : $title;
 
             case 'File':
@@ -1394,12 +1402,14 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
                     ? __('Item %d [deleted]', $this->part_of)
                     : __('Item %d', $this->part_of);
                 return $asUrl
-                    ? sprintf('<a href="%s">%s</a>',
+                    ? sprintf(
+                        '<a href="%s">%s</a>',
                         url(array(
                                 'type' => 'items',
                                 'id' => $this->part_of,
                             ), 'history_log_record_log'),
-                        $title)
+                        $title
+                    )
                     : $title;
                 break;
         }
@@ -1413,15 +1423,15 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
     public function displayOperation()
     {
         switch ($this->operation) {
-            case HistoryLogEntry::OPERATION_CREATE:
+            case self::OPERATION_CREATE:
                 return __('Create');
-            case HistoryLogEntry::OPERATION_UPDATE:
+            case self::OPERATION_UPDATE:
                 return __('Update');
-            case HistoryLogEntry::OPERATION_DELETE:
+            case self::OPERATION_DELETE:
                 return __('Delete');
-            case HistoryLogEntry::OPERATION_IMPORT:
+            case self::OPERATION_IMPORT:
                 return __('Import');
-            case HistoryLogEntry::OPERATION_EXPORT:
+            case self::OPERATION_EXPORT:
                 return __('Export');
             // Manage extra type of operation.
             default:
@@ -1441,29 +1451,29 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
         $changes = $this->getChanges();
         switch ($this->operation) {
             // Array for created and updated records.
-            case HistoryLogEntry::OPERATION_CREATE:
+            case self::OPERATION_CREATE:
                 return $changes
                     ? $this->_displayElements()
                     : __('Created manually by user');
 
-            case HistoryLogEntry::OPERATION_UPDATE:
+            case self::OPERATION_UPDATE:
                 return $changes
                     ? $this->_displayElements()
                     // Internal update: file upload, public/featured...
                     : __('Internal update');
 
             // Nothing for delete.
-            case HistoryLogEntry::OPERATION_DELETE:
+            case self::OPERATION_DELETE:
                 return '';
 
             // String for import and export.
-            case HistoryLogEntry::OPERATION_IMPORT:
+            case self::OPERATION_IMPORT:
                 $change = reset($changes);
                 return empty($change->text)
                     ? ''
                     : __('Imported from %s', $change->text);
 
-            case HistoryLogEntry::OPERATION_EXPORT:
+            case self::OPERATION_EXPORT:
                 $change = reset($changes);
                 return empty($change)
                     ? ''
@@ -1477,8 +1487,8 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      * @return string
      */
     protected function _displayElements()
-     {
-         // TODO Only the element name is needed.
+    {
+        // TODO Only the element name is needed.
         $elements = $this->_getReferencedElements();
         if (empty($elements)) {
             return __('No element.');
@@ -1519,7 +1529,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
         }
         $result = implode(";\n", $result);
         return $result;
-     }
+    }
 
     /**
      * Helper to display the list of altered elements.
@@ -1527,8 +1537,8 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      * @return string
      */
     protected function _displayAlteredElements()
-     {
-         // TODO Only the element name is needed.
+    {
+        // TODO Only the element name is needed.
         $elements = $this->_getReferencedElements();
         if (empty($elements)) {
             return __('No element.');
@@ -1540,7 +1550,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
                 : __('Unrecognized element #%d', $elementId);
         }
         return __('Altered: %s', implode(', ', $result));
-     }
+    }
 
     /**
      * Format a date in standard form.
@@ -1560,7 +1570,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      */
     public function displayCurrentTitle()
     {
-        if ($this->operation == HistoryLogEntry::OPERATION_DELETE) {
+        if ($this->operation == self::OPERATION_DELETE) {
             return __('[Deleted record]');
         }
 
@@ -1593,7 +1603,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      * Check if the operation is valid.
      *
      * @param string $operation
-     * @return boolean
+     * @return bool
      */
     protected function _isOperationValid($operation = null)
     {
@@ -1601,11 +1611,11 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
             $operation = $this->operation;
         }
         return in_array($operation, array(
-            HistoryLogEntry::OPERATION_CREATE,
-            HistoryLogEntry::OPERATION_UPDATE,
-            HistoryLogEntry::OPERATION_DELETE,
-            HistoryLogEntry::OPERATION_IMPORT,
-            HistoryLogEntry::OPERATION_EXPORT,
+            self::OPERATION_CREATE,
+            self::OPERATION_UPDATE,
+            self::OPERATION_DELETE,
+            self::OPERATION_IMPORT,
+            self::OPERATION_EXPORT,
         ));
     }
 
@@ -1617,7 +1627,7 @@ class HistoryLogEntry extends Omeka_Record_AbstractRecord
      */
     public function getProperty($property)
     {
-        switch($property) {
+        switch ($property) {
             case 'record':
                 return $this->getRecord();
             default:

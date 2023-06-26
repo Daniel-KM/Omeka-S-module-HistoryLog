@@ -60,7 +60,7 @@ class HistoryLog_HistoryLogMainTest extends HistoryLog_Test_AppTestCase
         for ($i = 1; $i <= 10; $i++) {
             $elementTexts = array();
             $elementTexts['Dublin Core']['Title'][] = array('text' => 'title ' . $i, 'html' => false);
-            $elementTexts['Dublin Core']['Subject'][] = ($i%2 == 1)
+            $elementTexts['Dublin Core']['Subject'][] = ($i % 2 == 1)
                 ? array('text' => 'subject odd', 'html' => false)
                 : array('text' => 'subject even', 'html' => false);
             $elementTexts['Dublin Core']['Creator'][] = array('text' => 'creator #' . $i, 'html' => false);

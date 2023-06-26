@@ -1,125 +1,203 @@
 <?php
-$pageTitle = __('Curation History Log (%d total)', $total_results);
-echo head([
-    'title' => $pageTitle,
-    'bodyclass' => 'history-log browse',
-]);
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \HistoryLog\Api\Representation\HistoryEventRepresentation[] $historyEvents
+ * @var \HistoryLog\Api\Representation\HistoryEventRepresentation[] $resources
+ * @var string $returnQuery
+ */
+
+$plugins = $this->getHelperPluginManager();
+$url = $plugins->get('url');
+$escape = $plugins->get('escapeHtml');
+$translate = $plugins->get('translate');
+$hyperlink = $plugins->get('hyperlink');
+$userIsAllowed = $plugins->get('userIsAllowed');
+
+$this->htmlElement('body')->appendAttribute('class', 'history-logs history-events browse');
 ?>
-<style>
-div.record-title {
-    max-width: 15em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-</style>
-<div id="primary">
-    <?php echo flash(); ?>
-    <div>
-<?php if (total_records('HistoryLogEntry') > 0): ?>
-        <div class="table-actions">
-            <a href="<?php echo html_escape(url('history-log/index/search')); ?>" class="add button small green"><?php echo __('Advanced Reports'); ?></a>
+
+<?= $this->pageTitle($translate('History Logs')) ?>
+
+<?= $this->searchFilters() ?>
+
+<div class="browse-controls">
+    <?= $this->pagination() ?>
+    <?= $hyperlink($translate('Advanced search'), $url(null, ['action' => 'search'], ['query' => $this->params()->fromQuery()], true), ['class' => 'advanced-search']) ?>
+    <?= $this->browse()->renderSortSelector('history_events') ?>
+</div>
+
+<div id="page-actions">
+    <?php /* // TODO Rights to reset  or to undelete a resource. Which adapter? ?>
+    <?php if ($userIsAllowed('Omeka\Api\Adapter\history eventAdapter', 'create')): ?>
+    <?= $hyperlink($translate('Reset entity'), $url(null, ['action' => 'add'], true), ['class' => 'button']) ?>
+    <?= $hyperlink($translate('Undelete entity'), $url(null, ['action' => 'add'], true), ['class' => 'button']) ?>
+    <?php endif; ?>
+    */ ?>
+</div>
+
+<?php $this->trigger('view.browse.before'); ?>
+
+<?php if ($historyEvents): ?>
+<form method="post" id="batch-form" class="disable-unsaved-warning">
+    <?php /*
+    <?php if ($userIsAllowed('Omeka\Api\Adapter\history eventAdapter', 'batch_update')): ?>
+    <div class="batch-inputs">
+        <select class="batch-actions-select" aria-label="<?= $translate('Batch actions') ?>">
+            <option value="default"><?= $translate('Batch actions') ?></option>
+            <option value="update-selected" disabled="true"><?= $translate('Edit selected') ?></option>
+            <?php if ($userIsAllowed('Omeka\Api\Adapter\history eventAdapter', 'batch_update_all')): ?>
+            <option value="update-all"><?= $translate('Edit all') ?></option>
+            <?php endif; ?>
+            <option value="delete-selected" disabled="true"><?= $translate('Delete selected') ?></option>
+            <?php if ($userIsAllowed('Omeka\Api\Adapter\history eventAdapter', 'batch_delete_all')): ?>
+            <option value="delete-all"><?= $translate('Delete all') ?></option>
+            <?php endif; ?>
+        </select>
+        <div class="batch-actions">
+            <button type="button" class="default active" disabled="true"><?= $translate('Go') ?></button>
+            <input type="submit" class="update-selected" name="update_selected" value="<?= $translate('Go') ?>" formaction="<?= $escape($url(null, ['action' => 'batch-edit'], ['query' => $returnQuery], true)) ?>">
+            <input type="submit" class="update-all" name="update_all" value="<?= $translate('Go') ?>" formaction="<?= $escape($url(null, ['action' => 'batch-edit-all'], ['query' => $returnQuery], true)) ?>">
+            <input type="hidden" name="query" class="batch-query" value="<?= $escape(json_encode($this->params()->fromQuery())) ?>">
+            <a class="delete button sidebar-content delete-selected" data-sidebar-selector="#sidebar-delete-selected"><?= $translate('Go') ?></a>
+            <a class="delete button sidebar-content delete-all" data-sidebar-selector="#sidebar-delete-all"><?= $translate('Go') ?></a>
         </div>
-        <?php echo common('quick-filters'); ?>
-        <div id="item-filters">
-            <ul>
-                <?php if (!empty($params['record_type'])): ?>
-                <li><?php echo __('Record Type: %s', $params['record_type']); ?></li>
-                <?php endif; ?>
-                <?php if (!empty($params['part_of'])): ?>
-                <li><?php echo __('Part of #%s', $params['part_of']); ?></li>
-                <?php endif; ?>
-                <?php if (!empty($params['since'])): ?>
-                <li><?php echo __('Since %s', $params['since']); ?></li>
-                <?php endif; ?>
-                <?php if (!empty($params['until'])): ?>
-                <li><?php echo __('Until %s', $params['until']); ?></li>
-                <?php endif; ?>
-                <?php if (!empty($params['user'])): ?>
-                <li><?php
-                    $user = get_record_by_id('User', $params['user']);
-                    echo $user
-                        ? __('User: %s', $user->username)
-                        : __('User: #%s', $params['user']);
-                ?></li>
-                <?php endif; ?>
-                <?php if (!empty($params['operation'])): ?>
-                <li><?php echo __('Operation: %s', ucfirst($params['operation'])); ?></li>
-                <?php endif; ?>
-                <?php if (!empty($params['element'])): ?>
-                <li><?php
-                    $element = get_record_by_id('Element', $params['element']);
-                    echo $element
-                        ? __('Element %s (%s)', $element->name, $element->set_name)
-                        : __('Element #%s', $params['element']);
-                    ?></li>
-                <?php endif; ?>
-            </ul>
     </div>
-        <?php if (iterator_count(loop('HistoryLogEntry'))): ?>
-        <div class="pagination"><?php echo $paginationLinks = pagination_links(); ?></div>
-        <table id="history-log-entries">
-            <thead>
-                <tr>
-                    <?php
-                    $browseHeadings[__('Date')] = 'date';
-                    $browseHeadings[__('Type')] = 'record_type';
-                    $browseHeadings[__('Id')] = 'record_id';
-                    $browseHeadings[__('Part of ')] = 'part_of';
-                    $browseHeadings[__('User')] = 'user';
-                    $browseHeadings[__('Action')] = 'operation';
-                    $browseHeadings[__('Changes')] = null;
-                    echo browse_sort_links($browseHeadings, ['link_tag' => 'th scope="col"', 'list_tag' => '']);
-                    ?>
-                </tr>
-            </thead>
-            <tbody>
-                <?php $key = 0; ?>
-                <?php
-                foreach (loop('HistoryLogEntry') as $logEntry):
-                ?>
-                <tr class="history-log-entry <?php echo ++$key % 2 == 1 ? 'odd' : 'even'; ?>">
-                    <td><?php echo $logEntry->added; ?></td>
-                    <td colspan="2">
-                        <a href="<?php
-                            echo url([
-                                    'type' => Inflector::tableize($logEntry->record_type),
-                                    'id' => $logEntry->record_id,
-                                ], 'history_log_record_log'); ?>"><?php
-                            echo $logEntry->record_type;
-                            echo ' ';
-                            echo $logEntry->record_id;
-                        ?></a>
-                        <div class="record-title"><?php echo $logEntry->displayCurrentTitle(); ?></div>
-                    </td>
-                    <td><?php echo $logEntry->displayPartOf(true); ?></td>
-                    <td><?php echo $logEntry->displayUser(); ?></td>
-                    <td><?php echo $logEntry->displayOperation(); ?>
-                    <?php if ($logEntry->isEntryToUndelete()):
-                        $undeleteUrl = url([
-                                'type' => Inflector::tableize($logEntry->record_type),
-                                'id' => $logEntry->record_id,
-                            ], 'history_log_undelete'); ?>
-                        <div><a href="<?php echo html_escape($undeleteUrl); ?>" class="history-log-process button red"><?php echo html_escape(__('Undo')); ?></a></div>
-                    <?php endif;
-                    ?></td>
-                    <td><?php echo nl2br($logEntry->displayChanges(), true); ?></td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-        <div class="pagination"><?php echo $paginationLinks; ?></div>
-        <?php else: ?>
-        <br class="clear" />
-        <div>
-            <p><?php echo __('The query searched %s records and returned no results.', total_records('HistoryLogEntry')); ?></p>
-            <p><?php echo __('Display all %shistory log entries%s.', '<a href="' . url('history-log') . '">', "</a>"); ?></p>
+    <?php endif; ?>
+    */ ?>
+
+
+<table class="tablesaw batch-edit" data-tablesaw-mode="stack">
+    <thead>
+        <tr><?php /*
+            <th><input type="checkbox" class="select-all" aria-label="<?= $translate('Select all') ?>"><?= $translate('Title') ?></th>
+            */ ?>
+            <?= $this->browse()->renderHeaderRow('history_events') ?>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($historyEvents as $historyEvent): ?>
+        <tr>
+            <td>
+                <?php /*
+                <?php if ($userIsAllowed('Omeka\Api\Adapter\history eventAdapter', 'batch_update') && ($historyEvent->userIsAllowed('update') || $historyEvent->userIsAllowed('delete'))): ?>
+                <input type="checkbox" name="resource_ids[]" value="<?= $historyEvent->id() ?>" aria-label="<?= $translate('Select history event') ?>">
+                <?php endif; ?>
+                */ ?>
+                <?= $historyEvent->link(sprintf('#%d', $historyEvent->id())) ?>
+                <?php /*
+                <ul class="actions">
+                    <?php if ($historyEvent->userIsAllowed('update')): ?>
+                    <li><?= $historyEvent->link('', 'edit', [
+                        'class' => 'o-icon-edit',
+                        'title' => $translate('Edit'),
+                    ]) ?></li>
+                    <?php endif; ?>
+                    <?php if ($historyEvent->userIsAllowed('delete')): ?>
+                    <li><?= $hyperlink('', '#', [
+                        'data-sidebar-selector' => '#sidebar',
+                        'data-sidebar-content-url' => $historyEvent->url('delete-confirm'),
+                        'class' => 'o-icon-delete sidebar-content',
+                        'title' => $translate('Delete'),
+                    ]) ?></li>
+                    <?php endif; ?>
+                    <li><?= $hyperlink('', '#', [
+                        'data-sidebar-selector' => '#sidebar',
+                        'data-sidebar-content-url' => $historyEvent->url('show-details'),
+                        'class' => 'o-icon-more sidebar-content',
+                        'title' => $translate('Details'),
+                    ]) ?></li>
+                </ul>
+                */ ?>
+            </td>
+            <?= $this->browse()->renderContentRow('history_events', $historyEvent) ?>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+
+</form>
+
+<?php $this->trigger('view.browse.after'); ?>
+<div class="browse-controls">
+    <?= $this->pagination() ?>
+</div>
+
+<?php /*
+<div id="sidebar" class="sidebar">
+    <?= $hyperlink('', '#', [
+        'class' => 'sidebar-close o-icon-close',
+        'title' => $translate('Close'),
+    ]) ?>
+    <div class="sidebar-content"></div>
+</div>
+<div id="sidebar-delete-selected" class="sidebar">
+    <?= $hyperlink('', '#', [
+        'class' => 'sidebar-close o-icon-close',
+        'title' => $translate('Close'),
+    ]) ?>
+    <div class="sidebar-content">
+        <div id="sidebar-confirm">
+            <h3><?= $translate('Delete history events') ?></h3>
+            <p><?= $translate('Are you sure you would like to delete the selected history events?') ?></p>
+            <p class="error"><?= sprintf(
+                $translate('%1$s: this action will permanently delete %2$s history events and cannot be undone.'),
+                sprintf('<strong>%s</strong>', $translate('Warning')),
+                '<strong><span id="delete-selected-count"></span></strong>'
+            ) ?></p>
+            <?= $this->form($this->formDeleteSelected) ?>
         </div>
-        <?php endif; ?>
-<?php else: ?>
-        <p><?php echo __('No entry have been logged.'); ?></p>
-<?php endif; ?>
     </div>
 </div>
-<?php
-echo foot();
+<div id="sidebar-delete-all" class="sidebar">
+    <?= $hyperlink('', '#', [
+        'class' => 'sidebar-close o-icon-close',
+        'title' => $translate('Close'),
+    ]) ?>
+    <div class="sidebar-content">
+        <div id="sidebar-confirm">
+            <h3><?= $translate('Delete history events') ?></h3>
+            <p><?= $translate('Are you sure you would like to delete all history events on all pages of this result?') ?></p>
+            <p class="error"><?= sprintf(
+                $translate('%1$s: this action will permanently delete %2$s history events and cannot be undone.'),
+                sprintf('<strong>%s</strong>', $translate('Warning')),
+                sprintf('<strong>%s</strong>', number_format($this->pagination()->getPaginator()->getTotalCount()))
+            ) ?></p>
+            <label><input type="checkbox" name="confirm-delete-all-check"> <?= $translate('Are you sure?') ?></label>
+            <?= $this->form($this->formDeleteAll) ?>
+        </div>
+    </div>
+</div>
+
+<script>
+// Complete the batch delete form after confirmation.
+$('#confirm-delete-selected, #confirm-delete-all').on('submit', function(e) {
+    var confirmForm = $(this);
+    if ('confirm-delete-all' === this.id) {
+        confirmForm.append($('.batch-query').clone());
+    } else {
+        $('#batch-form').find('input[name="resource_ids[]"]:checked').each(function() {
+            confirmForm.append($(this).clone().prop('disabled', false).attr('type', 'hidden'));
+        });
+    }
+});
+$('.delete-all').on('click', function(e) {
+    Omeka.closeSidebar($('#sidebar-delete-selected'));
+});
+$('.delete-selected').on('click', function(e) {
+    Omeka.closeSidebar($('#sidebar-delete-all'));
+    var inputs = $('input[name="resource_ids[]"]');
+    $('#delete-selected-count').text(inputs.filter(':checked').length);
+});
+$('#sidebar-delete-all').on('click', 'input[name="confirm-delete-all-check"]', function(e) {
+    $('#confirm-delete-all input[type="submit"]').prop('disabled', this.checked ? false : true);
+});
+</script>
+*/ ?>
+
+<?php else: ?>
+
+<div class="no-resources">
+    <p><?= $translate('Omeka could not find any history logs.') ?></p>
+</div>
+
+<?php endif; ?>

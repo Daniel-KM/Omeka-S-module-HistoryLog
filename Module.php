@@ -37,11 +37,6 @@ class Module extends AbstractModule
         'before_delete_element_text',
         'before_delete_element',
         'export',
-        'admin_items_show',
-        'admin_collections_show',
-        'admin_files_show',
-        'admin_items_browse_detailed_each',
-        'admin_head',
     ];
 
     /**

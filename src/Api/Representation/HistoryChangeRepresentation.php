@@ -2,6 +2,8 @@
 
 namespace HistoryLog\Api\Representation;
 
+use HistoryLog\Entity\HistoryChange;
+use HistoryLog\Entity\HistoryEvent;
 use Omeka\Api\Representation\AbstractEntityRepresentation;
 
 class HistoryChangeRepresentation extends AbstractEntityRepresentation
@@ -67,5 +69,45 @@ class HistoryChangeRepresentation extends AbstractEntityRepresentation
             }
         }
         return $data;
+    }
+
+    /**
+     * Retrieve displayable name of an action.
+     */
+    public function displayAction(): string
+    {
+        $translator = $this->getTranslator();
+
+        if (!$this->field()) {
+            $event = $this->event();
+            $value = $this->data()['value'] ?? null;
+            switch ($event->operation()) {
+                case HistoryEvent::OPERATION_IMPORT:
+                    return empty($value)
+                        ? $translator->translate('Imported') // @translate
+                        : $translator->translate('Imported from %s', $value); // @translate
+                case HistoryEvent::OPERATION_EXPORT:
+                    return empty($value)
+                        ? $translator->translate('Exported') // @translate
+                        : $translator->translate('Exported to %s', $value); // @translate
+                default:
+                    return '';
+            }
+        }
+
+        $action = $this->action();
+        switch ($action) {
+            case HistoryChange::ACTION_NONE:
+                return $translator->translate('None'); // @translate
+            case HistoryChange::ACTION_CREATE:
+                return $translator->translate('Created'); // @translate
+            case HistoryChange::ACTION_UPDATE:
+                return $translator->translate('Updated'); // @translate
+            case HistoryChange::ACTION_DELETE:
+                return $translator->translate('Deleted'); // @translate
+            // Manage extra type of action.
+            default:
+                return ucfirst($action);
+        }
     }
 }

@@ -79,6 +79,55 @@ return [
             ],
         ],
     ],
+    'column_types' => [
+        'invokables' => [
+            'history_log_action' => ColumnType\Action::class,
+            'history_log_changes' => ColumnType\Changes::class,
+            'history_log_created' => ColumnType\Created::class,
+            'history_log_entity' => ColumnType\Entity::class,
+            'history_log_entity_id' => ColumnType\EntityId::class,
+            'history_log_entity_name' => ColumnType\EntityName::class,
+            'history_log_event' => ColumnType\Event::class,
+            'history_log_field' => ColumnType\Field::class,
+            'history_log_id' => ColumnType\Id::class,
+            'history_log_operation' => ColumnType\Operation::class,
+            'history_log_part_of' => ColumnType\PartOf::class,
+            'history_log_user' => ColumnType\User::class,
+            'history_log_user_id' => ColumnType\UserId::class,
+        ],
+    ],
+    'column_defaults' => [
+        'admin' => [
+            'history_events' => [
+                ['type' => 'history_log_created'],
+                ['type' => 'history_log_entity'],
+                ['type' => 'history_log_part_of'],
+                ['type' => 'history_log_user'],
+                ['type' => 'history_log_operation'],
+                // ['type' => 'history_log_changes'],
+            ],
+        ],
+    ],
+    'browse_defaults' => [
+        'admin' => [
+            'history_events' => [
+                'sort_by' => 'history_log_created',
+                'sort_order' => 'desc',
+            ],
+        ],
+    ],
+    'sort_defaults' => [
+        'admin' => [
+            'history_events' => [
+                'history_log_created' => 'Created', // @translate
+                'history_log_entity_name' => 'Entity name', // @translate
+                'history_log_entity_id' => 'Entity id', // @translate
+                'history_log_part_of' => 'Part of', // @translate
+                'history_log_user_id' => 'User id', // @translate
+                'history_log_operation' => 'Operation', // @translate
+            ],
+        ],
+    ],
     'navigation' => [
         'AdminModule' => [
             [

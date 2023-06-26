@@ -180,6 +180,43 @@ class HistoryEventAdapter extends AbstractEntityAdapter
                 // Won't be flushed in case of error anyway.
                 $changes->add($change);
             }
+        } elseif ($operation === Request::UPDATE) {
+            // Update is only allowed if there is a previous resource in order
+            // to hack the fact that the previous or the new resource cannot be
+            // determined at the same time during entity or api events for batch
+            // update, batch update because there is not flush during it.
+            // Furthermore, during batch update, the update can be called up to
+            // three times (replace, append, remove). The changes should be
+            // attached to the same event.
+            // TODO Simplify logs when multiple update of the same event.
+            $data = $request->getContent();
+            // Update only when the two resources are available.
+            if (!empty($data['previousResource']) && !empty($data['newResource'])) {
+                $changesData = $request->getValue('o-history-log:change', []);
+                if (empty($changesData)) {
+                    $currentResource = $this->entityFromNameAndId($entity->getEntityName(), $entity->getEntityId());
+                    $changesData = $this->prepareChangesDataUpdate($entity, $currentResource, $errorStore, $data['previousResource']);
+                }
+                $changes = $entity->getChanges();
+                // The change are cleared, because the check is done against
+                // the same first resource three times during batch update.
+                $changes->clear();
+                $changeAdapter = $this->getAdapter('history_changes');
+                foreach ($changesData as $changeData) {
+                    $subErrorStore = new ErrorStore;
+                    $change = new HistoryChange;
+                    $change->setEvent($entity);
+                    $subrequest = new Request(Request::CREATE, 'history_changes');
+                    $subrequest->setContent($changeData);
+                    try {
+                        $changeAdapter->hydrateEntity($subrequest, $change, $subErrorStore);
+                    } catch (Exception\ValidationException $e) {
+                        $errorStore->mergeErrors($e->getErrorStore(), 'o-history-log:change');
+                    }
+                    // Won't be flushed in case of error anyway.
+                    $changes->add($change);
+                }
+            }
         }
     }
 
@@ -411,7 +448,8 @@ class HistoryEventAdapter extends AbstractEntityAdapter
     protected function prepareChangesDataUpdate(
         HistoryEvent $event,
         Resource $resource,
-        ErrorStore $errorStore
+        ErrorStore $errorStore,
+        ?Resource $previousResource = null
     ): array {
         // Support php 7.4.
 
@@ -427,7 +465,8 @@ class HistoryEventAdapter extends AbstractEntityAdapter
         );
 
         /** @var \Omeka\Entity\Resource $prevResource */
-        $prevResource = $secondEntityManager->getRepository($resource->getResourceId())->find($resource->getId());
+        $prevResource = $previousResource
+            ?? $secondEntityManager->getRepository($resource->getResourceId())->find($resource->getId());
         if (!$prevResource) {
             return $this->prepareChangesDataFull($event, $resource, $errorStore);
         }

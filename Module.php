@@ -37,28 +37,44 @@ class Module extends AbstractModule
         // TODO Genericize with Resource, that is available as identifier.
         /** @see \Omeka\Db\Event\Subscriber\Entity::trigger() */
         $entities = [
-            \Omeka\Entity\Item::class,
-            \Omeka\Entity\Media::class,
-            \Omeka\Entity\ItemSet::class,
-            // \Omeka\Entity\Resource::class,
+            \Omeka\Api\Adapter\ItemAdapter::class => \Omeka\Entity\Item::class,
+            \Omeka\Api\Adapter\MediaAdapter::class => \Omeka\Entity\Media::class,
+            \Omeka\Api\Adapter\ItemSetAdapter::class => \Omeka\Entity\ItemSet::class,
+            // \Omeka\Api\Adapter\ResourceAdapter::class => \Omeka\Entity\Resource::class,
         ];
         // These events occurs during entity manager flush().
-        foreach ($entities as $entity) {
+        foreach ($entities as $adapter => $entityClass) {
             // Create event only if really flushed.
             $sharedEventManager->attach(
-                $entity,
+                $entityClass,
                 'entity.persist.post',
                 [$this, 'handleEntityOperation'],
                 -50
             );
             $sharedEventManager->attach(
-                $entity,
+                $entityClass,
                 'entity.update.pre',
                 [$this, 'handleEntityOperation'],
                 -50
             );
+            // For batch update, the entities are not flushed, so when the entity
+            // events are triggered, there is no difference with previous
+            // entities that are still in database.
+            // To make comparison, it requires to use event "finalize" in that
+            // case.
+            // To check that is a batch update event (api batch_update
+            // "initialize" events may have been skipped, at least in theory),
+            // check for the sub request option "finalize", that is set to false
+            // but nevertheless processed in a second time.
+            /** @see \Omeka\Api\Adapter\AbstractEntityAdapter::batchUpdate() */
             $sharedEventManager->attach(
-                $entity,
+                $adapter,
+                'api.update.post',
+                [$this, 'handleEntityOperation'],
+                -50
+            );
+            $sharedEventManager->attach(
+                $entityClass,
                 'entity.remove.pre',
                 [$this, 'handleEntityOperation'],
                 -50
@@ -97,42 +113,151 @@ class Module extends AbstractModule
 
         /**
          * @var \Omeka\Entity\Resource $resource
-         * @var \Omeka\Api\Adapter\AbstractResourceEntityAdapter $adapter
          * @var \Omeka\Api\Manager $api
-         * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $representation
+         * @var \Omeka\Api\Request $request
          */
-        $resource = $event->getTarget();
-        $resourceName = $resource->getResourceName();
-        $resourceId = $resource->getId();
-        $identifier = $resourceName . '/' . $resourceId;
-        if (isset($entities[$identifier])) {
+        $services = $this->getServiceLocator();
+        $api = $services->get('Omeka\ApiManager');
+
+        $eventName = $event->getName();
+
+        // Event "entity.update.pre" can be used for all events, except for
+        // batch update, because there is no flush during it. So use an api
+        // event, api.update.post, only for batch update.
+        // To know if it is a batch update without using event initialize, use
+        // the option finalize, that is set to false even if the event is processed.
+        /** @see \Omeka\Api\Adapter\AbstractEntityAdapter::batchUpdate() */
+        $request = $event->getParam('request');
+        $isApiUpdatePost = $eventName === 'api.update.post';
+        $isBatchUpdate = $isApiUpdatePost
+            // && $request->getOption('isPartial')
+            // && !$request->getOption('flushEntityManager')
+            // && $request->getOption('responseContent') === 'resource'
+            && !$request->getOption('finalize');
+        if ($isApiUpdatePost && !$isBatchUpdate) {
             return;
         }
 
-        $entities[$identifier] = true;
+        // Furthermore, the event "'api.update.post" can be called up to three
+        // times during a batch update for specific action (replace, append,
+        // remove) and it is not possible to determine if the call is the last
+        // one.
+        // So the history log event can be updated up to three times.
+        if ($isApiUpdatePost) {
+            $resource = $event->getParam('response')->getContent();
+        } else {
+            $resource = $event->getTarget();
+        }
 
-        $services = $this->getServiceLocator();
-        $api = $services->get('Omeka\ApiManager');
-        $adapterManager = $services->get('Omeka\ApiAdapterManager');
+        $resourceName = $resource->getResourceName();
+        $resourceId = $resource->getId();
+        $identifier = $resourceName . '/' . $resourceId;
 
-        $adapter = $adapterManager->get($resourceName);
-        $representation = $adapter->getRepresentation($resource);
+        if (!$isApiUpdatePost && isset($entities[$eventName][$identifier])) {
+            return;
+        }
 
-        $eventOperations = [
+        $isEntityUpdatePre = $eventName === 'entity.update.pre';
+        if ($isEntityUpdatePre) {
+            // The existing resource is not yet flushed, but validated.
+            // Get the previous one via a second entity manager.
+            $entityManager = $this->getServiceLocator()->get('Omeka\EntityManager');
+            // Method create is deprecated: now, create it directly.
+            $secondEntityManager = new \Doctrine\Orm\EntityManager(
+                $entityManager->getConnection(),
+                $entityManager->getConfiguration()
+            );
+            /** @var \Omeka\Entity\Resource $secondResource */
+            $secondResource = $secondEntityManager->find(get_class($resource), $resource->getId());
+            // Because of doctrine lazyness, load all related metadata here.
+            // TODO Replace the check bar representation here and in adapter? But representation does not convert all linked entities, unlike json_decode(json_encode(), true).
+            $secondResource->isPublic();
+            $secondResource->getOwner();
+            $secondResource->getResourceClass();
+            $secondResource->getResourceTemplate();
+            switch ($resourceName) {
+                case 'items':
+                    /** @var $resource \Omeka\Entity\Item $secondResource */
+                    $secondResource->getItemSets();
+                    $secondResource->getPrimaryMedia();
+                    break;
+
+                case 'media':
+                    /** @var $resource \Omeka\Entity\Media $secondResource */
+                    $secondResource->getSource();
+                    $secondResource->getMediaType();
+                    $secondResource->getSha256();
+                    $secondResource->getFilename();
+                    $secondResource->getLang();
+                    $secondResource->getData();
+                    break;
+
+                case 'item_sets':
+                    /** @var $resource \Omeka\Entity\ItemSet $resource */
+                    $secondResource->isOpen();
+                    break;
+            }
+            /** @var \Omeka\Entity\Value $value */
+            foreach ($secondResource->getValues() as $value) {
+                $value->getProperty()->getVocabulary();
+                $value->getIsPublic();
+                $value->getLang();
+                $value->getType();
+                $value->getUri();
+                $value->getValue();
+                $value->getValueResource();
+                $va = $value->getValueAnnotation();
+                if ($va) {
+                    $va->getOwner();
+                    $va->getResourceClass();
+                    $va->getResourceTemplate();
+                    foreach ($va->getValues() as $value) {
+                        $value->getProperty()->getVocabulary();
+                        $value->getIsPublic();
+                        $value->getLang();
+                        $value->getType();
+                        $value->getUri();
+                        $value->getValue();
+                        $value->getValueResource();
+                    }
+                }
+            }
+            $entities[$eventName][$identifier] = ['previousResource' => $secondResource, 'event_id' => null];
+        } else {
+            $entities[$eventName][$identifier] = true;
+        }
+
+        $eventNames = [
             'entity.persist.post' => HistoryEvent::OPERATION_CREATE,
             'entity.update.pre' => HistoryEvent::OPERATION_UPDATE,
+            'api.update.post' => HistoryEvent::OPERATION_UPDATE,
             'entity.remove.pre' => HistoryEvent::OPERATION_DELETE,
         ];
-        $operation = $eventOperations[$event->getName()];
+        $historyLogOperation = $eventNames[$eventName];
 
         $data = [
             'o:entity' => $resource,
             'o:user' => $services->get('Omeka\AuthenticationService')->getIdentity(),
-            'o-history-log:operation' => $operation,
+            'o-history-log:operation' => $historyLogOperation,
         ];
 
         try {
-            $api->create('history_events', $data, [], ['responseContent' => 'resource'])->getContent();
+            // It is not possible to know inside event "entity.update.pre" if
+            // this is a batch update or not. So create the event in the first
+            // step, then update it with the changes.
+            // TODO Don't create event if nothing is updated, in particular during batch update, except in this case.
+            if ($isBatchUpdate) {
+                $data['previousResource'] = $entities['entity.update.pre'][$identifier]['previousResource'];
+                $data['newResource'] = $resource;
+                $api->update('history_events', $entities['entity.update.pre'][$identifier]['event_id'], $data, [], ['responseContent' => 'resource'])->getContent();
+                // Limit memory issue. Not possible: called one to three times.
+                // $entities['entity.update.pre'][$identifier] = true;
+            } else {
+                $historyEvent = $api->create('history_events', $data, [], ['responseContent' => 'resource'])->getContent();
+                if ($eventName === 'entity.update.pre') {
+                    $entities['entity.update.pre'][$identifier]['event_id'] = $historyEvent->getId();
+                }
+            }
         } catch (\Exception $e) {
             $services->get('Omeka\Logget')->err(
                 'Unable to store history log when deleting resource #%1$s: %2$s', // @translate

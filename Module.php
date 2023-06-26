@@ -1,35 +1,35 @@
 <?php declare(strict_types=1);
+
+namespace HistoryLog;
+
+if (!class_exists(\Generic\AbstractModule::class)) {
+    require file_exists(dirname(__DIR__) . '/Generic/AbstractModule.php')
+        ? dirname(__DIR__) . '/Generic/AbstractModule.php'
+        : __DIR__ . '/src/Generic/AbstractModule.php';
+}
+
+use Generic\AbstractModule;
+use HistoryLog\Entity\HistoryEvent;
+
 /**
  * History Log
  *
- * This Omeka 2.0+ plugin logs curatorial actions such as adding, deleting, or
+ * This Omeka S module logs curatorial actions such as adding, deleting, or
  * modifying items, collections and files.
  *
- * @copyright Copyright 2014 UCSC Library Digital Initiatives
- * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
- *
- * @package HistoryLog
+ * @copyright UCSC Library Digital Initiatives, 2014
+ * @copyright Daniel Berthereau, 2015-2023
+ * @license https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
  */
 
-/**
- * History Log plugin class
- *
- * @package HistoryLog
- */
-class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
+class Module extends AbstractModule
 {
+    const NAMESPACE = __NAMESPACE__;
+
     /**
      * @var array Hooks for the plugin.
      */
     protected $_hooks = [
-        'install',
-        'upgrade',
-        'uninstall',
-        'uninstall_message',
-        'config_form',
-        'config',
-        'define_acl',
-        'define_routes',
         'before_save_record',
         'after_save_record',
         'before_delete_record',
@@ -52,13 +52,6 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
     ];
 
     /**
-     * @var array Options and their default values.
-     */
-    protected $_options = [
-        'history_log_display' => '[]',
-    ];
-
-    /**
      * @var array
      *
      * Array of prepared log entries saved during the "before save" process for
@@ -67,178 +60,6 @@ class HistoryLogPlugin extends Omeka_Plugin_AbstractPlugin
      * are used.
      */
     private $_preparedLogEntries = [];
-
-    /**
-     * When the plugin installs, create the database tables to store the logs.
-     */
-    public function hookInstall(): void
-    {
-        $db = $this->_db;
-
-        // Main table to log event.
-        $sql = "
-        CREATE TABLE IF NOT EXISTS `{$db->HistoryLogEntry}` (
-            `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-            `record_type` enum('Item', 'Collection', 'File') NOT NULL,
-            `record_id` int(10) unsigned NOT NULL,
-            `part_of` int(10) unsigned NOT NULL DEFAULT 0,
-            `user_id` int(10) unsigned NOT NULL,
-            `operation` enum('create', 'update', 'delete', 'import', 'export') NOT NULL,
-            `added` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (`id`),
-            INDEX `record_type_record_id` (`record_type`, `record_id`),
-            INDEX (`added`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
-        $db->query($sql);
-
-        // Associated table to log changes of each element.
-        $sql = "
-        CREATE TABLE IF NOT EXISTS `{$db->HistoryLogChange}` (
-            `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-            `entry_id` int(10) unsigned NOT NULL,
-            `element_id` int(10) unsigned NOT NULL,
-            `type` enum('none', 'create', 'update', 'delete') NOT NULL,
-            `text` mediumtext COLLATE utf8_unicode_ci NOT NULL,
-            PRIMARY KEY (`id`),
-            INDEX (`entry_id`),
-            INDEX `entry_id_element_id` (`entry_id`, `element_id`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
-        $db->query($sql);
-
-        // Add a new table to simplify complex queries with calendar requests.
-        $sql = "
-            CREATE TABLE IF NOT EXISTS `{$db->prefix}numerals` (
-                `i` TINYINT unsigned NOT NULL,
-                PRIMARY KEY (`i`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
-        $db->query($sql);
-        $sql = "INSERT INTO `{$db->prefix}numerals` (`i`) VALUES (0), (1), (2), (3), (4), (5), (6), (7), (8), (9);";
-        $db->query($sql);
-
-        $this->_installOptions();
-    }
-
-    /**
-     * Upgrade the plugin.
-     */
-    public function hookUpgrade($args): void
-    {
-        $oldVersion = $args['old_version'];
-        $newVersion = $args['new_version'];
-        $db = $this->_db;
-
-        require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'upgrade.php';
-    }
-
-    /**
-     * When the plugin uninstalls, delete the database tables which store the
-     * logs.
-     */
-    public function hookUninstall(): void
-    {
-        $db = $this->_db;
-        $sql = "DROP TABLE IF EXISTS `{$db->prefix}item_history_logs`";
-        $db->query($sql);
-        $sql = "DROP TABLE IF EXISTS `{$db->HistoryLogEntry}`";
-        $db->query($sql);
-        $sql = "DROP TABLE IF EXISTS `{$db->HistoryLogChange}`";
-        $db->query($sql);
-        $sql = "DROP TABLE IF EXISTS `{$db->prefix}numerals`";
-        $db->query($sql);
-
-        $this->_uninstallOptions();
-    }
-
-    /**
-     * Add a message to the confirm form for uninstallation of the plugin.
-     */
-    public function hookUninstallMessage(): void
-    {
-        echo __('%sWarning%s: All the history log entries will be deleted.', '<strong>', '</strong>');
-    }
-
-    /**
-     * Shows plugin configuration page.
-     */
-    public function hookConfigForm($args): void
-    {
-        $view = get_view();
-        echo $view->partial(
-            'plugins/history-log-config-form.php'
-        );
-    }
-
-    /**
-     * Handle a submitted config form.
-     *
-     * @param array Options set in the config form.
-     */
-    public function hookConfig($args): void
-    {
-        $post = $args['post'];
-        foreach ($this->_options as $optionKey => $optionValue) {
-            if (in_array($optionKey, [
-                    'history_log_display',
-                ])) {
-                $post[$optionKey] = json_encode($post[$optionKey]) ?: json_encode([]);
-            }
-            if (isset($post[$optionKey])) {
-                set_option($optionKey, $post[$optionKey]);
-            }
-        }
-    }
-
-    /**
-     * Define the plugin's access control list.
-     *
-     * @param array $args Parameters supplied by the hook
-     */
-    public function hookDefineAcl($args): void
-    {
-        $args['acl']->addResource('HistoryLog_Index');
-    }
-
-    /**
-     * Define routes.
-     *
-     * @param Zend_Controller_Router_Rewrite $router
-     */
-    public function hookDefineRoutes($args): void
-    {
-        if (!is_admin_theme()) {
-            return;
-        }
-
-        $args['router']->addRoute(
-            'history_log_record_log',
-            new Zend_Controller_Router_Route(
-                ':type/log/:id',
-                [
-                    'module' => 'history-log',
-                    'controller' => 'log',
-                    'action' => 'log',
-                ],
-                [
-                    'type' => 'items|collections|files',
-                    'id' => '\d+',
-        ]
-            )
-        );
-
-        $args['router']->addRoute(
-            'history_log_undelete',
-            new Zend_Controller_Router_Route(
-                ':type/undelete/:id',
-                [
-                    'module' => 'history-log',
-                    'controller' => 'log',
-                    'action' => 'undelete',
-                ],
-                [
-                    'type' => 'items|collections|files',
-                    'id' => '\d+',
-        ]));
-    }
 
     /**
      * When a record is saved, determine whether it is a new record or a record

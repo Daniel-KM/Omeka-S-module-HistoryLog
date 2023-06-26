@@ -1,9 +1,11 @@
-<phpunit bootstrap="bootstrap.php"
+<phpunit bootstrap="test/bootstrap.php"
+         colors="true"
+         backupGlobals="false"
          convertErrorsToExceptions="true"
          convertWarningsToExceptions="true">
     <testsuites>
-        <testsuite name="History Log Tests">
-            <directory>suite</directory>
+        <testsuite name="History Log">
+            <directory>./test/HistoryLogTest</directory>
         </testsuite>
     </testsuites>
 </phpunit>

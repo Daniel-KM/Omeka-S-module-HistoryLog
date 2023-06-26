@@ -1,0 +1,12 @@
+@media screen {
+    header nav .history-logs::before,
+    .history-logs .subhead::before {
+        content:"";
+    }
+    .history-logs .no-resources:before {
+        content:"";
+    }
+    #annotate .no-resources:before {
+        content:"";
+    }
+}

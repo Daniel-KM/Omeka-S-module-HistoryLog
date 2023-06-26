@@ -9,14 +9,18 @@
 $plugins = $this->getHelperPluginManager();
 $url = $plugins->get('url');
 $escape = $plugins->get('escapeHtml');
+$assetUrl = $plugins->get('assetUrl');
 $translate = $plugins->get('translate');
 $hyperlink = $plugins->get('hyperlink');
 $userIsAllowed = $plugins->get('userIsAllowed');
 
+$this->headLink()
+    ->appendStylesheet($assetUrl('css/history-log-admin.css', 'HistoryLog'));
+
 $this->htmlElement('body')->appendAttribute('class', 'history-logs history-events browse');
 ?>
 
-<?= $this->pageTitle($translate('History Logs')) ?>
+<?= $this->pageTitle('', 1, $translate('History logs')) ?>
 
 <?= $this->searchFilters() ?>
 
@@ -68,9 +72,11 @@ $this->htmlElement('body')->appendAttribute('class', 'history-logs history-event
 
 <table class="tablesaw batch-edit" data-tablesaw-mode="stack">
     <thead>
-        <tr><?php /*
-            <th><input type="checkbox" class="select-all" aria-label="<?= $translate('Select all') ?>"><?= $translate('Title') ?></th>
-            */ ?>
+        <tr>
+            <th>
+                <input type="checkbox" class="select-all" aria-label="<?= $translate('Select all') ?>">
+                <?= $translate('Title') ?>
+            </th>
             <?= $this->browse()->renderHeaderRow('history_events') ?>
         </tr>
     </thead>

@@ -140,8 +140,8 @@ return [
     ],
     'navigation' => [
         'AdminModule' => [
-            [
-                'label' => 'Logs', // @translate
+            'history-log' => [
+                'label' => 'History logs', // @translate
                 'class' => 'o-icon- fa-history',
                 'route' => 'admin/history-log',
                 'resource' => Controller\Admin\IndexController::class,

@@ -53,20 +53,60 @@ class HistoryChangeRepresentation extends AbstractEntityRepresentation
     public function data()
     {
         // Data are adapted to the entity type and field.
-        // Here for resource values.
-        $data = [
-            'type' => $this->type(),
-            'is_public' => $this->isPublic(),
-            'lang' => $this->lang(),
-            'value' => $this->value(),
-            'uri' => $this->uri(),
-            'value_resource_id' => $this->valueResourceId(),
-            'value_annotation_id' => $this->valueAnnotation(),
-        ];
-        foreach ($data as $key => $value) {
-            if ($value === null) {
-                unset($data[$key]);
-            }
+        switch ($this->field()) {
+            case 'o:is_public':
+            case 'o:is_open':
+                $data = [
+                    'value' => (bool) $this->resource->getValue(),
+                ];
+                break;
+            case 'o:owner':
+                $data = [
+                    'o:id' => $this->resource->getValue(),
+                    'o:email' => $this->resource->getUri(),
+                ];
+                break;
+            case 'o:resource_class':
+                $data = [
+                    'o:term' => $this->resource->getValue(),
+                ];
+                break;
+            case 'o:resource_template':
+                $data = [
+                    'o:id' => $this->resource->getValue(),
+                    'o:label' => $this->resource->getUri(),
+                ];
+                break;
+            // Item.
+            case 'oitem_set':
+            case 'o:primary_media':
+                $data = [
+                    'o:id' => $this->resource->getValue(),
+                ];
+                break;
+            // Media.
+            case 'o:source':
+            case 'o:media_type':
+            case 'o:sha256':
+            case 'o:filename':
+            case 'o:lang':
+            case 'o:data':
+                $data = [
+                    'value' => $this->resource->getValue(),
+                ];
+                break;
+            // Property.
+            default:
+                $data = [
+                    'type' => $this->resource->getType(),
+                    'is_public' => $this->resource->getIsPublic(),
+                    'lang' => $this->resource->getLang(),
+                    'value' => $this->resource->getValue(),
+                    'uri' => $this->resource->getUri(),
+                    'value_resource_id' => $this->resource->getValueResourceId(),
+                    'value_annotation_id' => $this->resource->getValueAnnotationId(),
+                ];
+                break;
         }
         return $data;
     }

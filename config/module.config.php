@@ -36,12 +36,11 @@ return [
             Form\SearchForm::class => Service\Form\SearchFormFactory::class,
         ],
     ],
+    */
     'controllers' => [
-        // TODO Will be simplified later.
         'invokables' => [
-            Controller\Admin\AdminController::class => Controller\Admin\AdminController::class,
+            Controller\Admin\HistoryChangeController::class => Controller\Admin\HistoryChangeController::class,
             Controller\Admin\IndexController::class => Controller\Admin\IndexController::class,
-            Controller\Admin\LogController::class => Controller\Admin\LogController::class,
         ],
     ],
     'router' => [
@@ -64,14 +63,12 @@ return [
                             'history-log-id' => [
                                 'type' => \Laminas\Router\Http\Segment::class,
                                 'options' => [
-                                    'route' => '/:resource/:id/log',
+                                    'route' => '/:id/:action',
                                     'constraints' => [
-                                        'resource' => 'item-set|item|media|resource',
-                                        'action' => 'log|undelete',
+                                        'id' => '\d+',
+                                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                                     ],
                                     'defaults' => [
-                                        'controller' => Controller\Admin\LogController::class,
-                                        'resource' => 'resource',
                                         'action' => 'show',
                                     ],
                                 ],
@@ -93,7 +90,6 @@ return [
             ],
         ],
     ],
-    */
     'translator' => [
         'translation_file_patterns' => [
             [

@@ -45,13 +45,6 @@ class Module extends AbstractModule
     ];
 
     /**
-     * @var array Filters for the plugin.
-     */
-    protected $_filters = [
-        'admin_navigation_main',
-    ];
-
-    /**
      * @var array
      *
      * Array of prepared log entries saved during the "before save" process for
@@ -442,23 +435,6 @@ class Module extends AbstractModule
         if ($module == 'history-log' && $controller == 'index' && $action == 'search') {
             queue_js_file('history-log');
         }
-    }
-
-    /**
-     * Add the History Log link to the admin main navigation.
-     *
-     * @param array $nav Navigation array.
-     * @return array $filteredNav Filtered navigation array.
-     */
-    public function filterAdminNavigationMain($nav)
-    {
-        $nav[] = [
-            'label' => __('History Logs'),
-            'uri' => url('history-log'),
-            'resource' => 'HistoryLog_Index',
-            'privilege' => 'index',
-        ];
-        return $nav;
     }
 
     /**

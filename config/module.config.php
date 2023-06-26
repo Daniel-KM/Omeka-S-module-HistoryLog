@@ -28,16 +28,17 @@ return [
             dirname(__DIR__) . '/view',
         ],
     ],
-    /*
     'form_elements' => [
         'invokables' => [
             Form\ConfigForm::class => Form\ConfigForm::class,
+            Form\SettingsFieldset::class => Form\SettingsFieldset::class,
         ],
+        /*
         'factories' => [
             Form\SearchForm::class => Service\Form\SearchFormFactory::class,
         ],
+        */
     ],
-    */
     'controllers' => [
         'invokables' => [
             // TODO Controller HistoryChange is probably useless: check if it can be removed.
@@ -152,6 +153,9 @@ return [
         ],
     ],
     'historylog' => [
+        // Needed to display the config form.
+        'config' => [
+        ],
         'settings' => [
             'history_log_display' => [
                 'items/browse',

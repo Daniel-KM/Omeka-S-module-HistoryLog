@@ -9,7 +9,7 @@ if (!class_exists(\Generic\AbstractModule::class)) {
 }
 
 use Generic\AbstractModule;
-use HistoryLog\Entity\HistoryEvent;
+use Laminas\EventManager\SharedEventManagerInterface;
 
 /**
  * History Log
@@ -25,6 +25,15 @@ use HistoryLog\Entity\HistoryEvent;
 class Module extends AbstractModule
 {
     const NAMESPACE = __NAMESPACE__;
+
+    public function attachListeners(SharedEventManagerInterface $sharedEventManager): void
+    {
+        $sharedEventManager->attach(
+            \Omeka\Form\SettingForm::class,
+            'form.add_elements',
+            [$this, 'handleMainSettings']
+        );
+    }
 
     /**
      * @var array Hooks for the plugin.

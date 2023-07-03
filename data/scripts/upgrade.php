@@ -26,8 +26,22 @@ $messenger = $plugins->get('messenger');
 $entityManager = $services->get('Omeka\EntityManager');
 
 if (version_compare($oldVersion, '3.4.10', '<')) {
+    $sql = <<<'SQL'
+ALTER TABLE `history_event`
+CHANGE `part_of` `part_of` int NULL DEFAULT NULL AFTER `entity_name`;
+ALTER TABLE `history_event`
+CHANGE `operation` `operation` varchar(15) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `user_id`;
+ALTER TABLE `history_change`
+CHANGE `action` `action` varchar(7) COLLATE 'utf8mb4_unicode_ci' NOT NULL AFTER `event_id`;
+SQL;
+    $connection->executeStatement($sql);
+
     $message = new Message(
-        'This is a beta version. Take care of your data. Only storage of resource changes is ready.' // @translate
+        'Structure of some stored data was updated. You need to reinstall the module.' // @translate
+    );
+    $messenger->addWarning($message);
+    $message = new Message(
+        'This is a beta version. Take care of your data.' // @translate
     );
     $messenger->addWarning($message);
 }

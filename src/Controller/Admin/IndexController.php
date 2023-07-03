@@ -4,6 +4,7 @@ namespace HistoryLog\Controller\Admin;
 
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
+use Omeka\Mvc\Exception\NotFoundException;
 
 /**
  * Adapted from Omeka controllers.
@@ -19,14 +20,16 @@ class IndexController extends AbstractActionController
 
     public function browseAction()
     {
+        $query = $this->params()->fromQuery();
+
         $this->browse()->setDefaults('history_events');
-        $response = $this->api()->search('history_events', $this->params()->fromQuery());
+        $response = $this->api()->search('history_events', $query);
         $this->paginator($response->getTotalResults());
 
         // Set the return query for batch actions. Note that we remove the page
         // from the query because there's no assurance that the page will return
         // results once changes are made.
-        $returnQuery = $this->params()->fromQuery();
+        $returnQuery = $query;
         unset($returnQuery['page']);
 
         $historyEvents = $response->getContent();
@@ -60,5 +63,93 @@ class IndexController extends AbstractActionController
         ]);
         $view->setTerminal(true);
         return $view;
+    }
+
+    /**
+     * "log" is between browse and show: display all events of an entity.
+     */
+    public function logAction()
+    {
+        [$entityName, $entityId, $entity] = array_values($this->getEntityFromParams());
+
+        $this->browse()->setDefaults('history_events');
+        $response = $this->api()->search('history_events', [
+            'entity_name' => $entityName,
+            'entity_id' => $entityId,
+        ]);
+        $this->paginator($response->getTotalResults());
+
+        $historyEvents = $response->getContent();
+
+        return new ViewModel([
+            'entityName' => $entityName,
+            'entityId' => $entityId,
+            'entity' => $entity,
+            'historyEvents' => $historyEvents,
+            'resources' => $historyEvents,
+        ]);
+    }
+
+    protected function getEntityFromParams(): array
+    {
+        // Values are checked via route.
+        $params = $this->params();
+
+        $id = (int) $params->fromRoute('id');
+        if ($id) {
+            /* TODO For omeka url item/#id/log.
+            $resourceType = $params->fromRoute('controller') ?: $params->fromRoute('controller');
+            $resourceNames = [
+                'item' => 'items',
+                'media' => 'media',
+                'item_sets' => 'item_sets',
+                'Omeka\Controller\Admin\Item' => 'items',
+                'Omeka\Controller\Admin\Media' => 'media',
+                'Omeka\Controller\Admin\ItemSet' => 'item_sets',
+            ];
+            $entityName = $resourceNames[$resourceType] ?? null;
+            */
+
+            /** @var \HistoryLog\Api\Representation\HistoryEventRepresentation $historyEvent */
+            $historyEvent = $this->api()->read('history_events', ['id' => $id])->getContent();
+            $entityId = $historyEvent->entityId();
+            $entityName = $historyEvent->entityName();
+        } else {
+            $entityId = (int) $params->fromRoute('entity-id');
+            $entityName = $params->fromRoute('entity-name');
+            $resourceNames = [
+                'item' => 'items',
+                'media' => 'media',
+                'item-set' => 'item_sets',
+                'resource' => 'resources',
+            ];
+            $entityName = $resourceNames[$entityName] ?? null;
+        }
+
+        // Not found or invalid.
+        if (!$entityId || !$entityName) {
+            throw new NotFoundException();
+        }
+
+        $query = [
+            'entity_name' => $entityName,
+            'entity_id' => $entityId,
+        ];
+        $entity = $query;
+
+        try {
+            $entity = $this->api()->read($entityName, ['id' => $entityId])->getContent();
+            if ($entityName === 'resources') {
+                $entityName = $entity->resourceName();
+            }
+        } catch (\Exception $e) {
+            $entity = null;
+        }
+
+        return [
+            'entity_name' => $entityName,
+            'entity_id' => $entityId,
+            'entity' => $entity,
+        ];
     }
 }

@@ -6,4 +6,8 @@
  * @var array $data
  */
 
-echo $this->partial('common/history-log-change-data');
+$plugins = $this->getHelperPluginManager();
+$escape = $plugins->get('escapeHtml');
+?>
+
+<?= $escape(json_encode($historyChange->data(), 448)) ?>

@@ -8,35 +8,4 @@
  * @var bool $includeHeaders
  */
 
-$changes = $historyEvent->changes();
-If (!count($changes)) return;
-
-$plugins = $this->getHelperPluginManager();
-$escape = $plugins->get('escapeHtml');
-$translate = $plugins->get('translate');
-?>
-
-<table class="tablesaw batch-edit" data-tablesaw-mode="stack">
-    <thead>
-        <tr>
-            <td><?= $translate('Data') ?></td>
-            <td><?= $translate('Field') ?></td>
-            <td><?= $translate('Action') ?></td>
-        </tr>
-    </thead>
-    <tbody>
-        <?php foreach ($historyEvent->changes() as $historyChange): ?>
-        <tr>
-            <td>
-                <?= nl2br($escape(json_encode($historyChange->data(), 448)), true) ?>
-            </td>
-            <td>
-                <?= $historyChange->displayAction() ?>
-            </td>
-            <td>
-                <?= $historyChange->field() ?>
-            </td>
-        </tr>
-        <?php endforeach; ?>
-    </tbody>
-</table>
+echo $this->partial('common/history-log-changes.phtml');

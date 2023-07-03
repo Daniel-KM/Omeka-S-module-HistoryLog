@@ -69,12 +69,13 @@ class HistoryLog extends AbstractHelper
             $entity = null;
         }
 
-        $vars = [];
-        $vars['entityName'] = $query['entity_name'];
-        $vars['entityId'] = $query['entity_id'];
-        $vars['entity'] = $entity;
-        $vars['historyEvents'] = $historyEvents;
-        $vars['resources'] = $historyEvents;
+        $vars = [
+            'entityName' => $query['entity_name'],
+            'entityId' => $query['entity_id'],
+            'entity' => $entity,
+            'historyEvents' => $historyEvents,
+            'resources' => $historyEvents,
+        ];
 
         return $this->getView()->partial('common/history-log', $vars);
     }

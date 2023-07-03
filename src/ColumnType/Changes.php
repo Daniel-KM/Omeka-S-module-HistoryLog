@@ -42,10 +42,8 @@ class Changes implements ColumnTypeInterface
 
     public function renderContent(PhpRenderer $view, AbstractEntityRepresentation $resource, array $data) : ?string
     {
-        return $view->partial('common/resource-page-block-layout/history-log-changes', [
-            'historyEvent' => $resource,
-            'resource' => $resource,
-            'data' => $data,
-        ]);
+        /** @var \HistoryLog\Api\Representation\HistoryEventRepresentation $resource */
+        $data['template'] ??= 'common/resource-page-block-layout/history-log-changes';
+        return $resource->displayChanges($data);
     }
 }

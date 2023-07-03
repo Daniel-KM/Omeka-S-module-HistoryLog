@@ -69,16 +69,30 @@ return [
                         ],
                         'may_terminate' => true,
                         'child_routes' => [
-                            'history-log-id' => [
+                            'id' => [
                                 'type' => \Laminas\Router\Http\Segment::class,
                                 'options' => [
-                                    'route' => '/:id/:action',
+                                    'route' => '/:id[/:action]',
                                     'constraints' => [
                                         'id' => '\d+',
-                                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                                        'action' => 'show-details|show',
                                     ],
                                     'defaults' => [
                                         'action' => 'show',
+                                    ],
+                                ],
+                            ],
+                            'entity' => [
+                                'type' => \Laminas\Router\Http\Segment::class,
+                                'options' => [
+                                    'route' => '/:entity-name/:entity-id[/:action]',
+                                    'constraints' => [
+                                        'entity-name' => 'resource|item-set|item|media',
+                                        'id' => '\d+',
+                                        'action' => 'log',
+                                    ],
+                                    'defaults' => [
+                                        'action' => 'log',
                                     ],
                                 ],
                             ],

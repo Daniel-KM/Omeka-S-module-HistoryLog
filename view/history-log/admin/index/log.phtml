@@ -1,0 +1,40 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var string $entityName
+ * @var int $entityId
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $entity
+ * @var \HistoryLog\Api\Representation\HistoryEventRepresentation[] $historyEvents
+ * @var \HistoryLog\Api\Representation\HistoryEventRepresentation[] $resources
+ */
+
+$plugins = $this->getHelperPluginManager();
+$url = $plugins->get('url');
+$assetUrl = $plugins->get('assetUrl');
+$translate = $plugins->get('translate');
+
+$this->headLink()
+    ->appendStylesheet($assetUrl('css/history-log-admin.css', 'HistoryLog'));
+
+$this->htmlElement('body')->appendAttribute('class', 'history-logs history-events browse history-log');
+?>
+
+<?= $this->pageTitle(sprintf($translate('Last changes for %s #%d'), $entityName, $entityId), 1, $translate('History logs')) ?>
+
+<?php if ($historyEvents): ?>
+    <?= $this->partial('common/history-log') ?>
+    <?php if ($entity): ?>
+    <p><?= $entity->link($translate('Go back to the resource.')) ?></p>
+    <?php else: ?>
+    <p><?= $translate('This resource was deleted.') ?></p>
+    <?php endif; ?>
+<?php else: ?>
+    <p><?= $translate('No log for this record.') ?></p>
+    <?php if ($entity): ?>
+    <p><?= $entity->link($translate('Go back to the resource.')) ?></p>
+    <?php else: ?>
+    <p><?= $translate('This resource does not exist and is not logged.') ?></p>
+    <?php endif; ?>
+<?php endif; ?>
+
+<p><?= sprintf($translate('Go back to the %1$shistory logs%2$s.'), '<a href="' . $url('admin/history-log') . '">', '</a>') ?></p>

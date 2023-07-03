@@ -150,4 +150,16 @@ class HistoryChangeRepresentation extends AbstractEntityRepresentation
                 return ucfirst($action);
         }
     }
+
+    /**
+     * Display details of this change.
+     */
+    public function displayData(array $options = []): string
+    {
+        $options['historyChange'] = $this;
+        $options['resource'] = $this;
+        $template = $options['template'] ?? 'common/history-log-change-data';
+        $partial = $this->getViewHelper('partial');
+        return $partial($template, $options);
+    }
 }

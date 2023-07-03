@@ -375,6 +375,41 @@ class HistoryEventRepresentation extends AbstractEntityRepresentation
         }
     }
 
+    /**
+     * Display a table of changes.
+     */
+    public function displayChanges(array $options = []): string
+    {
+        $options['historyEvent'] = $this;
+        $options['resource'] = $this;
+        $template = $options['template'] ?? 'common/history-log-changes';
+        $partial = $this->getViewHelper('partial');
+        return $partial($template, $options);
+    }
+
+    public function adminUrl($action = null, $canonical = false)
+    {
+        if (!in_array($action, ['log', 'undelete'])) {
+            return parent::adminUrl($action, $canonical);
+        }
+        $url = $this->getViewHelper('Url');
+
+        $entityNameToTypes = [
+            'items' => 'item',
+            'media' => 'media',
+            'item_sets' => 'item-set',
+        ];
+        return $url(
+            'admin/history-log/entity',
+            [
+                'entity-name' => $entityNameToTypes[$this->entityName()] ?? 'resource',
+                'entity-id' => $this->entityId(),
+                'action' => $action,
+            ],
+            ['force_canonical' => $canonical]
+        );
+    }
+
     public function isUndeletableEntity(): bool
     {
         $entityId = $this->entityId();

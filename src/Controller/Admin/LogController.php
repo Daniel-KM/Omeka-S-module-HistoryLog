@@ -1,41 +1,17 @@
 <?php declare(strict_types=1);
+
+namespace HistoryLog\Controller\Admin;
+
+use Laminas\Mvc\Controller\AbstractActionController;
+
 /**
- * HistoryLog
+ * Adapted from Omeka controllers.
  *
  * @copyright Copyright 2014 UCSC Library Digital Initiatives
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
  */
-
-/**
- * The HistoryLog log controller class.
- *
- * @package HistoryLog
- */
-class HistoryLog_LogController extends Omeka_Controller_AbstractActionController
+class LogController extends AbstractActionController
 {
-    /**
-     * Set up the view for full record reports.
-     */
-    public function logAction(): void
-    {
-        $flashMessenger = $this->_helper->FlashMessenger;
-        $recordType = $this->_getParam('type');
-        $recordId = $this->_getParam('id');
-        if (empty($recordType) || empty($recordId)) {
-            $flashMessenger->addMessage(__('Record not selected.'), 'error');
-        }
-
-        $recordType = Inflector::classify($recordType);
-        $recordId = (int) $recordId;
-
-        $record = get_record_by_id($recordType, $recordId);
-
-        $this->view->record = $record ?: [
-            'record_type' => Inflector::classify($recordType),
-            'record_id' => (int) $recordId,
-        ];
-    }
-
     /**
      * Undelete a record when possible.
      */

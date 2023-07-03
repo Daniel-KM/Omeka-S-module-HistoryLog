@@ -1,0 +1,41 @@
+<?php
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var \HistoryLog\Api\Representation\HistoryEventRepresentation $historyEvent
+ * @var \HistoryLog\Api\Representation\HistoryEventRepresentation $resource
+ */
+
+$plugins = $this->getHelperPluginManager();
+$i18n = $plugins->get('i18n');
+$assetUrl = $plugins->get('assetUrl');
+$translate = $plugins->get('translate');
+$hyperlink = $plugins->get('hyperlink');
+
+$this->headLink()
+    ->appendStylesheet($assetUrl('css/history-log-admin.css', 'HistoryLog'));
+
+$this->htmlElement('body')->appendAttribute('class', 'history-logs history-events browse history-log');
+?>
+
+<?= $this->pageTitle(sprintf($translate('Event #%1$d (%2$s #%3$d)'), $historyEvent->id(), ucfirst($historyEvent->entityName()), $historyEvent->entityId()), 1, $translate('History logs')) ?>
+
+<?php if ($historyEvent->isUndeletableEntity() && $this->userIsAllowed('Omeka\Api\Adapter\ItemAdapter', 'create')): ?>
+<div id="page-actions">
+    <?= $hyperlink($translate('Undelete entity'), $historyEvent->adminUrl('undelete'), ['class' => 'button']); ?>
+</div>
+<?php endif; ?>
+
+<dl>
+    <dt><?= $translate('Entity') ?></dt>
+    <dd><?= $historyEvent->displayEntity() ?></dd>
+    <dt><?= $translate('Part of') ?></dt>
+    <dd><?= $historyEvent->displayEntityPartOf() ?></dd>
+    <dt><?= $translate('User') ?></dt>
+    <dd><?= $historyEvent->displayUser() ?></dd>
+    <dt><?= $translate('Operation') ?></dt>
+    <dd><?= $historyEvent->displayOperation() ?></dd>
+    <dt><?= $translate('Date') ?></dt>
+    <dd><?= $i18n->dateFormat($historyEvent->created()) ?></dd>
+</dl>
+
+<?= $historyEvent->displayChanges() ?>

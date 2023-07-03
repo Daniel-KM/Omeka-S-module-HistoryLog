@@ -42,10 +42,8 @@ class ChangeData implements ColumnTypeInterface
 
     public function renderContent(PhpRenderer $view, AbstractEntityRepresentation $resource, array $data) : ?string
     {
-        return $view->partial('common/resource-page-block-layout/history-log-change-data', [
-            'historyChange' => $resource,
-            'resource' => $resource,
-            'data' => $data,
-        ]);
+        /** @var \HistoryLog\Api\Representation\HistoryChangeRepresentation $resource */
+        $data['template'] ??= 'common/resource-page-block-layout/history-log-change-data';
+        return $resource->displayData($data);
     }
 }

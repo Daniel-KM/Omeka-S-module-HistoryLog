@@ -26,11 +26,15 @@ TODO:
 
 - [ ] Initial filling
 - [ ] Checks
-- [ ] Reset
-- [ ] Undelete
+- [ ] Reset (restore at any event)
+- [ ] Undelete base
+- [ ] Undelete full (with value annotations)
+- [ ] Undelete data from modules (mainly Mapping in fact)
 - [ ] Batch process
 - [ ] Export
 - [ ] Direct routes
+- [ ] Sites and site pages
+- [ ] Other modules (mainly Annotate)
 
 **This readme lists features not yet implemented in Omeka S.**
 

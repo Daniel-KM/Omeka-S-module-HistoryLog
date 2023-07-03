@@ -136,7 +136,7 @@ return [
     'browse_defaults' => [
         'admin' => [
             'history_events' => [
-                'sort_by' => 'history_log_created',
+                'sort_by' => 'id',
                 'sort_order' => 'desc',
             ],
         ],
@@ -144,12 +144,14 @@ return [
     'sort_defaults' => [
         'admin' => [
             'history_events' => [
-                'history_log_created' => 'Created', // @translate
-                'history_log_entity_name' => 'Entity name', // @translate
-                'history_log_entity_id' => 'Entity id', // @translate
-                'history_log_part_of' => 'Part of', // @translate
-                'history_log_user_id' => 'User id', // @translate
-                'history_log_operation' => 'Operation', // @translate
+                'id' => 'Id', // @translate
+                'created' => 'Created', // @translate
+                'entity' => 'Logged entity', // @translate
+                'entity_name' => 'Entity name', // @translate
+                'entity_id' => 'Entity id', // @translate
+                'part_of' => 'Part of', // @translate
+                'user_id' => 'User id', // @translate
+                'operation' => 'Operation', // @translate
             ],
         ],
     ],

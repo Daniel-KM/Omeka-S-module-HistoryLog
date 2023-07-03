@@ -21,9 +21,9 @@ class IndexController extends AbstractActionController
 
     public function browseAction()
     {
-        $query = $this->params()->fromQuery();
-
+        // The query is updated with the defaults.
         $this->browse()->setDefaults('history_events');
+        $query = $this->params()->fromQuery();
         $response = $this->api()->search('history_events', $query);
         $this->paginator($response->getTotalResults());
 
@@ -74,10 +74,13 @@ class IndexController extends AbstractActionController
         [$entityName, $entityId, $entity] = array_values($this->getEntityFromParams());
 
         $this->browse()->setDefaults('history_events');
-        $response = $this->api()->search('history_events', [
+        $query = [
             'entity_name' => $entityName,
             'entity_id' => $entityId,
-        ]);
+            'sort_by' => 'id',
+            'sort_order' => 'DESC',
+        ];
+        $response = $this->api()->search('history_events', $query);
         $this->paginator($response->getTotalResults());
 
         $historyEvents = $response->getContent();

@@ -3,11 +3,18 @@
  * @var \Laminas\View\Renderer\PhpRenderer $this
  * @var \HistoryLog\Api\Representation\HistoryChangeRepresentation $historyChange
  * @var \HistoryLog\Api\Representation\HistoryChangeRepresentation $resource
- * @var array $data
  */
 
 $plugins = $this->getHelperPluginManager();
 $escape = $plugins->get('escapeHtml');
+
+$data = $historyChange->data();
 ?>
 
-<?= $escape(json_encode($historyChange->data(), 448)) ?>
+<?php if (is_bool($data)): ?>
+<?= json_encode($data) ?>
+<?php elseif (is_scalar($data)): ?>
+<?= nl2br($escape($data)) ?>
+<?php else: ?>
+<?= nl2br($escape(json_encode($historyChange->data(), 448))) ?>
+<?php endif; ?>

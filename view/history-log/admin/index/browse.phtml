@@ -89,7 +89,7 @@ $this->htmlElement('body')->appendAttribute('class', 'history-logs history-event
                 <input type="checkbox" name="resource_ids[]" value="<?= $historyEvent->id() ?>" aria-label="<?= $translate('Select history event') ?>">
                 <?php endif; ?>
                 */ ?>
-                <?= $this->partial('common/resource-page-block-layout/history-log-changes', [
+                <?= $this->partial('common/history-log-changes', [
                     'historyEvent' => $historyEvent,
                     'resource' => $historyEvent,
                 ]) ?>

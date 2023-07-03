@@ -43,7 +43,7 @@ class Changes implements ColumnTypeInterface
     public function renderContent(PhpRenderer $view, AbstractEntityRepresentation $resource, array $data) : ?string
     {
         /** @var \HistoryLog\Api\Representation\HistoryEventRepresentation $resource */
-        $data['template'] ??= 'common/resource-page-block-layout/history-log-changes';
+        $data['template'] ??= 'common/history-log-changes';
         return $resource->displayChanges($data);
     }
 }

@@ -37,8 +37,11 @@ class HistoryEventsLink extends AbstractHelper
                 '%d event', // @translate
                 '%d events', // @translate
                 $total
-                ), $total),
-            $url('admin/history-log', [], ['query' => $query])
+            ), $total),
+            $url('admin/history-log/entity', [
+                'entity-name' => $resource->getControllerName(),
+                'entity-id' => $resource->id(),
+            ])
         );
     }
 }

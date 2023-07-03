@@ -12,7 +12,7 @@ $changes = $historyEvent->changes();
 If (!count($changes)) return;
 
 $plugins = $this->getHelperPluginManager();
-$escape = $plugins->get('escapeHtml');
+$partial = $plugins->get('partial');
 $translate = $plugins->get('translate');
 ?>
 
@@ -28,7 +28,7 @@ $translate = $plugins->get('translate');
         <?php foreach ($historyEvent->changes() as $historyChange): ?>
         <tr>
             <td>
-                <?= nl2br($escape(json_encode($historyChange->data(), 448)), true) ?>
+                <?= $partial('common/history-log-change-data', ['historyChange' => $historyChange, 'resource' => $historyChange]) ?>
             </td>
             <td>
                 <?= $historyChange->field() ?>

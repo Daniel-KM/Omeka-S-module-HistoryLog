@@ -56,46 +56,63 @@ class HistoryChangeRepresentation extends AbstractEntityRepresentation
         switch ($this->field()) {
             case 'o:is_public':
             case 'o:is_open':
-                $data = [
-                    'value' => (bool) $this->resource->getValue(),
-                ];
+                $data = in_array($this->resource->getValue(), [true, 'true', 1, '1'], true)
+                    ? true
+                    : (in_array($this->resource->getValue(), [false, 'false', 0, '0'], true) ? false : null);
                 break;
             case 'o:owner':
                 $data = [
-                    'o:id' => $this->resource->getValue(),
+                    'o:id' => (int) $this->resource->getValue(),
                     'o:email' => $this->resource->getUri(),
                 ];
                 break;
             case 'o:resource_class':
-                $data = [
-                    'o:term' => $this->resource->getValue(),
-                ];
+                $data = $this->resource->getValue();
                 break;
             case 'o:resource_template':
                 $data = [
-                    'o:id' => $this->resource->getValue(),
+                    'o:id' => (int) $this->resource->getValue(),
                     'o:label' => $this->resource->getUri(),
+                ];
+                break;
+            case 'o:thumbnail':
+                $data = [
+                    'o:id' => (int) $this->resource->getValue(),
+                    'o:name' => $this->resource->getUri(),
                 ];
                 break;
             // Item.
             case 'oitem_set':
             case 'o:primary_media':
-                $data = [
-                    'o:id' => $this->resource->getValue(),
-                ];
+                $data = (int) $this->resource->getValue();
                 break;
             // Media.
-            case 'o:source':
-            case 'o:media_type':
-            case 'o:sha256':
-            case 'o:filename':
-            case 'o:lang':
-            case 'o:data':
+            case 'o:media':
+                $value = $this->resource->getValue();
+                $value = $value ? json_decode($value, true) : [];
                 $data = [
-                    'value' => $this->resource->getValue(),
+                    'o:ingester' => $value['o:ingester'] ?? null,
+                    'o:renderer' => $value['o:renderer'] ?? null,
+                    'o:source' => $value['o:source'] ?? null,
+                    'o:media_type' => $this->resource->getType() ?: null,
+                    'o:sha256' => $value['o:sha256'] ?? null,
+                    'o:filename' => $this->resource->getUri() ?: null,
+                    'o:size' => $value['o:size'] ?? null,
+                    'has_original' => $value['o:has_original'] ?? null,
+                    'has_thumbnails' => $value['o:has_thumbnails'] ?? null,
+                    'o:position' => $value['o:position'] ?? null,
                 ];
                 break;
-            // Property.
+            case 'o:data':
+                $value = $this->resource->getValue();
+                $data = $value ? json_decode($value, true) : null;
+                break;
+            case 'o:lang':
+            case 'o:alt_text':
+                $value = $this->resource->getValue();
+                break;
+            // Property or unknown.
+            // case isset($propertyIds[$field]):
             default:
                 $data = [
                     'type' => $this->resource->getType(),

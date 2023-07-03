@@ -278,16 +278,31 @@ class Module extends AbstractModule
             return;
         }
 
+        /** @var \HistoryLog\Api\Representation\HistoryEventRepresentation$historyEvent */
+        $historyEvent = $view->api()->search('history_events', [
+            'entity_name' => $resource->resourceName(),
+            'entity_id' => $resource->id(),
+            'sort_by' => 'id',
+            'sort_order' => 'DESC',
+            'limit' => 1,
+        ])->getContent();
+        if (!$historyEvent) {
+            return;
+        }
+        $historyEvent = reset($historyEvent);
+
         // TODO Add last change and buttons to reset and undelete.
         $html = <<<HTML
 <div class="meta-group">
     <h4>%s</h4>
+    <div class="value">%s</div>
     <div class="value">%s</div>
 </div>
 HTML;
         echo sprintf(
             $html,
             $view->translate('History Log'), // @translate
+            $historyEvent->displayShortInfo(),
             $link
         );
     }

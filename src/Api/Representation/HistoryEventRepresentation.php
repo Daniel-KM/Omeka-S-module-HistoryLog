@@ -373,8 +373,8 @@ class HistoryEventRepresentation extends AbstractEntityRepresentation
                 return $translator->translate('Import'); // @translate
             case HistoryEvent::OPERATION_EXPORT:
                 return $translator->translate('Export'); // @translate
-            // Manage extra type of operation.
             default:
+                // Manage extra type of operation.
                 return ucfirst($operation);
         }
     }
@@ -389,6 +389,54 @@ class HistoryEventRepresentation extends AbstractEntityRepresentation
         $template = $options['template'] ?? 'common/history-log-changes';
         $partial = $this->getViewHelper('partial');
         return $partial($template, $options);
+    }
+
+    /**
+     * Display a short info.
+     */
+    public function displayShortInfo(): string
+    {
+        $translator = $this->getTranslator();
+        $i18n = $this->getServiceLocator()->get('ViewHelperManager')->get('i18n');
+        $operation = $this->operation();
+        switch ($operation) {
+            case HistoryEvent::OPERATION_CREATE:
+                return sprintf(
+                    $translator->translate('Created on %1$s by %2$s'), // @translate
+                    $i18n->dateFormat($this->created()), $this->displayUser()
+                );
+            case HistoryEvent::OPERATION_UPDATE:
+                return sprintf(
+                    $translator->translate('Updated on %1$s by %2$s'), // @translate
+                    $i18n->dateFormat($this->created()), $this->displayUser()
+                );
+            case HistoryEvent::OPERATION_DELETE:
+                return sprintf(
+                    $translator->translate('Deleted on %1$s by %2$s'), // @translate
+                    $i18n->dateFormat($this->created()), $this->displayUser()
+                );
+            case HistoryEvent::OPERATION_UNDELETE:
+                return sprintf(
+                    $translator->translate('Undeleted on %1$s by %2$s'), // @translate
+                    $i18n->dateFormat($this->created()), $this->displayUser()
+                );
+            case HistoryEvent::OPERATION_IMPORT:
+                return sprintf(
+                    $translator->translate('Imported on %1$s by %2$s'), // @translate
+                    $i18n->dateFormat($this->created()), $this->displayUser()
+                );
+            case HistoryEvent::OPERATION_EXPORT:
+                return sprintf(
+                    $translator->translate('Exported on %1$s by %2$s'), // @translate
+                    $i18n->dateFormat($this->created()), $this->displayUser()
+                );
+            default:
+                // Manage extra type of operation.
+                return sprintf(
+                    $translator->translate('Operation "%1$s" on %2$s by %3$s'), // @translate
+                    $this->displayOperation(), $i18n->dateFormat($this->created()), $this->displayUser()
+                );
+        }
     }
 
     public function adminUrl($action = null, $canonical = false)

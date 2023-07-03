@@ -7,6 +7,7 @@ use Omeka\Api\Exception\NotFoundException;
 use Omeka\Api\Representation\AbstractEntityRepresentation;
 use Omeka\Api\Representation\AbstractResourceRepresentation;
 use Omeka\Api\Representation\UserRepresentation;
+use Omeka\Api\Request;
 
 class HistoryEventRepresentation extends AbstractEntityRepresentation
 {
@@ -372,6 +373,82 @@ class HistoryEventRepresentation extends AbstractEntityRepresentation
             default:
                 return ucfirst($operation);
         }
+    }
+
+    public function isUndeletableEntity(): bool
+    {
+        $entityId = $this->entityId();
+        $entityName = $this->entityName();
+        if (!$entityId || !$entityName || !in_array($entityName, HistoryEvent::LOGGABLES)) {
+            return false;
+        }
+        $entity = $this->entity();
+        if (is_object($entity)) {
+            return false;
+        }
+        // The last operation should be a deletion.
+        $request = new Request('search', 'history_events');
+        $request
+            ->setContent([
+                'entity_id' => $entityId,
+                'entity_name' => $entityName,
+                'sort_by' => 'id',
+                'sort_order' => 'DESC',
+                'limit' => 1,
+            ])
+            ->setOption([
+                'initialize' => false,
+                'finalize' => false,
+                'returnScalar' => 'operation',
+            ])
+        ;
+        $result = $this->adapter->search($request)->getContent();
+        return $result
+            && reset($result) === HistoryEvent::OPERATION_DELETE ;
+    }
+
+    public function isFirstEventOfEntity(): bool
+    {
+        return $this->isFirstOrLastEventOfEntity(1);
+    }
+
+    public function isLastEventOfEntity(): bool
+    {
+        return $this->isFirstOrLastEventOfEntity(0);
+    }
+
+    protected function isFirstOrLastEventOfEntity(int $position): bool
+    {
+        $entityId = $this->entityId();
+        $entityName = $this->entityName();
+        if (!$entityId || !$entityName) {
+            return false;
+        }
+
+        $request = new Request('search', 'history_events');
+        $request
+            ->setContent([
+                'entity_id' => $entityId,
+                'entity_name' => $entityName,
+                'sort_by' => 'id',
+                'sort_order' => $position === 0 ? 'DESC' : 'ASC',
+                'limit' => 1,
+            ])
+            ->setOption([
+                'initialize' => false,
+                'finalize' => false,
+                'returnScalar' => 'id',
+            ])
+        ;
+        $result = $this->adapter->search($request)->getContent();
+        return $result
+            && (int) reset($result) === $this->id();
+    }
+
+    public function isEventToUndelete(): bool
+    {
+        return $this->operation() === HistoryEvent::OPERATION_DELETE
+            && $this->isFirstOrLastEventOfEntity(0);
     }
 
     protected function nameEntity(AbstractResourceRepresentation $entity): string

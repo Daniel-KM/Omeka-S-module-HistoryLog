@@ -31,6 +31,15 @@ class HistoryEvent extends AbstractEntity
 {
     /**#@+
      * History log events.
+     */
+    const LOGGABLES = [
+        \Omeka\Entity\Item::class => 'items',
+        \Omeka\Entity\Media::class => 'media',
+        \Omeka\Entity\ItemSet::class => 'item_sets',
+    ];
+
+    /**#@+
+     * History log events.
      *
      * OPERATION_CREATE: The resource is created.
      * OPERATION_UPDATE: The resource is updated.

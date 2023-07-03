@@ -1,52 +1,49 @@
 <?php
-$title = __('Curation History');
-$subtitle = __('Last Changes for %s #%d', $record_type, $record_id);
+/**
+ * @var \Laminas\View\Renderer\PhpRenderer $this
+ * @var string $entityName
+ * @var int $entityId
+ * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $entity
+ * @var \HistoryLog\Api\Representation\HistoryEventRepresentation[] $historyEvents
+ * @var \HistoryLog\Api\Representation\HistoryEventRepresentation[] $resources
+ */
+
+$plugins = $this->getHelperPluginManager();
+$i18n = $plugins->get('i18n');
+$escape = $plugins->get('escapeHtml');
+$translate = $plugins->get('translate');
 ?>
-<div class="element-set">
-    <h2><?php echo html_escape($title); ?></h2>
-    <div id="<?php echo text_to_id(html_escape("history-log")); ?>" class="element">
-        <h3><?php echo html_escape($subtitle); ?></h3>
-        <div class="element-text">
-            <table>
-                 <tr>
-                    <td><strong><?php echo __('Time'); ?></strong></td>
-                    <td><strong><?php echo __('User'); ?></strong></td>
-                    <td><strong><?php echo __('Action'); ?></strong></td>
-                    <td><strong><?php echo __('Details'); ?></strong></td>
-                  </tr>
-                <?php
-                foreach ($logEntries as $logEntry):
-                ?>
-                <tr>
-                    <td><?php echo $logEntry->added; ?></td>
-                    <td><?php echo $logEntry->displayUser(); ?></td>
-                    <td><?php echo $logEntry->displayOperation(); ?>
-                    <?php if ($logEntry->isEntryToUndelete()):
-                        $undeleteUrl = url([
-                                'type' => Inflector::tableize($logEntry->record_type),
-                                'id' => $logEntry->record_id,
-                            ], 'history_log_undelete'); ?>
-                        <div><a href="<?php echo html_escape($undeleteUrl); ?>" class="history-log-process button red"><?php echo html_escape(__('Undo')); ?></a></div>
-                    <?php endif;
-                    ?></td>
-                    <td><?php echo nl2br($logEntry->displayChanges(), true); ?></td>
-                </tr>
-                <?php
-                endforeach;
-                if ($limit > 0 && count($logEntries) >= $limit):
-                ?>
-                <tr>
-                    <td>
-                        <a href="<?php echo url([
-                                'type' => Inflector::tableize($logEntry->record_type),
-                                'id' => $logEntry->record_id,
-                            ], 'history_log_record_log'); ?>">
-                            <strong><?php echo __('See more'); ?></strong>
-                        </a>
-                    </td>
-                </tr>
+
+<?php // TODO Display pagination? ?>
+
+<table class="history-log tablesaw" data-tablesaw-mode="stack">
+    <thead>
+        <tr>
+            <th><?= $translate('Data') ?></th>
+            <th><?= $translate('Operation') ?></th>
+            <th><?= $translate('Date') ?></th>
+            <th><?= $translate('User') ?></th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($historyEvents as $historyEvent):
+            $isUndeletable = $historyEvent->isEventToUndelete();
+        ?>
+        <tr>
+            <td>
+                <?= nl2br($historyEvent->displayChanges(), true) ?>
+            </td>
+            <td class="operation operation-<?= $historyEvent->operation() ?>">
+                <?= $historyEvent->displayOperation() ?>
+                <?php if ($isUndeletable): ?>
+                <div class="history-log-undelete">
+                    <a href="<?= $historyEvent->adminUrl('undelete') ?>" class="history-log-process button red"><?= $escape($translate('Undo')) ?></a>
+                </div>
                 <?php endif; ?>
-            </table>
-        </div>
-    </div>
-</div>
+            </td>
+            <td><?= $i18n->dateFormat($historyEvent->created()) ?></td>
+            <td><?= $historyEvent->displayUser() ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>

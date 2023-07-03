@@ -9,4 +9,8 @@
     #annotate .no-resources:before {
         content:"";
     }
+
+    .browse .history-log .operation span.tablesaw-cell-content {
+        display: block;
+    }
 }

@@ -31,6 +31,7 @@ return [
     'view_helpers' => [
         'invokables' => [
             'historyEventsLink' => View\Helper\HistoryEventsLink::class,
+            'historyLog' => View\Helper\HistoryLog::class,
         ],
     ],
     'form_elements' => [

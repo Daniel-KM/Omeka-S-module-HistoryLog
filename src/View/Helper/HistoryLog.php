@@ -1,68 +1,81 @@
-<?php
+<?php declare(strict_types=1);
+
+namespace HistoryLog\View\Helper;
+
+use Laminas\View\Helper\AbstractHelper;
+use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
+
 /**
- * HistoryLog full item log show page
+ * HistoryLog full item log show page.
  *
  * @copyright Copyright 2014 UCSC Library Digital Initiatives
+ * @copyright 2015-2023 Daniel Berthereau
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
  */
-
-/**
- * History log view helper
- *
- * @package HistoryLog\View\Helper
- */
-class HistoryLog_View_Helper_Showlog extends Zend_View_Helper_Abstract
+class HistoryLog extends AbstractHelper
 {
-    protected $_table;
-
     /**
-     * Load the hit table one time only.
-     */
-    public function __construct()
-    {
-        $this->_table = get_db()->getTable('HistoryLogEntry');
-    }
-
-    /**
-     * Create html with log information for a given record.
+     * Create html with log information for a given entity.
      *
-     * @param Record|array $record The record to retrieve info from. It may be
-     * deleted.
+     * @param AbstractResourceEntityRepresentation|array $resource The resource
+     * to retrieve info from. It may be deleted. For array, keys are "entity_name"
+     * and "entity_id".
      * @param int $limit The maximum number of log entries to retrieve.
      * @return string An html table of requested log information.
      */
-    public function showlog($record, $limit = 10)
+    public function showlog($entity, int $limit = 0): string
     {
-        $markup = '';
-        $params = [];
-        if (is_object($record)) {
-            $params['record_type'] = get_class($record);
-            $params['record_id'] = $record->id;
-        }
-        // Check array too.
-        elseif (is_array($record) && isset($record['record_type']) && $record['record_id']) {
-            $params['record_type'] = Inflector::classify($record['record_type']);
-            $params['record_id'] = (int) $record['record_id'];
-        }
-        // No record.
-        else {
+        if (empty($entity)) {
+            return '';
+        } elseif (is_array($entity)) {
+            if (empty($entity['entity_name']) || empty($entity['entity_id'])) {
+                return '';
+            }
+            $query = [
+                'entity_name' => $entity['entity_name'],
+                'entity_id' => $entity['entity_id'],
+            ];
+        } elseif (is_object($entity) && $entity instanceof AbstractResourceEntityRepresentation) {
+            $query = [
+                'entity_name' => $entity->resourceName(),
+                'entity_id' => $entity->id(),
+            ];
+        } else {
             return '';
         }
 
-        // Reverse order because the most needed infos are recent ones.
-        $params['sort_field'] = 'added';
-        $params['sort_dir'] = 'd';
-
-        $logEntries = $this->_table->findBy($params, $limit);
-        if (!empty($logEntries)) {
-            $markup = $this->view->partial('common/showlog.php', [
-                'record_type' => $params['record_type'],
-                'record_id' => $params['record_id'],
-                'limit' => $limit,
-                'logEntries' => $logEntries,
-            ]);
+        // The pagination is useless: most of the time, there are few events.
+        if ($limit) {
+            $query['limit'] = $limit;
         }
 
-        return $markup;
+        // Reverse order because the most needed infos are recent ones.
+        $query['sort_by'] = 'id';
+        $query['sort_order'] = 'desc';
+
+        $response = $this->api()->search('history_events', $query);
+        $totalResults = $response->getTotalResults();
+        // $this->getVView()->paginator($totalResults);
+
+        if (!$totalResults) {
+            return '';
+        }
+
+        $historyEvents = $response->getContent();
+
+        try {
+            $entity = $this->api()->read($query['entity_name'], ['id' => $query['entity_id']])->getContent();
+        } catch (\Exception $e) {
+            $entity = null;
+        }
+
+        $vars = [];
+        $vars['entityName'] = $query['entity_name'];
+        $vars['entityId'] = $query['entity_id'];
+        $vars['entity'] = $entity;
+        $vars['historyEvents'] = $historyEvents;
+        $vars['resources'] = $historyEvents;
+
+        return $this->getView()->partial('common/history-log', $vars);
     }
 }

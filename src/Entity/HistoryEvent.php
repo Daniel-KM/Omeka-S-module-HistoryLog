@@ -44,12 +44,14 @@ class HistoryEvent extends AbstractEntity
      * OPERATION_CREATE: The resource is created.
      * OPERATION_UPDATE: The resource is updated.
      * OPERATION_DELETE: The resource is deleted.
+     * OPERATION_UNDELETE: The resource is undeleted.
      * OPERATION_IMPORT: The resource is imported.
      * OPERATION_EXPORT: The resource is exported.
      */
     const OPERATION_CREATE = 'create'; // @translate
     const OPERATION_UPDATE = 'update'; // @translate
     const OPERATION_DELETE = 'delete'; // @translate
+    const OPERATION_UNDELETE = 'undelete'; // @translate
     const OPERATION_IMPORT = 'import'; // @translate
     const OPERATION_EXPORT = 'export'; // @translate
     /**#@-*/
@@ -97,13 +99,10 @@ class HistoryEvent extends AbstractEntity
      *
      * @Column(
      *     type="integer",
-     *     nullable=false,
-     *     options={
-     *         "default":0
-     *     }
+     *     nullable=true
      * )
      */
-    protected $partOf = 0;
+    protected $partOf;
 
     /**
      * @var int
@@ -120,7 +119,7 @@ class HistoryEvent extends AbstractEntity
      *
      * @Column(
      *     type="string",
-     *     length=6,
+     *     length=15,
      *     nullable=false
      * )
      */
@@ -186,13 +185,13 @@ class HistoryEvent extends AbstractEntity
 
     public function setPartOf(?int $partOf): self
     {
-        $this->partOf = (int) $partOf;
+        $this->partOf = $partOf;
         return $this;
     }
 
     public function getPartOf(): ?int
     {
-        return $this->partOf ?: null;
+        return $this->partOf;
     }
 
     /**

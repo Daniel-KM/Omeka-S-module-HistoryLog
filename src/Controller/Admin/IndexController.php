@@ -5,6 +5,7 @@ namespace HistoryLog\Controller\Admin;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use Omeka\Mvc\Exception\NotFoundException;
+use Omeka\Stdlib\Message;
 
 /**
  * Adapted from Omeka controllers.
@@ -88,6 +89,69 @@ class IndexController extends AbstractActionController
             'historyEvents' => $historyEvents,
             'resources' => $historyEvents,
         ]);
+    }
+
+    public function undeleteAction()
+    {
+        /**
+         * @var \HistoryLog\Api\Representation\HistoryEventRepresentation $historyEvent
+         * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $entity
+         */
+        [$entityName, $entityId, $entity] = array_values($this->getEntityFromParams());
+
+        if ($entity) {
+            $message = new Message(
+                'The %1$s #%2$d (%3$s) exists and cannot be undeleted!', // @translate
+                $this->translate($entityName), $entityId, $entity->link($entity->displayTitle())
+            );
+            $message->setEscapeHtml(false);
+            $this->messenger()->addError($message);
+            return $this->redirect()->toRoute('admin/history-log');
+        }
+
+        // Last event should be the deletion.
+        $response = $this->api()->search('history_events', [
+            'entity_name' => $entityName,
+            'entity_id' => $entityId,
+            'sort_by' => 'id',
+            'sort_order' => 'DESC',
+            'limit' => 1,
+        ]);
+        $response->getTotalResults();
+        $historyEvent = $response->getContent();
+        $historyEvent = $historyEvent ? reset($historyEvent) : null;
+
+        if (!$historyEvent || $historyEvent->isUndeletableEntity()) {
+            $message = new Message(
+                'The deletion of the %1$s #%2$d has not been logged and cannot be undeleted!', // @translate
+                $this->translate($entityName), $entityId
+            );
+            $this->messenger()->addError($message);
+            return $this->redirect()->toRoute('admin/history-log');
+        }
+
+        // Rebuild the item.
+        $undeletedEntity = $historyEvent->undeleteEntity();
+        if (!$undeletedEntity) {
+            $message = new Message(
+                'The undeletion of the %1$s #%2$d failed!', // @translate
+                $this->translate($entityName), $entityId
+            );
+            $this->messenger()->addError($message);
+            return $this->redirect()->toRoute('admin/history-log');
+        }
+
+        $message = new Message(
+            'The %1$s #%2$d (%3$s) is recovered (metadata only)!', // @translate
+            $this->translate($entityName), $entityId, $entity->link($entity->displayTitle())
+        );
+        $message->setEscapeHtml(false);
+        $this->messenger()->addSuccess($message);
+        $message = new Message(
+            'See logs for possible notices.' // @translate
+        );
+        $this->messenger()->addWarning($message);
+        return $this->redirect()->toRoute('admin/history-log');
     }
 
     protected function getEntityFromParams(): array

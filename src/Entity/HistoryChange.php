@@ -70,7 +70,7 @@ class HistoryChange extends AbstractEntity
      *
      * @Column(
      *     type="string",
-     *     length=6,
+     *     length=7,
      *     nullable=false
      * )
      */

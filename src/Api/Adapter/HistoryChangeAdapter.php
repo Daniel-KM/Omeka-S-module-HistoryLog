@@ -131,7 +131,9 @@ class HistoryChangeAdapter extends AbstractEntityAdapter
             $changedData = isset($data['o:data'])
                 ? $data['o:data'] + $changedDataDefault
                 : array_intersect_key($data, $changedDataDefault) + $changedDataDefault;
-            if (is_scalar($changedData['value'])) {
+            if (is_bool($changedData['value'])) {
+                $changedData['value'] = json_encode($changedData['value']);
+            } elseif (is_scalar($changedData['value'])) {
                 $changedData['value'] = (string) $changedData['value'];
             } elseif ($changedData['value'] !== null) {
                 $changedData['value'] = json_encode($changedData['value'], 320);

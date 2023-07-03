@@ -8,6 +8,8 @@ use Omeka\Api\Representation\AbstractEntityRepresentation;
 use Omeka\Api\Representation\AbstractResourceRepresentation;
 use Omeka\Api\Representation\UserRepresentation;
 use Omeka\Api\Request;
+use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
+use Omeka\Stdlib\ErrorStore;
 
 class HistoryEventRepresentation extends AbstractEntityRepresentation
 {
@@ -365,6 +367,8 @@ class HistoryEventRepresentation extends AbstractEntityRepresentation
                 return $translator->translate('Update'); // @translate
             case HistoryEvent::OPERATION_DELETE:
                 return $translator->translate('Delete'); // @translate
+            case HistoryEvent::OPERATION_UNDELETE:
+                return $translator->translate('Undelete'); // @translate
             case HistoryEvent::OPERATION_IMPORT:
                 return $translator->translate('Import'); // @translate
             case HistoryEvent::OPERATION_EXPORT:
@@ -417,10 +421,12 @@ class HistoryEventRepresentation extends AbstractEntityRepresentation
         if (!$entityId || !$entityName || !in_array($entityName, HistoryEvent::LOGGABLES)) {
             return false;
         }
+
         $entity = $this->entity();
         if (is_object($entity)) {
             return false;
         }
+
         // The last operation should be a deletion.
         $request = new Request('search', 'history_events');
         $request
@@ -501,5 +507,19 @@ class HistoryEventRepresentation extends AbstractEntityRepresentation
             return $entity->name();
         }
         return $entity->getControllerName() . ' #' . $entity->id();
+    }
+
+    public function undeleteEntity(): ?AbstractResourceEntityRepresentation
+    {
+        // Check if this the right event and the entity is really deleted.
+        if (!$this->isUndeletableEntity()) {
+            return null;
+        }
+        $errorStore = new ErrorStore();
+        $entity = $this->adapter->undeleteEntity($this->resource, $errorStore);
+        if ($entity) {
+            return $this->getAdapter($this->entityName())->getRepresentation($entity);
+        }
+        return null;
     }
 }

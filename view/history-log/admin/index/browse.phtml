@@ -75,7 +75,7 @@ $this->htmlElement('body')->appendAttribute('class', 'history-logs history-event
         <tr>
             <th>
                 <input type="checkbox" class="select-all" aria-label="<?= $translate('Select all') ?>">
-                <?= $translate('Title') ?>
+                <?= $translate('Data') ?>
             </th>
             <?= $this->browse()->renderHeaderRow('history_events') ?>
         </tr>
@@ -89,8 +89,12 @@ $this->htmlElement('body')->appendAttribute('class', 'history-logs history-event
                 <input type="checkbox" name="resource_ids[]" value="<?= $historyEvent->id() ?>" aria-label="<?= $translate('Select history event') ?>">
                 <?php endif; ?>
                 */ ?>
-                <?= $historyEvent->link(sprintf('#%d', $historyEvent->id())) ?>
+                <?= $this->partial('common/resource-page-block-layout/history-log-changes', [
+                    'historyEvent' => $historyEvent,
+                    'resource' => $historyEvent,
+                ]) ?>
                 <?php /*
+                <?= $historyEvent->link(sprintf('#%d', $historyEvent->id())) ?>
                 <ul class="actions">
                     <?php if ($historyEvent->userIsAllowed('update')): ?>
                     <li><?= $historyEvent->link('', 'edit', [

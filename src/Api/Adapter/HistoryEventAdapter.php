@@ -184,7 +184,7 @@ class HistoryEventAdapter extends AbstractEntityAdapter
             // Update is only allowed if there is a previous resource in order
             // to hack the fact that the previous or the new resource cannot be
             // determined at the same time during entity or api events for batch
-            // update, batch update because there is not flush during it.
+            // update, because there is no flush during it.
             // Furthermore, during batch update, the update can be called up to
             // three times (replace, append, remove). The changes should be
             // attached to the same event.

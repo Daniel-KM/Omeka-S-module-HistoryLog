@@ -109,12 +109,12 @@ return [
     'column_defaults' => [
         'admin' => [
             'history_events' => [
-                ['type' => 'history_log_created'],
+                // ['type' => 'history_log_changes'],
+                ['type' => 'history_log_operation'],
                 ['type' => 'history_log_entity'],
                 ['type' => 'history_log_part_of'],
                 ['type' => 'history_log_user'],
-                ['type' => 'history_log_operation'],
-                // ['type' => 'history_log_changes'],
+                ['type' => 'history_log_created'],
             ],
         ],
     ],

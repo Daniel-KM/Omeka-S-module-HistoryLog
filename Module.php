@@ -170,6 +170,7 @@ class Module extends AbstractModule
             );
             /** @var \Omeka\Entity\Resource $secondResource */
             $secondResource = $secondEntityManager->find(get_class($resource), $resource->getId());
+
             // Because of doctrine lazyness, load all related metadata here.
             // TODO Replace the check bar representation here and in adapter? But representation does not convert all linked entities, unlike json_decode(json_encode(), true).
             $secondResource->isPublic();

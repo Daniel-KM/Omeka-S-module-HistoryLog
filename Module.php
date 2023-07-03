@@ -12,6 +12,7 @@ use Generic\AbstractModule;
 use HistoryLog\Entity\HistoryEvent;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
+use Omeka\Stdlib\Message;
 
 /**
  * History Log
@@ -162,10 +163,10 @@ class Module extends AbstractModule
             // The existing resource is not yet flushed, but validated.
             // Get the previous one via a second entity manager.
             $entityManager = $this->getServiceLocator()->get('Omeka\EntityManager');
-            // Method create is deprecated: now, create it directly.
-            $secondEntityManager = new \Doctrine\Orm\EntityManager(
+            $secondEntityManager = \Doctrine\Orm\EntityManager::create(
                 $entityManager->getConnection(),
-                $entityManager->getConfiguration()
+                $entityManager->getConfiguration(),
+                $entityManager->getEventManager()
             );
             /** @var \Omeka\Entity\Resource $secondResource */
             $secondResource = $secondEntityManager->find(get_class($resource), $resource->getId());
@@ -259,10 +260,10 @@ class Module extends AbstractModule
                 }
             }
         } catch (\Exception $e) {
-            $services->get('Omeka\Logget')->err(
+            $services->get('Omeka\Logger')->err(new Message(
                 'Unable to store history log when deleting resource #%1$s: %2$s', // @translate
                 $resource->getId(), $e
-            );
+            ));
         }
     }
 

@@ -458,10 +458,10 @@ class HistoryEventAdapter extends AbstractEntityAdapter
         // The existing resource is not yet flushed, but validated.
         // Get the previous one via a second entity manager.
         $entityManager = $this->getEntityManager();
-        // Method create is deprecated: now, create it directly.
-        $secondEntityManager = new \Doctrine\Orm\EntityManager(
+        $secondEntityManager = \Doctrine\Orm\EntityManager::create(
             $entityManager->getConnection(),
-            $entityManager->getConfiguration()
+            $entityManager->getConfiguration(),
+            $entityManager->getEventManager()
         );
 
         /** @var \Omeka\Entity\Resource $prevResource */

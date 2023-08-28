@@ -47,7 +47,7 @@ return [
     ],
     'controllers' => [
         'invokables' => [
-            // TODO Controller HistoryChange is probably useless: check if it can be removed.
+            // TODO Controller HistoryChangeController is probably useless: check if it can be removed.
             Controller\Admin\HistoryChangeController::class => Controller\Admin\HistoryChangeController::class,
             Controller\Admin\IndexController::class => Controller\Admin\IndexController::class,
         ],

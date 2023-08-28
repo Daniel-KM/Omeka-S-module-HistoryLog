@@ -17,13 +17,28 @@ use Omeka\Entity\AbstractEntity;
  *
  * @todo Add operations batch create and batch update? Instead of import/export?
  *
+ * In sql, the first column of the index can be used too, so an index on entity_name
+ * is useless. The entity_id is never used alone, so no index for it.
+ *
  * @Entity
  * @Table(
  *     indexes={
- *         @Index(columns={"entity_id"}),
- *         @Index(columns={"entity_name"}),
- *         @Index(columns={"user_id"}),
- *         @Index(columns={"created"})
+ *         @Index(
+ *             name="idx_entity",
+ *             columns={"entity_name", "entity_id"}
+ *         ),
+ *         @Index(
+ *             name="idx_user_id",
+ *             columns={"user_id"}
+ *         ),
+ *         @Index(
+ *             name="idx_operation",
+ *             columns={"operation"}
+ *         ),
+ *         @Index(
+ *             name="idx_created",
+ *             columns={"created"}
+*          )
  *     }
  * )
  */

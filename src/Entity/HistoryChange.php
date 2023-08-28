@@ -22,7 +22,14 @@ use Omeka\Entity\AbstractEntity;
  * @Entity
  * @Table(
  *     indexes={
- *         @Index(columns={"field"})
+ *         @Index(
+ *             name="idx_event_id",
+ *             columns={"event_id"}
+ *         ),
+ *         @Index(
+ *             name="idx_field",
+ *             columns={"field"}
+ *         )
  *     }
  * )
  */

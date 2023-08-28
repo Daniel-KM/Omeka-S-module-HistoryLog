@@ -132,7 +132,7 @@ class HistoryEvent extends AbstractEntity
      *      type="datetime",
      *      nullable=false,
      *      options={
-     *          "default":"CURRENT_TIMESTAMP"
+     *          "default": "NOW()"
      *      }
      * )
      */

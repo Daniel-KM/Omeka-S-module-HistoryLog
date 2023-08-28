@@ -37,7 +37,8 @@ trait BuildQueryTrait
             if ($query[$fieldName] === null || $query[$fieldName] === '' || $query[$fieldName] === []) {
                 continue;
             }
-            $field = $this->scalarFields[$fieldName];
+            // Some query type fields are not scalar fields.
+            $field = $this->scalarFields[$fieldName] ?? null;
             switch ($argType) {
                 default:
                 case 'id':
@@ -82,11 +83,15 @@ trait BuildQueryTrait
                         'created_after' => ['gt', 'created'],
                         'created_before_on' => ['lte', 'created'],
                         'created_after_on' => ['gte', 'created'],
+                        'created_until' => ['lte', 'created'],
+                        'created_since' => ['gte', 'created'],
                         'modified' => ['eq', 'modified'],
                         'modified_before' => ['lt', 'modified'],
                         'modified_before_on' => ['lte', 'modified'],
                         'modified_after' => ['gt', 'modified'],
                         'modified_after_on' => ['gte', 'modified'],
+                        'modified_until' => ['lte', 'modified'],
+                        'modified_since' => ['gte', 'modified'],
                     ];
                     $dateGranularities = [
                         DateTime::ISO8601,
@@ -97,15 +102,19 @@ trait BuildQueryTrait
                         '!Y-m',
                         '!Y',
                     ];
+                    $fieldDate = $dateSearches[$fieldName] ?? null;
+                    if (!$fieldDate) {
+                        break;
+                    }
                     foreach ($dateGranularities as $dateGranularity) {
-                        $date = DateTime::createFromFormat($dateGranularity, $query[$field]);
+                        $date = DateTime::createFromFormat($dateGranularity, $query[$fieldName]);
                         if (false !== $date) {
                             break;
                         }
                     }
                     $qb
-                        ->andWhere($expr->{$dateSearches[$field][0]} (
-                            sprintf("$entityAlias.%s", $dateSearches[$field][1]),
+                        ->andWhere($expr->{$fieldDate[0]} (
+                            $entityAlias . '.' . $fieldDate[1],
                             // If the date is invalid, pass null to ensure no results.
                             $this->createNamedParameter($qb, $date ?: null)
                         ));

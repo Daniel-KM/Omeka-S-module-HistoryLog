@@ -78,6 +78,8 @@ class HistoryChangeAdapter extends AbstractEntityAdapter
 
     public function buildQuery(QueryBuilder $qb, array $query): void
     {
+        // Search history log changes or events.
+
         $this->buildQueryFields($qb, $query);
 
         /** @var \HistoryLog\Api\Adapter\HistoryEventAdapter $eventAdapter */

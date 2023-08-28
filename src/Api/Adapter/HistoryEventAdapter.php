@@ -52,6 +52,8 @@ class HistoryEventAdapter extends AbstractEntityAdapter
         'created_after' => 'datetime',
         'created_before_on' => 'datetime',
         'created_after_on' => 'datetime',
+        'created_until' => 'datetime',
+        'created_since' => 'datetime',
     ];
 
     public function getResourceName()

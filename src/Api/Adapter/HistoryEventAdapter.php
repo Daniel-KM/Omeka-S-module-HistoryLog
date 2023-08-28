@@ -774,9 +774,9 @@ SQL;
         $determineHistoryAction = function ($prevData, $newData): ?string {
             if ($prevData === $newData) {
                 return HistoryChange::ACTION_NONE;
-            } elseif (!$prevData) {
+            } elseif ($prevData === null) {
                 return HistoryChange::ACTION_CREATE;
-            } elseif (!$newData) {
+            } elseif ($newData === null) {
                 return HistoryChange::ACTION_DELETE;
             } else {
                 return HistoryChange::ACTION_UPDATE;
@@ -1128,7 +1128,7 @@ SQL;
      * The representation is not used for now because the api cannot be used to
      * undelete a resource keeping its original id.
      *
-     * @todo use a representation?
+     * @todo Use a representation?
      */
     protected function prepareChangesDataUndelete(HistoryEvent $historyEvent, ErrorStore $errorStore): array
     {

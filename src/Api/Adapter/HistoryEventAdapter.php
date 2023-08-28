@@ -78,7 +78,37 @@ class HistoryEventAdapter extends AbstractEntityAdapter
 
     public function buildQuery(QueryBuilder $qb, array $query): void
     {
-        $this->buildQueryFields($qb, $query);
+        $hasQueryField = $this->buildQueryFields($qb, $query);
+
+        // Get the distinct entities.
+        // Select the first event by default, else use "max" or "last".
+        if (!empty($query['distinct_entities'])) {
+            $subQuery = $query;
+            unset($subQuery['distinct_entities'], $subQuery['sort_by'], $subQuery['sort_order'], $subQuery['offset'], $subQuery['limit'], $subQuery['page'], $subQuery['per_page']);
+            $distinctOrder = in_array(strtolower((string) $query['distinct_entities']), ['max', 'last']) ? 'MAX' : 'MIN';
+            $expr = $qb->expr();
+            // There can be only one "omeka_root", but it is needed to build
+            // the  subquery.
+            $subQb = $this->getEntityManager()
+                ->createQueryBuilder()
+                ->select($distinctOrder . '(omeka_root.id)')
+                ->from(HistoryEvent::class, 'omeka_root');
+            // Append the default query too to quick process.
+            $this->buildBaseQuery($subQb, $subQuery);
+            $hasQueryField ? $this->buildQueryFields($subQb, $subQuery) : null;
+            $subQb->groupBy('omeka_root.entityName', 'omeka_root.entityId');
+            // Ideally a join with select, but not possible in doctrine.
+            // INNER JOIN (SELECT MIN(h0_.id) AS id, h0_.entity_name, h0_.entity_id AS entity FROM history_event h0_ GROUP BY entity_name, entity_id) h1_ ON h1_.id = h0_.id
+            // $historyEventsAlias = $this->createAlias();
+            // $qb->innerJoin('history_events', $historyEventsAlias, \Doctrine\ORM\Query\Expr\Join::WITH, $expr->eq("$historyEventsAlias.id", 'omeka_root.id'));
+            $qb
+                ->andWhere($expr->in('omeka_root.id', str_replace('omeka_root', 'omeka_root_sub_he', $subQb->getDQL())));
+            $qbParameters = $qb->getParameters();
+            /** @var \Doctrine\ORM\Query\Parameter $subParameter */
+            foreach ($subQb->getParameters() as $subParameter) {
+                $qbParameters->add($subParameter);
+            }
+        }
     }
 
     public function hydrate(
@@ -1540,6 +1570,4 @@ SQL;
         $resourceClasses = array_map('intval', $this->getServiceLocator()->get('Omeka\Connection')->executeQuery($qb)->fetchAllKeyValue());
         return $resourceClasses;
     }
-
-
 }

@@ -74,7 +74,9 @@ $this->htmlElement('body')->appendAttribute('class', 'history-logs history-event
     <thead>
         <tr>
             <th>
+                <?php if ($userIsAllowed(\HistoryLog\Api\Adapter\HistoryEventAdapter::class, 'batch_update')): ?>
                 <input type="checkbox" class="select-all" aria-label="<?= $translate('Select all') ?>">
+                <?php endif; ?>
                 <?= $translate('Details') ?>
             </th>
             <?= $this->browse()->renderHeaderRow('history_events') ?>
@@ -84,11 +86,9 @@ $this->htmlElement('body')->appendAttribute('class', 'history-logs history-event
         <?php foreach ($historyEvents as $historyEvent): ?>
         <tr>
             <td>
-                <?php /*
-                <?php if ($userIsAllowed('Omeka\Api\Adapter\history eventAdapter', 'batch_update') && ($historyEvent->userIsAllowed('update') || $historyEvent->userIsAllowed('delete'))): ?>
+                <?php if ($historyEvent->userIsAllowed('update') || $historyEvent->userIsAllowed('delete')): ?>
                 <input type="checkbox" name="resource_ids[]" value="<?= $historyEvent->id() ?>" aria-label="<?= $translate('Select history event') ?>">
                 <?php endif; ?>
-                */ ?>
                 <?= $this->partial('common/history-log-changes', [
                     'historyEvent' => $historyEvent,
                     'resource' => $historyEvent,

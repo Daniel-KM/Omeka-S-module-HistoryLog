@@ -35,7 +35,7 @@ $this->htmlElement('body')->appendAttribute('class', 'history-logs history-event
     <dt><?= $translate('Operation') ?></dt>
     <dd><?= $historyEvent->displayOperation() ?></dd>
     <dt><?= $translate('Date') ?></dt>
-    <dd><?= $i18n->dateFormat($historyEvent->created()) ?></dd>
+    <dd><?= $i18n->dateFormat($historyEvent->created(), 'medium', 'medium') ?></dd>
 </dl>
 
 <?= $historyEvent->displayChanges() ?>

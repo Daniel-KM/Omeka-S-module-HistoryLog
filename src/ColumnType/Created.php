@@ -2,6 +2,9 @@
 
 namespace HistoryLog\ColumnType;
 
+use Laminas\View\Renderer\PhpRenderer;
+use Omeka\Api\Representation\AbstractEntityRepresentation;
+
 class Created extends \Omeka\ColumnType\Created
 
 {
@@ -16,5 +19,10 @@ class Created extends \Omeka\ColumnType\Created
             'history_events',
             'history_changes',
         ];
+    }
+
+    public function renderContent(PhpRenderer $view, AbstractEntityRepresentation $resource, array $data) : ?string
+    {
+        return $view->i18n()->dateFormat($resource->created(), 'medium', 'medium');
     }
 }

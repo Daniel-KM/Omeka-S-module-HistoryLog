@@ -60,6 +60,10 @@ class HistoryChangeRepresentation extends AbstractEntityRepresentation
                     ? true
                     : (in_array($this->resource->getValue(), [false, 'false', 0, '0'], true) ? false : null);
                 break;
+            case 'o:created':
+            case 'o:modified':
+                $data = $this->resource->getValue();
+                break;
             case 'o:owner':
                 $data = [
                     'o:id' => (int) $this->resource->getValue(),

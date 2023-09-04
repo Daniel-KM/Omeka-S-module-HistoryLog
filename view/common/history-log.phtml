@@ -41,7 +41,7 @@ $translate = $plugins->get('translate');
                 </div>
                 <?php endif; ?>
             </td>
-            <td><?= $i18n->dateFormat($historyEvent->created()) ?></td>
+            <td><?= $i18n->dateFormat($historyEvent->created(), 'medium', 'medium') ?></td>
             <td><?= $historyEvent->displayUser() ?></td>
         </tr>
         <?php endforeach; ?>

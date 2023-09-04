@@ -13,4 +13,12 @@
     .browse .history-log .operation span.tablesaw-cell-content {
         display: block;
     }
+
+    table#table-history-log tr table {
+        border-top: 0;
+        border-bottom: 0;
+    }
+    table#table-history-log tr table tbody tr:last-of-type td {
+        border-bottom: 0;
+    }
 }

@@ -9,7 +9,6 @@
  */
 
 $plugins = $this->getHelperPluginManager();
-$url = $plugins->get('url');
 $assetUrl = $plugins->get('assetUrl');
 $translate = $plugins->get('translate');
 
@@ -21,20 +20,20 @@ $this->htmlElement('body')->appendAttribute('class', 'history-logs history-event
 
 <?= $this->pageTitle(sprintf($translate('Last changes for %s #%d'), $entityName, $entityId), 1, $translate('History logs')) ?>
 
-<?php if ($historyEvents): ?>
-    <?= $this->partial('common/history-log') ?>
+<div id="page-actions">
     <?php if ($entity): ?>
-    <p><?= $entity->link($translate('Go back to the resource.')) ?></p>
-    <?php else: ?>
+    <?= $entity->link($translate('Show resource'), null, ['class' => 'button']) ?>
+    <?php endif; ?>
+</div>
+
+<?php if ($historyEvents): ?>
+    <?php if (!$entity): ?>
     <p><?= $translate('This resource was deleted.') ?></p>
     <?php endif; ?>
+    <?= $this->partial('common/history-log') ?>
 <?php else: ?>
     <p><?= $translate('No log for this record.') ?></p>
-    <?php if ($entity): ?>
-    <p><?= $entity->link($translate('Go back to the resource.')) ?></p>
-    <?php else: ?>
+    <?php if (!$entity): ?>
     <p><?= $translate('This resource does not exist and is not logged.') ?></p>
     <?php endif; ?>
 <?php endif; ?>
-
-<p><?= sprintf($translate('Go back to the %1$shistory logs%2$s.'), '<a href="' . $url('admin/history-log') . '">', '</a>') ?></p>

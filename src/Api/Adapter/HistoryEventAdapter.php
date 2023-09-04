@@ -900,7 +900,7 @@ SQL;
                 'o:field' => 'o:thumbnail',
                 'o:data' => [
                     'value' => $newValue,
-                    'uri' => $newTemplate->getName(),
+                    'uri' => $newThumbnail->getName(),
                 ],
             ];
         }

@@ -36,6 +36,10 @@ TODO:
 - [ ] Sites and site pages
 - [ ] Other modules (mainly Annotate)
 
+FIXES:
+
+- [ ] Fix loop when removing more than 10 medias
+
 **This readme lists features not yet implemented in Omeka S.**
 
 

@@ -12,6 +12,7 @@ use Generic\AbstractModule;
 use HistoryLog\Entity\HistoryEvent;
 use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
+use Laminas\Mvc\MvcEvent;
 use Omeka\Stdlib\Message;
 
 /**
@@ -28,6 +29,50 @@ use Omeka\Stdlib\Message;
 class Module extends AbstractModule
 {
     const NAMESPACE = __NAMESPACE__;
+
+    public function onBootstrap(MvcEvent $event): void
+    {
+        parent::onBootstrap($event);
+
+        /**
+         * @var \Omeka\Permissions\Acl $acl
+         * @see \Omeka\Service\AclFactory
+         */
+        $services = $this->getServiceLocator();
+        $acl = $services->get('Omeka\Acl');
+
+        $roles = $acl->getRoles();
+        $backendRoles = array_diff($roles, ['guest']);
+
+        $acl
+            // Admin part.
+            // Any back-end roles can read and search events.
+            // User lower than editor cannot delete.
+            ->allow(
+                $backendRoles,
+                [
+                    \HistoryLog\Controller\Admin\HistoryChangeController::class,
+                    \HistoryLog\Controller\Admin\IndexController::class,
+                ]
+            )
+            ->allow(
+                $backendRoles,
+                [
+                    \HistoryLog\Api\Adapter\HistoryChangeAdapter::class,
+                    \HistoryLog\Api\Adapter\HistoryEventAdapter::class,
+                ],
+                ['search', 'read', 'create']
+            )
+            ->allow(
+                $backendRoles,
+                [
+                    \HistoryLog\Entity\HistoryChange::class,
+                    \HistoryLog\Entity\HistoryEvent::class,
+                ],
+                ['create', 'read']
+            )
+        ;
+    }
 
     public function attachListeners(SharedEventManagerInterface $sharedEventManager): void
     {

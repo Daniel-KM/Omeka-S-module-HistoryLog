@@ -208,7 +208,7 @@ class Module extends AbstractModule
             // The existing resource is not yet flushed, but validated.
             // Get the previous one via a second entity manager.
             $entityManager = $this->getServiceLocator()->get('Omeka\EntityManager');
-            $secondEntityManager = \Doctrine\Orm\EntityManager::create(
+            $secondEntityManager = \Doctrine\ORM\EntityManager::create(
                 $entityManager->getConnection(),
                 $entityManager->getConfiguration(),
                 $entityManager->getEventManager()

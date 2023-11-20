@@ -788,7 +788,7 @@ SQL;
         // The existing resource is not yet flushed, but validated.
         // Get the previous one via a second entity manager.
         $entityManager = $this->getEntityManager();
-        $secondEntityManager = \Doctrine\Orm\EntityManager::create(
+        $secondEntityManager = \Doctrine\ORM\EntityManager::create(
             $entityManager->getConnection(),
             $entityManager->getConfiguration(),
             $entityManager->getEventManager()

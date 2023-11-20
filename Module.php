@@ -80,7 +80,7 @@ class Module extends AbstractModule
         // Use entity events (persist, update, remove) to be sure that event is
         // logged when api is used.
         // Of course, direct sql queries are not logged.
-        // TODO Genericize with Resource, that is available as identifier.
+        // TODO Genericize with Resource, that is available as identifier (when Annotate will be cleaned).
         /** @see \Omeka\Db\Event\Subscriber\Entity::trigger() */
         $entities = [
             \Omeka\Api\Adapter\ItemAdapter::class => \Omeka\Entity\Item::class,
@@ -90,7 +90,7 @@ class Module extends AbstractModule
         ];
         // These events occurs during entity manager flush().
         foreach ($entities as $adapter => $entityClass) {
-            // Create event only if really flushed.
+            // Create event only if really flushed, so after other listeners.
             $sharedEventManager->attach(
                 $entityClass,
                 'entity.persist.post',
@@ -290,8 +290,8 @@ class Module extends AbstractModule
 
         try {
             // It is not possible to know inside event "entity.update.pre" if
-            // this is a batch update or not. So create the event in the first
-            // step, then update it with the changes.
+            // this is a batch update or not. So create the history log event in
+            // the first step, then update it with the changes.
             // TODO Don't create event if nothing is updated, in particular during batch update, except in this case.
             if ($isBatchUpdate) {
                 $data['previousResource'] = $entities['entity.update.pre'][$identifier]['previousResource'];

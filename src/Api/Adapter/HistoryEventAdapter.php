@@ -856,7 +856,7 @@ SQL;
                 'o:field' => 'o:owner',
                 'o:data' => [
                     'value' => $newValue,
-                    'uri' => $newOwner->getEmail(),
+                    'uri' => $newOwner ? $newOwner->getEmail() : null,
                 ],
             ];
         }
@@ -885,7 +885,7 @@ SQL;
                 'o:field' => 'o:resource_template',
                 'o:data' => [
                     'value' => $newValue,
-                    'uri' => $newTemplate->getLabel(),
+                    'uri' => $newTemplate ? $newTemplate->getLabel() : null,
                 ],
             ];
         }
@@ -900,7 +900,7 @@ SQL;
                 'o:field' => 'o:thumbnail',
                 'o:data' => [
                     'value' => $newValue,
-                    'uri' => $newThumbnail->getName(),
+                    'uri' => $newThumbnail ? $newThumbnail->getName() : null,
                 ],
             ];
         }

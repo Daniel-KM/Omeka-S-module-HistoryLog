@@ -21,6 +21,7 @@ $plugins = $services->get('ControllerPluginManager');
 $api = $plugins->get('api');
 $config = $services->get('Config');
 $settings = $services->get('Omeka\Settings');
+$translate = $plugins->get('translate');
 $connection = $services->get('Omeka\Connection');
 $messenger = $plugins->get('messenger');
 $entityManager = $services->get('Omeka\EntityManager');
@@ -71,4 +72,14 @@ SQL;
         'This is a beta version. Take care of your data.' // @translate
     );
     $messenger->addWarning($message);
+}
+
+if (version_compare($oldVersion, '3.4.10-beta-6', '<')) {
+    if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.51')) {
+        $message = new Message(
+            $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
+            'Common', '3.4.51'
+        );
+        throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
+    }
 }

@@ -46,7 +46,9 @@ FIXES:
 Installation
 ------------
 
-This module uses the optional module [Generic].
+See general end user documentation for [installing a module].
+
+This module requires the module [Common], that should be installed first.
 
 * From the zip
 
@@ -58,11 +60,8 @@ uncompress it in the `modules` directory.
 If the module was installed from the source, rename the name of the folder of
 the module to `HistoryLog`.
 
-Uncompress files and rename module folder `HistoryLog`.
 
 Then install it like any other Omeka module and follow the config instructions.
-
-See general end user documentation for [installing a module].
 
 
 Usage
@@ -149,14 +148,14 @@ Copyright
 ---------
 
 * Copyright 2014-2015 UCSC Library Digital Initiatives
-* Copyright Daniel Berthereau, 2015-2023 (see [Daniel-KM] on [GitLab])
+* Copyright Daniel Berthereau, 2015-2024 (see [Daniel-KM] on [GitLab])
 
 
 [History Log]: https://gitlab.com/Daniel-KM/Omeka-S-module-HistoryLog
 [Omeka S]: https://omeka.org/s
 [Omeka Classic]: https://omeka.org/classic
 [plugin History Log]: https://github.com/UCSCLibrary/HistoryLog
-[Generic]: https://gitlab.com/Daniel-KM/Omeka-S-module-Generic
+[Common]: https://gitlab.com/Daniel-KM/Omeka-S-module-Common
 [HistoryLog.zip]: https://github.com/Daniel-KM/Omeka-S-module-HistoryLog/releases
 [Installing a module]: https://omeka.org/s/docs/user-manual/modules/
 [OpenDocument Spreadsheet]: http://opendocumentformat.org/

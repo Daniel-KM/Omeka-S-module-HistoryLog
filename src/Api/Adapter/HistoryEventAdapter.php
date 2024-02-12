@@ -312,11 +312,9 @@ class HistoryEventAdapter extends AbstractEntityAdapter
         }
 
         /**
-         * @var \Omeka\Api\Adapter\AbstractResourceEntityAdapter $resourceAdapter
          * @var \Doctrine\ORM\EntityManager $entityManager
          * @var \Omeka\Entity\Resource $entity
          */
-        $resourceAdapter = $this->getAdapter($entityName);
         $entityManager = $this->getEntityManager();
         $connection = $entityManager->getConnection();
 
@@ -594,8 +592,10 @@ SQL;
         ];
         $action = $operationsToActions[$operation];
 
-        $classTerms = array_flip($this->getResourceClassIds());
-        $propertyTerms = array_flip($this->getPropertyIds());
+        /** @var \Common\Stdlib\EasyMeta $easyMeta */
+        $easyMeta = $this->getServiceLocator()->get('EasyMeta');
+        $classTerms = $easyMeta->resourceClassTerms();
+        $propertyTerms = $easyMeta->propertyTerms();;
 
         $result = [];
 
@@ -815,8 +815,10 @@ SQL;
 
         $newResource = $resource;
 
-        $classTerms = array_flip($this->getResourceClassIds());
-        $propertyTerms = array_flip($this->getPropertyIds());
+        /** @var \Common\Stdlib\EasyMeta $easyMeta */
+        $easyMeta = $this->getServiceLocator()->get('EasyMeta');
+        $classTerms = $easyMeta->resourceClassTerms();
+        $propertyTerms = $easyMeta->propertyTerms();;
 
         $prevValue = $prevResource->isPublic();
         $newValue = $newResource->isPublic();
@@ -1167,16 +1169,17 @@ SQL;
         $entityClass = array_search($entityName, HistoryEvent::LOGGABLES);
 
         /**
-         * @var \Omeka\Api\Adapter\AbstractResourceEntityAdapter $resourceAdapter
          * @var \Doctrine\ORM\EntityManager $entityManager
          * @var \Omeka\Entity\Resource $entity
+         * @var \Common\Stdlib\EasyMeta $easyMeta
          */
-        $resourceAdapter = $this->getAdapter($entityName);
         $entityManager = $this->getEntityManager();
         $connexion = $entityManager->getConnection();
+        $easyMeta = $this->getServiceLocator()->get('EasyMeta');
 
-        $propertyIds = $this->getPropertyIds();
-        $dataTypes = $this->getDataTypeNames();
+        $propertyIds = $easyMeta->propertyIds();
+        $dataTypes = $easyMeta->dataTypeNames();
+        $resourceClassIds = $easyMeta->resourceClassIds();
 
         // During deletion, all data are stored, so just refill them.
         // Set default values as sql values.
@@ -1258,7 +1261,7 @@ SQL;
                 case 'o:resource_class':
                     $term = $change->getValue();
                     if ($term) {
-                        $valueId = $this->getResourceClassIds()[$term] ?? null;
+                        $valueId = $resourceClassIds[$term] ?? null;
                         if ($valueId) {
                             $data['resource']['resource_class_id'] = $valueId;
                         } else {
@@ -1489,85 +1492,5 @@ SQL;
             'value_resource_id' => $valueResource ? (int) $valueResource->getId() : null,
             'value_annotation_id' => $valueAnnotation ? (int) $valueAnnotation->getId() : null,
         ];
-    }
-
-    /**
-     * Get all data type names.
-     *
-     * @return array Associative array of data type names by themselves.
-     */
-    protected function getDataTypeNames(): array
-    {
-        static $dataTypes;
-        if (is_null($dataTypes)) {
-            $dataTypes = $this->getServiceLocator()->get('Omeka\DataTypeManager')
-                ->getRegisteredNames();
-            $dataTypes = array_combine($dataTypes, $dataTypes);
-        }
-        return $dataTypes;
-    }
-
-    /**
-     * Get all property ids by term.
-     *
-     * @return array Associative array of ids by term.
-     */
-    protected function getPropertyIds(): array
-    {
-        static $properties;
-
-        if (is_array($properties)) {
-            return $properties;
-        }
-
-        $qb = $this->getServiceLocator()->get('Omeka\Connection')->createQueryBuilder();
-        $qb
-            ->select(
-                'DISTINCT CONCAT(vocabulary.prefix, ":", property.local_name) AS term',
-                'property.id AS id',
-                // Only the two first selects are needed, but some databases
-                // require "order by" or "group by" value to be in the select.
-                'vocabulary.id'
-            )
-            ->from('property', 'property')
-            ->innerJoin('property', 'vocabulary', 'vocabulary', 'property.vocabulary_id = vocabulary.id')
-            ->orderBy('vocabulary.id', 'asc')
-            ->addOrderBy('property.id', 'asc')
-            ->addGroupBy('property.id')
-        ;
-        $properties = array_map('intval', $this->getServiceLocator()->get('Omeka\Connection')->executeQuery($qb)->fetchAllKeyValue());
-        return $properties;
-    }
-
-    /**
-     * Get all resource classes by term.
-     *
-     * @return array Associative array of ids by term.
-     */
-    protected function getResourceClassIds(): array
-    {
-        static $resourceClasses;
-
-        if (is_array($resourceClasses)) {
-            return $resourceClasses;
-        }
-
-        $qb = $this->getServiceLocator()->get('Omeka\Connection')->createQueryBuilder();
-        $qb
-            ->select(
-                'DISTINCT CONCAT(vocabulary.prefix, ":", resource_class.local_name) AS term',
-                'resource_class.id AS id',
-                // Only the two first selects are needed, but some databases
-                // require "order by" or "group by" value to be in the select.
-                'vocabulary.id'
-            )
-            ->from('resource_class', 'resource_class')
-            ->innerJoin('resource_class', 'vocabulary', 'vocabulary', 'resource_class.vocabulary_id = vocabulary.id')
-            ->orderBy('vocabulary.id', 'asc')
-            ->addOrderBy('resource_class.id', 'asc')
-            ->addGroupBy('resource_class.id')
-        ;
-        $resourceClasses = array_map('intval', $this->getServiceLocator()->get('Omeka\Connection')->executeQuery($qb)->fetchAllKeyValue());
-        return $resourceClasses;
     }
 }

@@ -157,7 +157,7 @@ Copyright
 [plugin History Log]: https://github.com/UCSCLibrary/HistoryLog
 [Common]: https://gitlab.com/Daniel-KM/Omeka-S-module-Common
 [HistoryLog.zip]: https://github.com/Daniel-KM/Omeka-S-module-HistoryLog/releases
-[Installing a module]: https://omeka.org/s/docs/user-manual/modules/
+[installing a module]: https://omeka.org/s/docs/user-manual/modules/
 [OpenDocument Spreadsheet]: http://opendocumentformat.org/
 [LibreOffice]: https://www.libreoffice.org/
 [Flat OpenDocument Spreadsheet]: https://en.wikipedia.org/wiki/OpenDocument_technical_specification

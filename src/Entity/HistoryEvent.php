@@ -38,7 +38,7 @@ use Omeka\Entity\AbstractEntity;
  *         @Index(
  *             name="idx_created",
  *             columns={"created"}
-*          )
+ *         )
  *     }
  * )
  */

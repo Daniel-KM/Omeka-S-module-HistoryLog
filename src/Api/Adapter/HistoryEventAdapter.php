@@ -189,7 +189,7 @@ class HistoryEventAdapter extends AbstractEntityAdapter
                 ->setEntityId($entityId)
                 ->setEntityName($entityName)
                 ->setPartOf($partOf)
-                ->setUserId( $userId)
+                ->setUserId($userId)
                 ->setOperation($historyEventOperation)
                 ->setCreated(new DateTime('now'))
             ;
@@ -254,7 +254,7 @@ class HistoryEventAdapter extends AbstractEntityAdapter
         }
     }
 
-    public function validateEntity(EntityInterface $entity, ErrorStore $errorStore)
+    public function validateEntity(EntityInterface $entity, ErrorStore $errorStore): void
     {
         // A entity may not exist during reconstruction.
         /** @var \HistoryLog\Entity\HistoryEvent $entity */
@@ -478,7 +478,7 @@ SQL;
         }
 
         try {
-            $connection->transactional(function(Connection $connection) use ($sqls) {
+            $connection->transactional(function (Connection $connection) use ($sqls): void {
                 foreach ($sqls as $sql) {
                     $connection->executeStatement($sql);
                 }
@@ -595,7 +595,7 @@ SQL;
         /** @var \Common\Stdlib\EasyMeta $easyMeta */
         $easyMeta = $this->getServiceLocator()->get('EasyMeta');
         $classTerms = $easyMeta->resourceClassTerms();
-        $propertyTerms = $easyMeta->propertyTerms();;
+        $propertyTerms = $easyMeta->propertyTerms();
 
         $result = [];
 
@@ -818,7 +818,7 @@ SQL;
         /** @var \Common\Stdlib\EasyMeta $easyMeta */
         $easyMeta = $this->getServiceLocator()->get('EasyMeta');
         $classTerms = $easyMeta->resourceClassTerms();
-        $propertyTerms = $easyMeta->propertyTerms();;
+        $propertyTerms = $easyMeta->propertyTerms();
 
         $prevValue = $prevResource->isPublic();
         $newValue = $newResource->isPublic();
@@ -1351,14 +1351,14 @@ SQL;
                         $data['media']['renderer'] = empty($value['o:renderer']) ? 'NULL' : $connexion->quote($value['o:renderer']);
                         $data['media']['source'] = empty($value['o:source']) ? 'NULL' : $connexion->quote($value['o:source']);
                         $data['media']['sha256'] = empty($value['o:sha256']) ? 'NULL' : $connexion->quote($value['o:sha256']);
-                        $data['media']['size'] = isset($value['o:size']) && is_numeric($value['o:size']) ? (int) $value['o:size']: 'NULL';
+                        $data['media']['size'] = isset($value['o:size']) && is_numeric($value['o:size']) ? (int) $value['o:size'] : 'NULL';
                         $data['media']['has_original'] = in_array($value['o:has_original'], [true, 'true', 1, '1'], true)
                             ? 1
                             : (in_array($value['o:has_original'], [false, 'false', 0, '0'], true) ? 0 : 'NULL');
                         $data['media']['has_thumbnails'] = in_array($value['o:has_thumbnails'], [true, 'true', 1, '1'], true)
                             ? 1
                             : (in_array($value['o:has_thumbnails'], [false, 'false', 0, '0'], true) ? 0 : 'NULL');
-                        $data['media']['position'] = isset($value['o:position']) && is_numeric($value['o:position']) ? (int) $value['o:position']: 'NULL';
+                        $data['media']['position'] = isset($value['o:position']) && is_numeric($value['o:position']) ? (int) $value['o:position'] : 'NULL';
                     }
                     break;
 
@@ -1394,7 +1394,7 @@ SQL;
                             'For property "%1$s", a data type is missing.', // @translate
                             $field
                         ));
-                    } else if (!isset($dataTypes[$vType])) {
+                    } elseif (!isset($dataTypes[$vType])) {
                         $errorStore->addError($field, new Message(
                             'For property "%1$s", the data type "%2$s" does not exist.', // @translate
                             $field, $vType
@@ -1441,7 +1441,7 @@ SQL;
 
                 // Others.
 
-                default;
+                default:
                     $errorStore->addError($field, new Message(
                         'The field "#%1$s" does not exist anymore or is not managed currently.', // @translate
                         $field

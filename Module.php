@@ -173,7 +173,7 @@ class Module extends AbstractModule
         );
     }
 
-    public function handleEntityOperation(Event $event)
+    public function handleEntityOperation(Event $event): void
     {
         static $entities = [];
 

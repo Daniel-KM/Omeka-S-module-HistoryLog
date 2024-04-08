@@ -43,7 +43,7 @@ class HistoryChange extends AbstractEntity
      * ACTION_UPDATE: The resource metadata is updated.
      * ACTION_DELETE: The resource metadata is deleted.
      */
-    const ACTION_NONE= 'none'; // @translate
+    const ACTION_NONE = 'none'; // @translate
     const ACTION_CREATE = 'create'; // @translate
     const ACTION_UPDATE = 'update'; // @translate
     const ACTION_DELETE = 'delete'; // @translate

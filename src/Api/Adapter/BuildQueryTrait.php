@@ -28,7 +28,7 @@ trait BuildQueryTrait
     ): bool {
         $hasQueryField = false;
 
-        $entityAlias = $entityAlias ?? 'omeka_root';
+        $entityAlias ??= 'omeka_root';
         $queryFields = $queryTypeFields ?? $this->queryTypeFields ?? [];
 
         $expr = $qb->expr();

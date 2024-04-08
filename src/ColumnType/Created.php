@@ -6,7 +6,6 @@ use Laminas\View\Renderer\PhpRenderer;
 use Omeka\Api\Representation\AbstractEntityRepresentation;
 
 class Created extends \Omeka\ColumnType\Created
-
 {
     public function getLabel() : string
     {

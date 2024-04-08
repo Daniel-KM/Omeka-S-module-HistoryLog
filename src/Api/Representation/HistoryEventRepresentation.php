@@ -5,10 +5,10 @@ namespace HistoryLog\Api\Representation;
 use HistoryLog\Entity\HistoryEvent;
 use Omeka\Api\Exception\NotFoundException;
 use Omeka\Api\Representation\AbstractEntityRepresentation;
+use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\Api\Representation\AbstractResourceRepresentation;
 use Omeka\Api\Representation\UserRepresentation;
 use Omeka\Api\Request;
-use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
 use Omeka\Stdlib\ErrorStore;
 
 class HistoryEventRepresentation extends AbstractEntityRepresentation
@@ -190,7 +190,6 @@ class HistoryEventRepresentation extends AbstractEntityRepresentation
             return null;
         }
     }
-
 
     /**
      * Get the reference to the entity, including when entity was removed.

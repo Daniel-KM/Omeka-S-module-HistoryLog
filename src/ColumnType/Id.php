@@ -3,7 +3,6 @@
 namespace HistoryLog\ColumnType;
 
 class Id extends \Omeka\ColumnType\Id
-
 {
     public function getLabel() : string
     {

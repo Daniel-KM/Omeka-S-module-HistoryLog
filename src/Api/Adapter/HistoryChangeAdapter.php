@@ -163,7 +163,7 @@ class HistoryChangeAdapter extends AbstractEntityAdapter
         }
     }
 
-    public function validateEntity(EntityInterface $entity, ErrorStore $errorStore)
+    public function validateEntity(EntityInterface $entity, ErrorStore $errorStore): void
     {
         /** @var \HistoryLog\Entity\HistoryChange $change */
 

@@ -6,7 +6,6 @@ if (!class_exists(\Common\TraitModule::class)) {
     require_once dirname(__DIR__) . '/Common/TraitModule.php';
 }
 
-use Common\Stdlib\PsrMessage;
 use Common\TraitModule;
 use HistoryLog\Entity\HistoryEvent;
 use Laminas\EventManager\Event;
@@ -41,10 +40,10 @@ class Module extends AbstractModule
         $services = $this->getServiceLocator();
         $translate = $services->get('ControllerPluginManager')->get('translate');
 
-        if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.51')) {
+        if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.55')) {
             $message = new \Omeka\Stdlib\Message(
                 $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
-                'Common', '3.4.51'
+                'Common', '3.4.55'
             );
             throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
         }

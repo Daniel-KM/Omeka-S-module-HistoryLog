@@ -9,7 +9,7 @@ use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
  * HistoryLog full item log show page.
  *
  * @copyright Copyright 2014 UCSC Library Digital Initiatives
- * @copyright 2015-2023 Daniel Berthereau
+ * @Copyright 2015-2024 Daniel Berthereau
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
  */
 class HistoryLog extends AbstractHelper
@@ -23,7 +23,7 @@ class HistoryLog extends AbstractHelper
      * @param int $limit The maximum number of log entries to retrieve.
      * @return string An html table of requested log information.
      */
-    public function showlog($entity, int $limit = 0): string
+    public function __invoke($entity, int $limit = 0): string
     {
         if (empty($entity)) {
             return '';

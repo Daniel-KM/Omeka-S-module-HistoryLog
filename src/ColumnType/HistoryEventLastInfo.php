@@ -49,7 +49,7 @@ class HistoryEventLastInfo implements ColumnTypeInterface
          * @var \Omeka\Api\Representation\AbstractResourceEntityRepresentation $resource
          * @var \HistoryLog\Api\Representation\HistoryEventRepresentation $historyEvent
          */
-        $historyEvent = $view->historyLastEvent($resource);
+        $historyEvent = $view->historyLog($resource, 1);
         if (!$historyEvent) {
             return null;
         }

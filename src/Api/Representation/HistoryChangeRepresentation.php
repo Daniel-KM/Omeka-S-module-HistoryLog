@@ -22,7 +22,7 @@ class HistoryChangeRepresentation extends AbstractEntityRepresentation
     {
         return [
             'o:id' => $this->id(),
-            'o-history-log:event' => $this->event()->getReference(),
+            'o-history-log:event' => $this->event()->getReference()->jsonSerialize(),
             'o-history-log:action' => $this->action(),
             'o:field' => $this->field(),
             'o:data' => $this->data(),

@@ -202,7 +202,7 @@ class HistoryEventRepresentation extends AbstractEntityRepresentation
         if ($entity) {
             return [
                 '@type' => $entity->getJsonLdType(),
-            ] + $entity->getReference();
+            ] + $entity->getReference()->jsonSerialize();
         }
 
         $jsonTypes = [
@@ -228,7 +228,7 @@ class HistoryEventRepresentation extends AbstractEntityRepresentation
         if ($partOf) {
             return [
                 '@type' => $partOf->getJsonLdType(),
-            ] + $partOf->getReference();
+            ] + $partOf->getReference()->jsonSerialize();
         }
 
         $partOf = $this->resource->getPartOf();
@@ -260,7 +260,7 @@ class HistoryEventRepresentation extends AbstractEntityRepresentation
         if ($user) {
             return [
                 '@type' => 'o:User',
-            ] + $user->getReference();
+            ] + $user->getReference()->jsonSerialize();
         }
 
         $user = $this->resource->getUser();

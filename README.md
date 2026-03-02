@@ -148,7 +148,9 @@ Copyright
 ---------
 
 * Copyright 2014-2015 UCSC Library Digital Initiatives
-* Copyright Daniel Berthereau, 2015-2024 (see [Daniel-KM] on [GitLab])
+* Copyright Daniel Berthereau, 2015-2026 (see [Daniel-KM] on [GitLab])
+
+This module is a rewrite of UC Santa Cruz University Library's Omeka 2 plugin.
 
 
 [History Log]: https://gitlab.com/Daniel-KM/Omeka-S-module-HistoryLog

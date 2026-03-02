@@ -3,7 +3,9 @@
 namespace HistoryLog;
 
 if (!class_exists('Common\TraitModule', false)) {
-    require_once dirname(__DIR__) . '/Common/TraitModule.php';
+    require_once file_exists(dirname(__DIR__) . '/Common/src/TraitModule.php')
+        ? dirname(__DIR__) . '/Common/src/TraitModule.php'
+        : dirname(__DIR__) . '/Common/TraitModule.php';
 }
 
 use Common\TraitModule;
@@ -20,7 +22,7 @@ use Omeka\Module\AbstractModule;
  * modifying items, collections and files.
  *
  * @copyright UCSC Library Digital Initiatives, 2014
- * @copyright Daniel Berthereau, 2015-2025
+ * @copyright Daniel Berthereau, 2015-2026
  * @license https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
  */
 
@@ -29,10 +31,6 @@ class Module extends AbstractModule
     use TraitModule;
 
     const NAMESPACE = __NAMESPACE__;
-
-    protected $dependencies = [
-        'Common',
-    ];
 
     protected function preInstall(): void
     {

@@ -9,7 +9,7 @@ use Omeka\Api\Representation\AbstractResourceEntityRepresentation;
  * HistoryLog full item log show page.
  *
  * @copyright Copyright 2014 UCSC Library Digital Initiatives
- * @Copyright 2015-2024 Daniel Berthereau
+ * @copyright 2015-2026 Daniel Berthereau
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GNU GPLv3
  */
 class HistoryLog extends AbstractHelper

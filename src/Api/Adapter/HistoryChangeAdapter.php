@@ -99,7 +99,9 @@ class HistoryChangeAdapter extends AbstractEntityAdapter
         ErrorStore $errorStore
     ): void {
         /** @var \HistoryLog\Entity\HistoryChange $entity */
+
         // History Events and Changes are not updatable.
+
         if ($request->getOperation() === Request::CREATE) {
             $data = $request->getContent();
 
@@ -108,7 +110,8 @@ class HistoryChangeAdapter extends AbstractEntityAdapter
             if (!empty($data['o-history-log:event'])) {
                 if (is_array($data['o-history-log:event'])) {
                     if (!empty($data['o-history-log:event']['o:id'])) {
-                        $event = $this->getAdapter('history_events')->findEntity($data['o-history-log:event']['o:id']);
+                        $entityManager = $this->getEntityManager();
+                        $event = $entityManager->find(\HistoryLog\Entity\HistoryEvent::class, $data['o-history-log:event']['o:id']);
                     }
                 } elseif ($data['o-history-log:event'] instanceof HistoryEvent) {
                     $event = $data['o-history-log:event'];

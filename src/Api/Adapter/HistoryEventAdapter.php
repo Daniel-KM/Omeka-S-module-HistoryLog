@@ -519,22 +519,13 @@ SQL;
         if (!$name || !$id) {
             return null;
         }
-        $entityToApiNames = [
-            'items' => 'items',
-            'media' => 'media',
-            'item_sets' => 'item_sets',
-            'o:Item' => 'items',
-            'o:Media' => 'media',
-            'o:ItemSet' => 'item_sets',
-        ];
-        if (!isset($entityToApiNames[$name])) {
-            return null;
-        }
-        try {
-            return $this->getAdapter($entityToApiNames[$name])->findEntity(['id' => $id]);
-        } catch (Exception\NotFoundException $e) {
-            return null;
-        }
+        /** @var \Common\Stdlib\EasyMeta $easyMeta */
+        $easyMeta = $this->getServiceLocator()->get('Common\EasyMeta');
+        // TODO Only resource classes are checked for now, not site pages.
+        $entityClass = $easyMeta->entityResourceClass($name);
+        return $entityClass
+            ? $this->getEntityManager()->find($entityClass, $id)
+            : null;
     }
 
     /**

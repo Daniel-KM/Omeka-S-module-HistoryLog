@@ -21,7 +21,7 @@ use Omeka\Stdlib\Message;
  * modifying items, collections and files.
  *
  * @copyright UCSC Library Digital Initiatives, 2014
- * @copyright Daniel Berthereau, 2015-2024
+ * @copyright Daniel Berthereau, 2015-2025
  * @license https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html
  */
 
@@ -40,10 +40,10 @@ class Module extends AbstractModule
         $services = $this->getServiceLocator();
         $translate = $services->get('ControllerPluginManager')->get('translate');
 
-        if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.55')) {
+        if (!method_exists($this, 'checkModuleActiveVersion') || !$this->checkModuleActiveVersion('Common', '3.4.81')) {
             $message = new \Omeka\Stdlib\Message(
                 $translate('The module %1$s should be upgraded to version %2$s or later.'), // @translate
-                'Common', '3.4.55'
+                'Common', '3.4.81'
             );
             throw new \Omeka\Module\Exception\ModuleCannotInstallException((string) $message);
         }
@@ -333,10 +333,10 @@ class Module extends AbstractModule
                 }
             }
         } catch (\Exception $e) {
-            $services->get('Omeka\Logger')->err(new Message(
-                'Unable to store history log when deleting resource #%1$s: %2$s', // @translate
-                $resource->getId(), $e
-            ));
+            $services->get('Omeka\Logger')->err(
+                'Unable to store history log when deleting resource #{resource_id}: {exception}', // @translate
+                ['resource_id' => $resource->getId(), 'exception' => $e]
+            );
         }
     }
 

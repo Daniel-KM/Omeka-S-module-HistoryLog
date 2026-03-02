@@ -584,7 +584,7 @@ SQL;
         $action = $operationsToActions[$operation];
 
         /** @var \Common\Stdlib\EasyMeta $easyMeta */
-        $easyMeta = $this->getServiceLocator()->get('EasyMeta');
+        $easyMeta = $this->getServiceLocator()->get('Common\EasyMeta');
         $classTerms = $easyMeta->resourceClassTerms();
         $propertyTerms = $easyMeta->propertyTerms();
 
@@ -807,7 +807,7 @@ SQL;
         $newResource = $resource;
 
         /** @var \Common\Stdlib\EasyMeta $easyMeta */
-        $easyMeta = $this->getServiceLocator()->get('EasyMeta');
+        $easyMeta = $this->getServiceLocator()->get('Common\EasyMeta');
         $classTerms = $easyMeta->resourceClassTerms();
         $propertyTerms = $easyMeta->propertyTerms();
 
@@ -1166,7 +1166,7 @@ SQL;
          */
         $entityManager = $this->getEntityManager();
         $connexion = $entityManager->getConnection();
-        $easyMeta = $this->getServiceLocator()->get('EasyMeta');
+        $easyMeta = $this->getServiceLocator()->get('Common\EasyMeta');
 
         $propertyIds = $easyMeta->propertyIds();
         $dataTypes = $easyMeta->dataTypeNames();

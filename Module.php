@@ -63,10 +63,18 @@ class Module extends AbstractModule
         $roles = $acl->getRoles();
         $backendRoles = array_diff($roles, ['guest']);
 
+        // Ensure entity resources are registered before setting
+        // rules (may not be loaded yet during bootstrap).
+        foreach ([
+            \HistoryLog\Entity\HistoryChange::class,
+            \HistoryLog\Entity\HistoryEvent::class,
+        ] as $entityClass) {
+            if (!$acl->hasResource($entityClass)) {
+                $acl->addResource($entityClass);
+            }
+        }
+
         $acl
-            // Admin part.
-            // Any back-end roles can read and search events.
-            // User lower than editor cannot delete.
             ->allow(
                 $backendRoles,
                 [

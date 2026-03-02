@@ -166,7 +166,7 @@ class HistoryLog_Form_Search extends Omeka_Form
             'required' => false,
         ]);
 
-        if (version_compare(OMEKA_VERSION, '2.2.1') >= 0) {
+        if (version_compare(\Omeka\Module::VERSION, '2.2.1') >= 0) {
             $this->addElement('hash', 'history_log_token');
         }
 

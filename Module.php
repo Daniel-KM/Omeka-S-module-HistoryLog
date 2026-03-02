@@ -2,7 +2,7 @@
 
 namespace HistoryLog;
 
-if (!class_exists(\Common\TraitModule::class)) {
+if (!class_exists('Common\TraitModule', false)) {
     require_once dirname(__DIR__) . '/Common/TraitModule.php';
 }
 
@@ -12,7 +12,6 @@ use Laminas\EventManager\Event;
 use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\Mvc\MvcEvent;
 use Omeka\Module\AbstractModule;
-use Omeka\Stdlib\Message;
 
 /**
  * History Log
@@ -245,6 +244,7 @@ class Module extends AbstractModule
 
             // Because of doctrine lazyness, load all related metadata here.
             // TODO Replace the check bar representation here and in adapter? But representation does not convert all linked entities, unlike json_decode(json_encode(), true).
+            // TODO Don't use json_decode(json_encode()).
             $secondResource->isPublic();
             $secondResource->getOwner();
             $secondResource->getResourceClass();

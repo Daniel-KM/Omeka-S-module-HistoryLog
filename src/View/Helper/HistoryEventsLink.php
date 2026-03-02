@@ -31,6 +31,7 @@ class HistoryEventsLink extends AbstractHelper
 
         $url = $plugins->get('url');
         $hyperlink = $plugins->get('hyperlink');
+        $translate = $plugins->get('translate');
         $translatePlural = $plugins->get('translatePlural');
         return $hyperlink(
             sprintf($translatePlural(

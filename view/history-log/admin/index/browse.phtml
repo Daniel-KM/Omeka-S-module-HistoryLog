@@ -48,17 +48,17 @@ $this->htmlElement('body')->appendAttribute('class', 'history-logs history-event
     <div class="batch-inputs">
         <select class="batch-actions-select" aria-label="<?= $translate('Batch actions') ?>">
             <option value="default"><?= $translate('Batch actions') ?></option>
-            <option value="update-selected" disabled="true"><?= $translate('Edit selected') ?></option>
+            <option value="update-selected" disabled="disabled"><?= $translate('Edit selected') ?></option>
             <?php if ($userIsAllowed('Omeka\Api\Adapter\history eventAdapter', 'batch_update_all')): ?>
             <option value="update-all"><?= $translate('Edit all') ?></option>
             <?php endif; ?>
-            <option value="delete-selected" disabled="true"><?= $translate('Delete selected') ?></option>
+            <option value="delete-selected" disabled="disabled"><?= $translate('Delete selected') ?></option>
             <?php if ($userIsAllowed('Omeka\Api\Adapter\history eventAdapter', 'batch_delete_all')): ?>
             <option value="delete-all"><?= $translate('Delete all') ?></option>
             <?php endif; ?>
         </select>
         <div class="batch-actions">
-            <button type="button" class="button default active" disabled="true"><?= $translate('Go') ?></button>
+            <button type="button" class="button default active" disabled="disabled"><?= $translate('Go') ?></button>
             <input type="submit" class="update-selected" name="update_selected" value="<?= $translate('Go') ?>" formaction="<?= $escape($url(null, ['action' => 'batch-edit'], ['query' => $returnQuery], true)) ?>">
             <input type="submit" class="update-all" name="update_all" value="<?= $translate('Go') ?>" formaction="<?= $escape($url(null, ['action' => 'batch-edit-all'], ['query' => $returnQuery], true)) ?>">
             <input type="hidden" name="query" class="batch-query" value="<?= $escape(json_encode($this->params()->fromQuery())) ?>">

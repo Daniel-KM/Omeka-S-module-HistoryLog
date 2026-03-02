@@ -34,7 +34,7 @@ trait BuildQueryTrait
         $expr = $qb->expr();
 
         foreach (array_intersect_key($queryFields, $query) as $fieldName => $argType) {
-            if ($query[$fieldName] === null || $query[$fieldName] === '' || $query[$fieldName] === []) {
+            if ($query[$fieldName] === '' || $query[$fieldName] === [] || $query[$fieldName] === null) {
                 continue;
             }
             // Some query type fields are not scalar fields.
@@ -75,7 +75,7 @@ trait BuildQueryTrait
 
                 case 'datetime':
                     /** @see \Omeka\Api\Adapter\AbstractResourceEntityAdapter::buildQuery() */
-                    // @TODO See log for a simpler and more complete doctrine search.
+                    // TODO See log for a simpler and more complete doctrine search.
                     // In Omeka Classic, used "since" and "until".
                     $dateSearches = [
                         'created' => ['eq', 'created'],

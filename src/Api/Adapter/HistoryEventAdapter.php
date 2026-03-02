@@ -386,66 +386,62 @@ class HistoryEventAdapter extends AbstractEntityAdapter
 
         $sqls = [];
         $sqls[] = <<<SQL
-INSERT INTO `resource` (`id`, `owner_id`, `resource_class_id`, `resource_template_id`, `thumbnail_id`, `title`, `is_public`, `created`, `modified`, `resource_type`)
-VALUES (
-    $entityId,
-    {$data['resource']['owner_id']},
-    {$data['resource']['resource_class_id']},
-    {$data['resource']['resource_template_id']},
-    {$data['resource']['thumbnail_id']},
-    NULL,
-    {$data['resource']['is_public']},
-    {$data['resource']['created']},
-    {$data['resource']['modified']},
-    $qEntityClass
-);
-
-SQL;
+            INSERT INTO `resource` (`id`, `owner_id`, `resource_class_id`, `resource_template_id`, `thumbnail_id`, `title`, `is_public`, `created`, `modified`, `resource_type`)
+            VALUES (
+                $entityId,
+                {$data['resource']['owner_id']},
+                {$data['resource']['resource_class_id']},
+                {$data['resource']['resource_template_id']},
+                {$data['resource']['thumbnail_id']},
+                NULL,
+                {$data['resource']['is_public']},
+                {$data['resource']['created']},
+                {$data['resource']['modified']},
+                $qEntityClass
+            );
+            SQL;
         switch ($entityName) {
             case 'items':
                 // TODO The primary media id should be set after media undeletion.
                 $sqls[] = <<<SQL
-INSERT INTO `item` (`id`) VALUES ($entityId);
-
-SQL;
+                    INSERT INTO `item` (`id`) VALUES ($entityId);
+                    SQL;
                 if (!empty($data['item']['item_item_set'])) {
-                    $sql = <<<SQL
-INSERT INTO `item_item_set` (`item_id`, `item_set_id`)
-VALUES
-SQL;
-                    $sql .= "($entityId, " . implode("), ($entityId, ", $data['item']['item_item_set']) . ');';
+                    $sql = <<<'SQL'
+                        INSERT INTO `item_item_set` (`item_id`, `item_set_id`)
+                        VALUES
+                        SQL;
+                    $sql .= "\n($entityId, " . implode("), ($entityId, ", $data['item']['item_item_set']) . ');';
                     $sqls[] = $sql;
                 }
                 break;
             case 'media':
                 $sqls[] = <<<SQL
-INSERT INTO `media` (`id`, `item_id`, `ingester`, `renderer`, `data`, `source`, `media_type`, `storage_id`, `extension`, `sha256`, `size`, `has_original`, `has_thumbnails`, `position`, `lang`, `alt_text`)
-VALUES (
-    $entityId, 
-    {$data['media']['item_id']},
-    {$data['media']['ingester']},
-    {$data['media']['renderer']},
-    {$data['media']['data']},
-    {$data['media']['source']},
-    {$data['media']['media_type']},
-    {$data['media']['storage_id']},
-    {$data['media']['extension']},
-    {$data['media']['sha256']},
-    {$data['media']['size']},
-    {$data['media']['has_original']},
-    {$data['media']['has_thumbnails']},
-    {$data['media']['position']},
-    {$data['media']['lang']},
-    {$data['media']['alt_text']}
-);
-
-SQL;
+                    INSERT INTO `media` (`id`, `item_id`, `ingester`, `renderer`, `data`, `source`, `media_type`, `storage_id`, `extension`, `sha256`, `size`, `has_original`, `has_thumbnails`, `position`, `lang`, `alt_text`)
+                    VALUES (
+                        $entityId,
+                        {$data['media']['item_id']},
+                        {$data['media']['ingester']},
+                        {$data['media']['renderer']},
+                        {$data['media']['data']},
+                        {$data['media']['source']},
+                        {$data['media']['media_type']},
+                        {$data['media']['storage_id']},
+                        {$data['media']['extension']},
+                        {$data['media']['sha256']},
+                        {$data['media']['size']},
+                        {$data['media']['has_original']},
+                        {$data['media']['has_thumbnails']},
+                        {$data['media']['position']},
+                        {$data['media']['lang']},
+                        {$data['media']['alt_text']}
+                    );
+                SQL;
                 break;
             case 'item_sets':
                 $sqls[] = <<<SQL
-INSERT INTO `item_set` (`id`, `is_open`) VALUES ($entityId, {$data['item_set']['is_open']});
-
-SQL;
+                    INSERT INTO `item_set` (`id`, `is_open`) VALUES ($entityId, {$data['item_set']['is_open']});
+                    SQL;
                 break;
             default:
                 break;
@@ -453,25 +449,23 @@ SQL;
 
         if (!empty($data['value'])) {
             $sql = <<<SQL
-INSERT INTO `value` (`resource_id`, `property_id`, `value_resource_id`, `type`, `lang`, `value`, `uri`, `is_public`, `value_annotation_id`)
-VALUES
-
-SQL;
+                INSERT INTO `value` (`resource_id`, `property_id`, `value_resource_id`, `type`, `lang`, `value`, `uri`, `is_public`, `value_annotation_id`)
+                VALUES
+                SQL;
             foreach ($data['value'] as $value) {
-                $sql .= <<<SQL
-(
-    $entityId, 
-    {$value['property_id']},
-    {$value['value_resource_id']},
-    {$value['type']},
-    {$value['lang']},
-    {$value['value']},
-    {$value['uri']},
-    {$value['is_public']},
-    {$value['value_annotation_id']}
-),
-
-SQL;
+                $sql .= PHP_EOL . <<<SQL
+                (
+                    $entityId,
+                    {$value['property_id']},
+                    {$value['value_resource_id']},
+                    {$value['type']},
+                    {$value['lang']},
+                    {$value['value']},
+                    {$value['uri']},
+                    {$value['is_public']},
+                    {$value['value_annotation_id']}
+                ),
+                SQL;
             }
             $sql .= trim($sql, ", \n") . ";\n";
             $sqls[] = $sql;

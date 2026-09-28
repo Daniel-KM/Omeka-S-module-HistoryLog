@@ -143,8 +143,12 @@ class HistoryEventAdapter extends AbstractEntityAdapter
                         \Omeka\Entity\ItemSet::class => 'item_sets',
                     ];
                     $data['o:entity'] = $dataEntity;
-                    $entityName = $dataEntity->getResourceId();
-                    $entityName = $entityToApiNames[$entityName] ?? null;
+                    // A resource knows its api name, so the resource types
+                    // added by modules are managed too: concepts (Thesaurus),
+                    // digital objects (DigitalObject), etc.
+                    $entityName = $dataEntity instanceof \Omeka\Entity\Resource
+                        ? $dataEntity->getResourceName()
+                        : ($entityToApiNames[$dataEntity->getResourceId()] ?? null);
                     $entityId = $dataEntity->getId();
                 }
             }

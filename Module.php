@@ -110,8 +110,16 @@ class Module extends AbstractModule
             \Omeka\Api\Adapter\ItemAdapter::class => \Omeka\Entity\Item::class,
             \Omeka\Api\Adapter\MediaAdapter::class => \Omeka\Entity\Media::class,
             \Omeka\Api\Adapter\ItemSetAdapter::class => \Omeka\Entity\ItemSet::class,
-            // \Omeka\Api\Adapter\ResourceAdapter::class => \Omeka\Entity\Resource::class,
+            // \Omeka\Api\Adapter\ResourceAdapter::class =>
+            // \Omeka\Entity\Resource::class,
         ];
+        // Optional modules with a specific resource type.
+        if (class_exists('DigitalObject\Module', false)) {
+            $entities[\DigitalObject\Api\Adapter\DigitalObjectAdapter::class] = \DigitalObject\Entity\DigitalObject::class;
+        }
+        if (class_exists('Thesaurus\Module', false)) {
+            $entities[\Thesaurus\Api\Adapter\ConceptAdapter::class] = \Thesaurus\Entity\Concept::class;
+        }
         // These events occurs during entity manager flush().
         foreach ($entities as $adapter => $entityClass) {
             // Create event only if really flushed, so after other listeners.

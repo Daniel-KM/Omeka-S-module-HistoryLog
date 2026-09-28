@@ -65,7 +65,7 @@ class HistoryLog extends AbstractHelper
 
         try {
             $entity = $this->api()->read($query['entity_name'], ['id' => $query['entity_id']])->getContent();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $entity = null;
         }
 

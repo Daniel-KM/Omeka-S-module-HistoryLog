@@ -338,7 +338,7 @@ class Module extends AbstractModule
                     $entities['entity.update.pre'][$identifier]['event_id'] = $historyEvent->getId();
                 }
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $services->get('Omeka\Logger')->err(
                 'Unable to store history log when deleting resource #{resource_id}: {exception}', // @translate
                 ['resource_id' => $resource->getId(), 'exception' => $e]

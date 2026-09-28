@@ -209,7 +209,7 @@ class IndexController extends AbstractActionController
             if ($entityName === 'resources') {
                 $entityName = $entity->resourceName();
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $entity = null;
         }
 

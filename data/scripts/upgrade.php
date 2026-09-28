@@ -57,7 +57,7 @@ if (version_compare($oldVersion, '3.4.10', '<')) {
     foreach ($sqls as $sql) {
         try {
             $connection->executeStatement($sql);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $services->get('Omeka\Logger')->err($e);
         }
     }

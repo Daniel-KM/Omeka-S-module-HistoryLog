@@ -481,7 +481,7 @@ class HistoryEventAdapter extends AbstractEntityAdapter
                     $connection->executeStatement($sql);
                 }
             });
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $message = new Message('An issue occurred during undeletion.'); // @translate
             $errorStore->addError('o:entity', $message);
             return null;

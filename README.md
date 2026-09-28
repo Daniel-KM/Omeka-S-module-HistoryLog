@@ -158,7 +158,7 @@ This module is a rewrite of UC Santa Cruz University Library's Omeka 2 plugin.
 [Omeka Classic]: https://omeka.org/classic
 [plugin History Log]: https://github.com/UCSCLibrary/HistoryLog
 [Common]: https://gitlab.com/Daniel-KM/Omeka-S-module-Common
-[HistoryLog.zip]: https://github.com/Daniel-KM/Omeka-S-module-HistoryLog/releases
+[HistoryLog.zip]: https://gitlab.com/Daniel-KM/Omeka-S-module-HistoryLog/-/releases
 [installing a module]: https://omeka.org/s/docs/user-manual/modules/
 [OpenDocument Spreadsheet]: http://opendocumentformat.org/
 [LibreOffice]: https://www.libreoffice.org/

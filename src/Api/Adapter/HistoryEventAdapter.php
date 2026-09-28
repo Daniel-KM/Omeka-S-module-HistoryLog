@@ -281,7 +281,7 @@ class HistoryEventAdapter extends AbstractEntityAdapter
             HistoryEvent::OPERATION_EXPORT,
         ])) {
             $errorStore->addError('o-history-log:operation', new Message(
-                'The history event does not manage operation "%s".', // @ŧranslate
+                'The history event does not manage operation "%s".', // @translate
                 $operation
             ));
         }
@@ -558,7 +558,7 @@ class HistoryEventAdapter extends AbstractEntityAdapter
                 break;
             default:
                 $errorStore->addError('o-history-log:operation', new Message(
-                    'The history event does not manage operation "%s".', // @ŧranslate
+                    'The history event does not manage operation "%s".', // @translate
                     $operation
                 ));
                 break;

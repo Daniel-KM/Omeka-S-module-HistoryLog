@@ -209,6 +209,7 @@ class HistoryEventRepresentation extends AbstractEntityRepresentation
             'items' => 'o:Item',
             'media' => 'o:Media',
             'item_sets' => 'o:ItemSet',
+            'digital_objects' => 'o:DigitalObject',
         ];
         $entityName = $this->entityName();
         return [
